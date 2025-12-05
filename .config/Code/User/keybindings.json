@@ -20,11 +20,6 @@
         "when": "terminalFocus"
     },
     {
-        "key": "ctrl+shit+q",
-        "command": "workbench.action.terminal.kill",
-        "when": "terminalFocus"
-    },
-    {
         "command": "workbench.action.toggleSidebarVisibility",
         "key": "ctrl+e"
     },
@@ -48,9 +43,16 @@
         "command": "workbench.action.quickOpenSelectNext",
         "when": "inQuickOpen"
     },
-    {
-        "key": "alt+k",
+    { "key": "alt+k",
         "command": "workbench.action.quickOpenSelectPrevious",
         "when": "inQuickOpen"
+    },
+    {
+        "key": "ctrl+f4",
+        "command": "workbench.action.closeActiveEditor"
+    },
+    {
+        "key": "ctrl+w",
+        "command": "-workbench.action.closeActiveEditor"
     },
 ]

@@ -1,0 +1,40 @@
+{
+    "include": [
+        "$HOME/.config/waybar/Modules",
+        "$HOME/.config/waybar/ModulesGroups"
+    ],
+    "layer": "top",
+    "reload_style_on_change":true,
+    "position": "top",
+    "hyprland/workspaces": {
+        "active-only": false,
+        "all-outputs": false,
+        "format": "{icon}",
+        "show-special": false,
+        "on-click": "activate",
+        "persistent-workspaces": {
+            "1": [],
+            "2": [],
+            "3": [],
+            "4": [],
+            "5": []
+        }
+    },
+    "custom/power": {
+        "format": "󰐥",
+        "on-click": "nwg-bar",
+        "tooltip": true,
+        "tooltip-format": "Power menu"
+    },
+    "modules-left": [
+        "hyprland/workspaces"
+    ],
+    "modules-center": [],
+    "modules-right": [
+    	"group/battery",
+        "clock",
+        "custom/power",
+        "tray",
+        "group/audio"
+    ]
+}

@@ -1,0 +1,39 @@
+{
+    "group/audio": {
+        "orientation": "inherit",
+        "drawer": {
+            "transition-duration": 500,
+            "children-class": "pulseaudio",
+            "transition-left-to-right": true
+        },
+        "modules": [
+            "pulseaudio",
+            "pulseaudio#microphone"
+        ]
+    },
+    "group/battery": {
+        "orientation": "inherit",
+        "drawer": {
+            "transition-duration": 500,
+            "children-class": "battery",
+            "transition-left-to-right": true
+        },
+        "modules": [
+            "battery",
+            "custom/tlp"
+        ]
+    },
+    "custom/tlp": {
+        "format": "{icon}",
+        "format-icons": {
+            "battery": " ",
+            "AC": "  "
+        },
+        "exec": "~/.config/hypr/scripts/tlp-ctl.sh get --json",
+        "exec-on-event": true,
+        "return-type": "json",
+        "interval": 20,
+        "on-click": "~/.config/hypr/scripts/tlp-ctl.sh toggle",
+        "on-click-right": "~/.config/hypr/scripts/tlp-ctl.sh set auto"
+    }
+}

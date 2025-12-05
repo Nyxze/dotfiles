@@ -1,0 +1,9 @@
+#!/usr/bin/bash bash
+
+if [[ -x ".tmuxrc" ]]; then
+	./.tmuxrc
+elif [[ -x "~/.tmuxrc" ]]; then
+	~/.tmuxrc
+fi
+clear
+

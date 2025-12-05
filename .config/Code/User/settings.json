@@ -277,5 +277,11 @@
   "git.replaceTagsWhenPull": true,
   "editor.minimap.enabled": false,
   "editor.cursorSurroundingLinesStyle": "all",
-  "editor.cursorSurroundingLines": 50
+  "editor.cursorSurroundingLines": 50,
+  "git.confirmSync": false,
+  "redhat.telemetry.enabled": true,
+  "explorer.confirmDelete": false,
+  "[dockercompose]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+  }
 }

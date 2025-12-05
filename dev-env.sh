@@ -36,7 +36,7 @@ copy_dir(){
     dirs=$(find . -maxdepth 1 -mindepth 1 -type d)
     for dir in $dirs; do
         #Clear dest before copying
-        run rm -rf $to/$dir
+    run rm -rf $to/$dir
         run cp -r $dir $to/$dir
     done
     popd > /dev/null
@@ -55,6 +55,13 @@ cd $work_dir
 
 log '------ DEV ENVIRONMENT SETUP ------'
 
-copy_dir .config $XDG_CONFIG_HOME
 
-copy_file install.sh .config
+# Configs
+copy_dir .config $XDG_CONFIG_HOME
+copy_dir .local $HOME/.local
+
+
+# Scripts 
+copy_file .zshrc  $HOME/.zshrc
+copy_file .zsh_profile $HOME/.zsh_profile
+

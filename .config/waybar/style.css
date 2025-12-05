@@ -1,0 +1,115 @@
+/* Color Palette Variables */
+@define-color charcoal #313739;
+@define-color light-gray #A0AAA9;
+@define-color bright-yellow #fffa00;
+@define-color feint-yellow #f8f546;
+@define-color olive-green #657136;
+@define-color medium-gray #7E807C;
+@define-color critical #E95460;
+/* rgb(65, 67, 72); */
+/* background-color: rgb(255, 240, 0);
+    box-shadow: rgb(255, 240, 0) 0px 0px 10px; 
+ rgb(56, 56, 56);
+*/
+
+/* --- Main Waybar Style --- */
+#waybar {
+    background: transparent;
+    color: @ligth-gray;
+    font-size: 16px;
+    border-radius: 0px;
+    margin: 4px 4px;
+}
+
+#waybar .module {
+    padding: 0 5px;
+    background-color: transparent;
+    border: none;
+}
+
+#workspaces.module button {
+    background-color: transparent;
+    font-weight: normal;
+    font-size: 18px;
+    padding: 0 12px;
+    margin: 4px 4px 0px 4px;
+    border-top: 4px solid transparent;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+#workspaces button.active {
+    color: @bright-yellow;
+    background-color: transparent;
+    padding: 0px 12px;
+    margin: 4px 4px 0px 4px;
+    border-radius: 3px;
+    border-top: 4px solid @bright-yellow;
+}
+
+#workspaces button:hover {
+    background-color: @olive-green;
+    color: @light-gray;
+    border: 1px solid @olive-green;
+}
+
+#battery.module {
+    background-color: transparent;
+    padding: 0 10px;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+#battery.module.charging {
+    color: rgba(26, 219, 26, 0.718);
+    background-color: transparent;
+
+}
+
+#battery.module.low,
+#battery.module.critical {
+    color: @critical;
+    background-color: transparent;
+}
+
+#battery.module.full {
+    background-color: transparent;
+    color: @light-gray;
+}
+
+#battery.module.discharging {
+    color: @olive-green;
+    background-color: transparent;
+}
+
+#battery.module:hover {
+    color: @charcoal;
+    background-color: @olive-green;
+    border: 1px solid @bright-yellow;
+    border-radius: 5px;
+}
+
+#clock.module {
+    background-color: transparent;
+    color: @feint-yellow;
+    padding: 0 10px;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+#clock.module:hover {
+    color: @charcoal;
+    background-color: @olive-green;
+    border: 1px solid @bright-yellow;
+    border-radius: 5px;
+}
+
+#clock.date {
+    color: @light-gray;
+    /* Use Light Gray for the less critical date information */
+    font-size: 90%;
+    /* Make the date slightly smaller than the time */
+}
+#custom-power.module {
+    font-size: 20px;
+}
