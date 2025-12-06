@@ -51,10 +51,10 @@ theme = endfield
 keybind = performable:ctrl+c=copy_to_clipboard
 keybind = performable:ctrl+v=paste_from_clipboard
 keybind = ctrl+F4=close_tab
-keybind = ctrl+n=new_tab
 cursor-style = bar
 cursor-style-blink = true
 keybind = ctrl+enter=unbind
-font-family = "HarmonyOS Sans"
+font-family = "NotoMono Nerd Font"
+font-size = 12
 shell-integration-features = ssh-terminfo, no-cursor
 gtk-titlebar = false

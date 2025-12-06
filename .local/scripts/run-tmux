@@ -1,5 +1,5 @@
-#!/usr/bin/bash bash
-
+#!/usr/bin/env bash
+echo "Test"
 if [[ -x ".tmuxrc" ]]; then
 	./.tmuxrc
 elif [[ -x "~/.tmuxrc" ]]; then

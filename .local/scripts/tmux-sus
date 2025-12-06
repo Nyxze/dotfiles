@@ -28,6 +28,6 @@ tmux new-session -ds $selected_name -c $selected
 switch
 
 # Call tmux-init scripts
-tmux send-keys -t $selected_name "tmux-init" ^M
+tmux send-keys -t $selected_name "run-tmux" ^M
 
 

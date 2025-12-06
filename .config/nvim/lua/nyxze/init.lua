@@ -1,0 +1,5 @@
+require 'nyxze.set'
+require 'nyxze.keymaps'
+require 'nyxze.commands'
+require 'nyxze.lsp'
+require 'nyxze.plugins_init'

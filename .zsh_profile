@@ -1,0 +1,28 @@
+
+source <(fzf --zsh)
+
+# ENV
+addToPath(){
+    if [[$PATH != $1]]
+    export $PATH=$PATH:$1
+}
+
+addToPathFront() {
+    if [[ ! -z "$2" ]] || [[ "$PATH" != *"$1"* ]]; then
+        export PATH=$1:$PATH
+    fi
+}
+
+addToPathFront $HOME/.local/scripts
+
+# Zsh stuff
+function zvm_config() {
+    ZVM_VI_INSERT_ESCAPE_BINDKEY=jj
+    ZVM_VI_HIGHLIGHT_FOREGROUND=#dfe3e3           # Hex value
+    ZVM_VI_HIGHLIGHT_BACKGROUND=#565656           # Hex value
+    ZVM_SYSTEM_CLIPBOARD_ENABLED=true
+}
+
+source /usr/share/zsh/plugins/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+
+

@@ -73,15 +73,6 @@ plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
 
-function zvm_config() {
-    ZVM_VI_INSERT_ESCAPE_BINDKEY=jj
-    ZVM_VI_HIGHLIGHT_FOREGROUND=#dfe3e3           # Hex value
-    ZVM_VI_HIGHLIGHT_BACKGROUND=#565656           # Hex value
-    ZVM_SYSTEM_CLIPBOARD_ENABLED=true
-}
-
-source /usr/share/zsh/plugins/zsh-vi-mode/zsh-vi-mode.plugin.zsh
-
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -110,12 +101,15 @@ fi
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+source ~/.zsh_profile
 
 # Load nvm
-#
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# nvm end
+
+
 # pnpm
 export PNPM_HOME="/home/nyxze/.local/share/pnpm"
 case ":$PATH:" in
@@ -123,5 +117,5 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
 source /usr/share/nvm/init-nvm.sh
-source <(fzf --zsh)

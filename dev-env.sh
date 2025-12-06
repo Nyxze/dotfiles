@@ -36,8 +36,8 @@ copy_dir(){
     dirs=$(find . -maxdepth 1 -mindepth 1 -type d)
     for dir in $dirs; do
         #Clear dest before copying
-    run rm -rf $to/$dir
-        run cp -r $dir $to/$dir
+        # run rm -rf $to/$dir
+        run cp -rf "$dir/." $to/$dir
     done
     popd > /dev/null
 }
@@ -46,22 +46,25 @@ copy_file(){
     file=$1
     to=$2
     name=$(basename $file)
+    echo "File name $name"
     if [ -e $to/$name ]; then
         run rm $to/$name
     fi
+    echo "Copying file $name"
     run cp $file $to/$name
 }
 cd $work_dir
 
 log '------ DEV ENVIRONMENT SETUP ------'
 
-
 # Configs
 copy_dir .config $XDG_CONFIG_HOME
 copy_dir .local $HOME/.local
 
 
-# Scripts 
-copy_file .zshrc  $HOME/.zshrc
-copy_file .zsh_profile $HOME/.zsh_profile
+# Scripts
+copy_file .zshrc  $HOME
+copy_file .zsh_profile $HOME
 
+
+hyprctl reload
