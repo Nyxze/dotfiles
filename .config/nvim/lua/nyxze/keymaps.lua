@@ -9,6 +9,9 @@ vim.keymap.set('n', '<C-u>', '<C-u>zz')
 vim.keymap.set('n', 'n', 'nzzzv')
 vim.keymap.set('n', 'N', 'Nzzzv')
 
+vim.keymap.set('n', '<leader>k', '<cmd>lnext<CR>zz')
+vim.keymap.set('n', '<leader>j', '<cmd>lprev<CR>zz')
+
 -- Tmux
 vim.keymap.set('n', '<C-f>', '<cmd>silent !tmux neww tmux-sus<CR>')
 
@@ -37,7 +40,7 @@ vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- Save with C-s
-vim.keymap.set({ 'n', 'i', 's', 'x' }, '<C-s>', ':w<CR>', { desc = '[S]ave a file', silent = true })
+vim.keymap.set({ 'n', 'i', 's', 'x' }, '<C-s>', '<cmd>w<CR>', { desc = '[S]ave a file', silent = true })
 vim.keymap.set('n', '<leader>p', ':', { desc = 'Open command line' })
 
 -- Set executable
@@ -46,3 +49,5 @@ vim.keymap.set('n', '<leader>x', '<cmd>!chmod +x %<CR>', { desc = 'Set e[X]ecuta
 vim.keymap.set('n', '<leader>gb', function()
   require('gitsigns').blame_line { full = true }
 end, { desc = '[G]it [B]lame ' })
+
+vim.keymap.set('n', '<leader>q', '<cmd>bdelete<CR>', { desc = '[Q]uit buffer' })
