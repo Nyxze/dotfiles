@@ -65,30 +65,34 @@ return {
 
         NeoTreeBorder = { fg = '#3C3C3C', bg = '#252526' },
         NeoTreeWinSeparator = { fg = '#3C3C3C' },
-
         ------------------------------------------------------------------
         -- Syntax (Treesitter)
         ------------------------------------------------------------------
         ['@comment'] = { fg = c.green },
         ['@keyword'] = { fg = c.mauve },
         ['@keyword.return'] = { fg = c.mauve },
+        ['@module'] = { fg = '#f19216' },
+        ['@namespace'] = { fg = '#f19216' },
 
         ['@string'] = { fg = '#CE9178' },
         ['@number'] = { fg = '#B5CEA8' },
 
+        Function = { fg = c.yellow },
         ['@function'] = { fg = c.yellow },
         ['@function.call'] = { fg = c.yellow },
         ['@method'] = { fg = c.yellow },
         ['@method.call'] = { fg = c.yellow },
 
-        ['@variable'] = { fg = c.text },
+        ['@variable'] = { fg = c.sky },
         ['@variable.parameter'] = { fg = c.sky },
 
         ['@type'] = { fg = c.teal },
+        Type = { fg = c.teal },
         ['@class'] = { fg = c.teal },
         ['@interface'] = { fg = c.teal },
 
         ['@constant'] = { fg = c.blue },
+        ['@constant.builtin'] = { fg = c.blue },
 
         ------------------------------------------------------------------
         -- Semantic tokens (LSP)
