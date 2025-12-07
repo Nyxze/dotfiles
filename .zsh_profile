@@ -23,6 +23,8 @@ function zvm_config() {
     ZVM_SYSTEM_CLIPBOARD_ENABLED=true
 }
 
-source /usr/share/zsh/plugins/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+# source /usr/share/zsh/plugins/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 
+bindkey -s ^f "tmux-sus\n"
 
+export PATH="$PATH:$(go env GOBIN):$(go env GOPATH)/bin"

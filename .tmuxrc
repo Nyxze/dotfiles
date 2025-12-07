@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+
+tmux new-window -dn terminal
+
+tmux rename-window nvim
+nvim .
+
+clear

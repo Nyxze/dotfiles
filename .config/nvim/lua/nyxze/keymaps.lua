@@ -13,12 +13,12 @@ vim.keymap.set('n', 'N', 'Nzzzv')
 vim.keymap.set('n', '<C-f>', '<cmd>silent !tmux neww tmux-sus<CR>')
 
 vim.keymap.set('n', 'Q', '<nop>')
--- Copy / Delete to void register
+-- Copy
 vim.keymap.set('x', 'p', '"_dp')
-vim.keymap.set({ 'n', 'v' }, 'd', '"_d')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set({ 'n', 'i' }, '<C-/>', 'gcc', { desc = '[C]omment selection' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -41,4 +41,4 @@ vim.keymap.set({ 'n', 'i', 's', 'x' }, '<C-s>', ':w<CR>', { desc = '[S]ave a fil
 vim.keymap.set('n', '<leader>p', ':', { desc = 'Open command line' })
 
 -- Set executable
-vim.keymap.set('n', '<leader>x', '<cmd>!chmod +x %<CR>', { silent = true })
+vim.keymap.set('n', '<leader>x', '<cmd>!chmod +x %<CR>', { desc = 'Set e[X]ecutable', silent = true })

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-echo "Test"
+ls ~ -all
 if [[ -x ".tmuxrc" ]]; then
+    echo "Using local conf"
 	./.tmuxrc
-elif [[ -x "~/.tmuxrc" ]]; then
+elif [[ -x "$HOME/.tmuxrc" ]]; then
+    echo "Using global conf"
 	~/.tmuxrc
 fi
-clear
-

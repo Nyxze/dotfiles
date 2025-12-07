@@ -1,32 +1,60 @@
 vim.lsp.enable 'bashls'
 vim.lsp.enable 'luals'
+vim.lsp.enable 'gopls'
+vim.api.nvim_create_autocmd('LspAttach', {
+  callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if client:supports_method 'textDocument/completion' then
+      vim.lsp.completion.enable(true, client.id, ev.buf)
+    end
+  end,
+})
 
--- Configs
-vim.lsp.config['luals'] = {
-  -- Command and arguments to start the server.
-  cmd = { 'lua-language-server' },
-  -- Filetypes to automatically attach to.
-  filetypes = { 'lua' },
-  -- Sets the "root directory" to the parent directory of the file in the
-  -- current buffer that contains either a ".luarc.json" or a
-  -- ".luarc.jsonc" file. Files that share a root directory will reuse
-  -- the connection to the same LSP server.
-  -- Nested lists indicate equal priority, see |vim.lsp.Config|.
-  root_markers = { { '.luarc.json', '.luarc.jsonc' }, '.git' },
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('lsp-keybinds', { clear = true }),
+  callback = function(ev)
+    local builtin = require 'telescope.builtin'
+    local map = function(keys, fn, desc, mode)
+      mode = mode or 'n'
+      vim.keymap.set(mode, keys, fn, { buffer = ev.buf, desc = 'LSP: ' .. desc })
+    end
+    -- Rename the variable under your cursor.
+    --  Most Language Servers support renaming across files, etc.
+    map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
 
-  -- Specific settings to send to the server. The schema for this is
-  -- defined by the server. For example the schema for lua-language-server
-  -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
-  settings = {
-    Lua = {
-      runtime = {
-        version = 'LuaJIT',
-      },
-    },
-  },
-}
+    -- Execute a code action, usually your cursor needs to be on top of an error
+    -- or a suggestion from your LSP for this to activate.
+    map('<leader>a', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 
-vim.lsp.config.bashls = {
-  cmd = { 'bash-language-server', 'start' },
-  filetypes = { 'bash', 'sh' },
-}
+    -- Find references for the word under your cursor.
+    map('<leader>r', builtin.lsp_references, '[G]oto [R]eferences')
+
+    -- Jump to the implementation of the word under your cursor.
+    --  Useful when your language has ways of declaring types without an actual implementation.
+    map('<leader>i', builtin.lsp_implementations, '[G]oto [I]mplementation')
+
+    -- Jump to the definition of the word under your cursor.
+    --  This is where a variable was first declared, or where a function is defined, etc.
+    --  To jump back, press <C-t>.
+    map('<leader>d', builtin.lsp_definitions, '[G]oto [D]efinition')
+
+    -- WARN: This is not Goto Definition, this is Goto Declaration.
+    --  For example, in C this would take you to the header.
+    map('<leader>D', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+
+    -- Fuzzy find all the symbols in your current document.
+    --  Symbols are things like variables, functions, types, etc.
+    map('<leader>O', builtin.lsp_document_symbols, 'Open Document Symbols')
+
+    -- Fuzzy find all the symbols in your current workspace.
+    --  Similar to document symbols, except searches over your entire project.
+    map('<leader>W', builtin.lsp_dynamic_workspace_symbols, 'Open Workspace Symbols')
+
+    -- Jump to the type of the word under your cursor.
+    --  Useful when you're not sure what type a variable is and you want to see
+    --  the definition of its *type*, not where it was *defined*.
+    map('grt', builtin.lsp_type_definitions, '[G]oto [T]ype Definition')
+  end,
+})
+
+vim.cmd 'set completeopt+=noselect'

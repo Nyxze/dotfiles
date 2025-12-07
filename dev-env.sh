@@ -65,6 +65,7 @@ copy_dir .local $HOME/.local
 # Scripts
 copy_file .zshrc  $HOME
 copy_file .zsh_profile $HOME
-
+copy_file .tmuxrc $HOME
+copy_file .tmux.conf $HOME
 
 hyprctl reload
