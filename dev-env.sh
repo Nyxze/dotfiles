@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 work_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )
 dry="0"
-
+filtered=""
 
 log(){
     if [[ $dry == "1" ]]; then
@@ -23,6 +23,8 @@ run(){
 while [[ $# -gt 0 ]]; do
     if [[ $1 == "--dry" ]]; then
         dry="1"
+    else
+    filtered=$1
     fi
     shift
 done
@@ -56,6 +58,13 @@ copy_file(){
 cd $work_dir
 
 log '------ DEV ENVIRONMENT SETUP ------'
+
+
+if [[ $filtered == 'nvim' ]];then
+    copy_dir .config/nvim $XDG_CONFIG_HOME/nvim
+    exit 0
+fi
+
 
 # Configs
 copy_dir .config $XDG_CONFIG_HOME

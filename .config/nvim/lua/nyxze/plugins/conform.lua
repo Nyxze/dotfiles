@@ -30,7 +30,7 @@ return { -- Autoformat
     end,
     formatters_by_ft = {
       lua = { 'stylua' },
-      go = { 'gofmt' },
+      go = { 'goimports', 'gofumpt' },
       javascript = { 'prettier' },
       typescript = { 'prettier' },
       -- Conform can also run multiple formatters sequentially
