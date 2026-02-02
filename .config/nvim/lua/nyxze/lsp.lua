@@ -27,7 +27,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
     -- Execute a code action, usually your cursor needs to be on top of an error
     -- or a suggestion from your LSP for this to activate.
-    map('ga', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+    map('<leader>a', vim.lsp.buf.code_action, 'Code [A]ction', { 'n', 'x' })
 
     -- Find references for the word under your cursor.
     map('gr', builtin.lsp_references, '[G]oto [R]eferences')
@@ -61,12 +61,14 @@ vim.api.nvim_create_autocmd('LspAttach', {
 })
 
 vim.cmd 'set completeopt+=noselect'
-
 vim.diagnostic.config {
   signs = { priority = 9999 },
   underline = true,
-  update_in_insert = false, -- false so diags are updated on InsertLeave
-  virtual_text = { current_line = true, severity = { min = 'INFO', max = 'WARN' } },
-  virtual_lines = { current_line = true, severity = { min = 'ERROR' } },
+  update_in_insert = true,
+
+  -- Show virtual text (inline) only for warnings/info to keep it clean
+  virtual_text = false,
+  virtual_lines = false,
   severity_sort = true,
 }
+vim.keymap.set('n', 'gl', vim.diagnostic.open_float, { desc = 'Show Dia[G]nostics [L]ine' })

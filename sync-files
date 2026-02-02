@@ -25,7 +25,15 @@ sync_files() {
             continue
         fi
         
-        if [ -d "$source" ]; then
+        if [ "$app" == "Code" ]; then
+            if [ -d "$source/User" ]; then
+                echo "Syncing $app (settings + keybinds only)..."
+                rsync -av --include="settings.json" --include="keybindings.json" --include="*/" --exclude="*" "$source/User/" "$dest/User/"
+                echo "✓ $app synced"
+            else
+                echo "✗ $app: Source directory not found: $source/User"
+            fi
+        elif [ -d "$source" ]; then
             echo "Syncing $app..."
             rsync -av --delete "$source/" "$dest/"
             echo "✓ $app synced"

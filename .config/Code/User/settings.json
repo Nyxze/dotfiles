@@ -283,5 +283,12 @@
   "explorer.confirmDelete": false,
   "[dockercompose]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-containers"
-  }
+  },
+  "rsp-ui.enableStartServerOnActivation": [
+    {
+      "id": "redhat.vscode-community-server-connector",
+      "name": "Community Server Connector",
+      "startOnActivation": true
+    }
+  ]
 }

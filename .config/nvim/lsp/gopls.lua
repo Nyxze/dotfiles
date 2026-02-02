@@ -1,7 +1,11 @@
 return {
   cmd = { 'gopls' },
   filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
-
+  on_attach = function()
+    local c = require('vscode.colors').get_colors()
+    vim.api.nvim_set_hl(0, '@lsp.typemod.type.interface.go', { fg = c.vscBlueGreen })
+    vim.api.nvim_set_hl(0, '@lsp.type.keyword.go', { fg = c.vscPink })
+  end,
   settings = {
     gopls = {
       gofumpt = true,

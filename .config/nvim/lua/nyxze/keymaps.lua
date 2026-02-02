@@ -12,6 +12,11 @@ vim.keymap.set('n', 'N', 'Nzzzv')
 vim.keymap.set('n', '<leader>k', '<cmd>lnext<CR>zz')
 vim.keymap.set('n', '<leader>j', '<cmd>lprev<CR>zz')
 
+-- New tab
+vim.keymap.set('n', '<C-n>', '<cmd>tabnew<CR>')
+
+-- Disable Ctrl-z from suspending Neovim
+vim.keymap.set({ 'n', 'v', 'i' }, '<C-z>', '<Nop>', { silent = true })
 -- Tmux
 vim.keymap.set('n', '<C-f>', '<cmd>silent !tmux neww tmux-sus<CR>')
 
@@ -20,7 +25,6 @@ vim.keymap.set('n', 'Q', '<nop>')
 vim.keymap.set('x', 'p', '"_dp')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 vim.keymap.set({ 'n', 'i' }, '<C-/>', 'gcc', { desc = '[C]omment selection' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
