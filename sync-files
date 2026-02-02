@@ -1,0 +1,38 @@
+#!/bin/bash
+
+sync_files() {
+    local repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local home_config="$HOME/.config"
+    local repo_config="$repo_root/.config"
+    
+    local apps=()
+    
+    if [ $# -eq 0 ]; then
+        for dir in "$repo_config"/*/; do
+            [ -d "$dir" ] || continue
+            apps+=("$(basename "$dir")")
+        done
+    else
+        apps=("$@")
+    fi
+    
+    for app in "${apps[@]}"; do
+        local source="$home_config/$app"
+        local dest="$repo_config/$app"
+        
+        if [ ! -d "$dest" ]; then
+            echo "✗ $app: Not tracked in repo"
+            continue
+        fi
+        
+        if [ -d "$source" ]; then
+            echo "Syncing $app..."
+            rsync -av --delete "$source/" "$dest/"
+            echo "✓ $app synced"
+        else
+            echo "✗ $app: Source directory not found: $source"
+        fi
+    done
+}
+
+sync_files "$@"

@@ -1,90 +1,73 @@
-return {
-  'mfussenegger/nvim-dap',
-  dependencies = {
-    {
-      'mason-org/mason.nvim',
-      opts = function(_, opts)
-        opts.ensure_installed = opts.ensure_installed or {}
-        table.insert(opts.ensure_installed, 'js-debug-adapter')
-      end,
+local dap = require 'dap'
+for _, adapter in ipairs { 'node', 'chrome', 'msedge' } do
+  local native_adapter = 'pwa-' .. adapter
+
+  -- Main adapter
+  dap.adapters[native_adapter] = {
+    type = 'server',
+    host = 'localhost',
+    port = '${port}',
+    executable = {
+      command = 'js-debug-adapter',
+      args = { '${port}' },
     },
-  },
-  opts = function()
-    local dap = require 'dap'
-    for _, adType in ipairs { 'node', 'chrome' } do
-      local pwaT = 'pwa-' .. adType
-      if not dap.adapters[pwaT] then
-        dap.adapters[pwaT] = {
-          type = 'server',
-          host = 'localhost',
-          port = '${port}',
-          executable = {
-            command = 'js-debug-adapter',
-            args = { '${port}' },
-          },
-        }
-      end
+    enrich_config = function(config, on_config)
+      config.type = native_adapter
+      on_config(config)
+    end,
+  }
+  -- Map to native adapter
+  dap.adapters[adapter] = dap.adapters[native_adapter]
+end
 
-      if not dap.adapters[adType] then
-        dap.adapters[adType] = function(cb, cfg)
-          local native = dap.adapters[pwaT]
-          cfg.type = pwaT
-          if type(native) == 'function' then
-            native(cb, cfg)
-          else
-            cb()
-          end
+local js_languages = { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact' }
+for _, language in ipairs(js_languages) do
+  dap.configurations[language] = {
+    {
+      type = 'pwa-node',
+      request = 'launch',
+      name = 'Launch Current File (pwa-node)',
+      program = '${file}',
+      cwd = '${workspaceFolder}',
+      runtimeExecutable = function()
+        if vim.fn.executable 'tsx' == 1 then
+          return 'tsx'
+        elseif vim.fn.executable 'ts-node' == 1 then
+          return 'ts-node'
+        else
+          return 'node'
         end
-      end
-    end
-
-    local js_files = { 'typescript', 'javascript', 'typescriptreact', 'javascriptreact' }
-    local vscode = require 'dap.ext.vscode'
-    vscode.type_to_filetype['node'] = js_files
-    vscode.type_to_filetype['pwa-node'] = js_files
-    for _, lang in ipairs(js_files) do
-      if not dap.configurations[lang] then
-        local runtimeExec = nil
-        if lang:find 'typescript' then
-          runtimeExec = vim.fn.executable 'tsx' == 1 and 'tsx' or 'ts-node'
-        end
-        dap.configurations[lang] = {
-          {
-            type = 'pwa-node',
-            request = 'launch',
-            name = 'Launch file',
-            program = '${file}',
-            cwd = '${workspaceFolder}',
-            sourceMaps = true,
-            runtimeExecutable = runtimeExec,
-            skipFiles = {
-              '<node_internals>/**',
-              'node_modules/**',
-            },
-            resolveSourceMapLocation = {
-              '${worspaceFolder}/**',
-              '!**/node_modules/**',
-            },
-          },
-          {
-            type = 'pwa-node',
-            request = 'attach',
-            name = 'Attach',
-            processId = require('dap.utils').pick_process,
-            cwd = '${workspaceFolder}',
-            sourceMaps = true,
-            runtimeExecutable = runtimeExec,
-            skipFiles = {
-              '<node_internals>/**',
-              'node_modules/**',
-            },
-            resolveSourceMapLocation = {
-              '${worspaceFolder}/**',
-              '!**/node_modules/**',
-            },
-          },
-        }
-      end
-    end
-  end,
-}
+      end,
+      sourceMaps = true,
+      protocol = 'inspector',
+      skipFiles = { '<node_internals>/**', 'node_modules/**' },
+      resolveSourceMapLocation = {
+        '${workspaceFolder}/**',
+        '!**/node_modules/**',
+      },
+    },
+    {
+      type = 'pwa-node',
+      request = 'attach',
+      name = 'Attach to Process',
+      processId = require('dap.utils').pick_process,
+      cwd = '${workspaceFolder}',
+      sourceMaps = true,
+    },
+    {
+      type = 'pwa-node',
+      request = 'launch',
+      name = 'Debug Jest Tests',
+      -- trace = true, -- unlock this to debug the debugger
+      runtimeExecutable = 'node',
+      runtimeArgs = {
+        './node_modules/jest/bin/jest.js',
+        '--runInBand',
+      },
+      rootPath = '${workspaceFolder}',
+      cwd = '${workspaceFolder}',
+      console = 'integratedTerminal',
+      internalConsoleOptions = 'neverOpen',
+    },
+  }
+end

@@ -44,7 +44,7 @@ vim.keymap.set({ 'n', 'i', 's', 'x' }, '<C-s>', '<cmd>w<CR>', { desc = '[S]ave a
 vim.keymap.set('n', '<leader>p', ':', { desc = 'Open command line' })
 
 -- Set executable
-vim.keymap.set('n', '<leader>x', '<cmd>!chmod +x %<CR>', { desc = 'Set e[X]ecutable', silent = true })
+vim.keymap.set('n', '<leader>X', '<cmd>!chmod +x %<CR>', { desc = 'Set e[X]ecutable', silent = true })
 
 vim.keymap.set('n', '<leader>gb', function()
   require('gitsigns').blame_line { full = true }

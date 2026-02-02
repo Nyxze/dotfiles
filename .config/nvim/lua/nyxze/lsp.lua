@@ -2,6 +2,8 @@ vim.lsp.enable 'bashls'
 vim.lsp.enable 'luals'
 vim.lsp.enable 'gopls'
 vim.lsp.enable 'tsls'
+vim.lsp.enable 'python'
+
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(ev)
     local client = vim.lsp.get_client_by_id(ev.data.client_id)
@@ -59,3 +61,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
 })
 
 vim.cmd 'set completeopt+=noselect'
+
+vim.diagnostic.config {
+  signs = { priority = 9999 },
+  underline = true,
+  update_in_insert = false, -- false so diags are updated on InsertLeave
+  virtual_text = { current_line = true, severity = { min = 'INFO', max = 'WARN' } },
+  virtual_lines = { current_line = true, severity = { min = 'ERROR' } },
+  severity_sort = true,
+}

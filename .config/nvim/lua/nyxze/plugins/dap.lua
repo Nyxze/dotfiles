@@ -6,6 +6,8 @@ return {
 
     'mason-org/mason.nvim',
     'jay-babu/mason-nvim-dap.nvim',
+
+    'leoluz/nvim-dap-go',
   },
   keys = {
     {
@@ -127,15 +129,17 @@ return {
       end,
       desc = 'Widgets',
     },
+    {
+      '<F5>',
+      function()
+        require('dap').continue()
+      end,
+      desc = 'Widgets',
+    },
   },
   config = function()
     local dap = require 'dap'
     local dapui = require 'dapui'
-
-    dapui.setup()
-    dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-    dap.listeners.before.event_terminated['dapui_config'] = dapui.close
-    dap.listeners.before.event_exited['dapui_config'] = dapui.close
 
     require('mason-nvim-dap').setup {
       ensure_installed = { 'delve', 'debugpy', 'js-debug-adapter' },
@@ -145,5 +149,11 @@ return {
         end,
       },
     }
+    require('dap-go').setup()
+    require 'nyxze.plugins.dap.js-dap'
+
+    dap.listeners.after.event_initialized['dapui_config'] = dapui.open
+    dap.listeners.before.event_terminated['dapui_config'] = dapui.close
+    dap.listeners.before.event_exited['dapui_config'] = dapui.close
   end,
 }

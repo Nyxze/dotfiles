@@ -32,7 +32,10 @@ vim.o.expandtab = true -- Pressing the TAB key will insert spaces instead of a T
 vim.o.softtabstop = 4 -- Number of spaces inserted instead of a TAB character
 vim.o.shiftwidth = 4 -- Number of spaces inserted when indenting
 vim.o.wrap = false
+
 -- Save undo history
+vim.opt.swapfile = false
+vim.opt.backup = false
 vim.o.undofile = true
 vim.o.autoread = true
 

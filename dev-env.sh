@@ -33,12 +33,23 @@ copy_dir(){
     from=$1
     to=$2
 
+    if [ ! -d "$to" ]; then
+        mkdir -p "$to"
+        echo "Create root $to"
+    fi
+
     pushd $from > /dev/null
 
     dirs=$(find . -maxdepth 1 -mindepth 1 -type d)
     for dir in $dirs; do
-        #Clear dest before copying
+        if [ ! -d "$dir" ]; then
+            mkdir -p "$dir"
+            echo "Create $dir"
+        else
+        # Clear dest before copying
         # run rm -rf $to/$dir
+        echo "Clearing $dir"
+        fi
         run cp -rf "$dir/." $to/$dir
     done
     popd > /dev/null
@@ -69,6 +80,7 @@ fi
 # Configs
 copy_dir .config $XDG_CONFIG_HOME
 copy_dir .local $HOME/.local
+copy_dir .zfunc $HOME/.zfunc
 
 
 # Scripts

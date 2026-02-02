@@ -56,7 +56,7 @@ return { -- Autocompletion
       --
       -- See :h blink-cmp-config-keymap for defining your own keymap
       preset = 'super-tab',
-
+      ['<C-k>'] = { 'show', 'show_documentation', 'hide_documentation' },
       -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
       --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
     },
@@ -68,7 +68,7 @@ return { -- Autocompletion
     },
 
     completion = {
-      -- By default, you may press `<c-space>` to show the documentation.
+      -- By default, you may press `<c-k>` to show the documentation.
       -- Optionally, set `auto_show = true` to show the documentation after a delay.
       documentation = { auto_show = false, auto_show_delay_ms = 500 },
     },
@@ -82,6 +82,6 @@ return { -- Autocompletion
     fuzzy = { implementation = 'lua' },
 
     -- Shows a signature help window while you type arguments for a function
-    signature = { enabled = true },
+    signature = { enabled = false },
   },
 }

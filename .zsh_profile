@@ -27,4 +27,5 @@ function zvm_config() {
 
 bindkey -s ^f "tmux-sus\n"
 
+export PATH="/home/nyxze/.local/bin:$PATH"
 export PATH="$PATH:$(go env GOBIN):$(go env GOPATH)/bin"
