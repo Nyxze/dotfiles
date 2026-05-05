@@ -1,30 +1,26 @@
 #!/bin/bash
 
-sync_files() {
-    local repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+sync_config() {
+    local repo_config="$1"
     local home_config="$HOME/.config"
-    local repo_config="$repo_root/.config"
-    
-    local apps=()
-    
-    if [ $# -eq 0 ]; then
+    local apps=("${@:2}")
+
+    if [ ${#apps[@]} -eq 0 ]; then
         for dir in "$repo_config"/*/; do
             [ -d "$dir" ] || continue
             apps+=("$(basename "$dir")")
         done
-    else
-        apps=("$@")
     fi
-    
+
     for app in "${apps[@]}"; do
         local source="$home_config/$app"
         local dest="$repo_config/$app"
-        
+
         if [ ! -d "$dest" ]; then
             echo "✗ $app: Not tracked in repo"
             continue
         fi
-        
+
         if [ "$app" == "Code" ]; then
             if [ -d "$source/User" ]; then
                 echo "Syncing $app (settings + keybinds only)..."
@@ -41,6 +37,28 @@ sync_files() {
             echo "✗ $app: Source directory not found: $source"
         fi
     done
+}
+
+sync_scripts() {
+    local repo_scripts="$1"
+    local home_scripts="$HOME/.local/scripts"
+
+    echo "Syncing scripts..."
+    rsync -av --delete "$home_scripts/" "$repo_scripts/"
+    echo "✓ scripts synced"
+}
+
+sync_files() {
+    local repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+    if [ "$1" == "scripts" ]; then
+        sync_scripts "$repo_root/.local/scripts"
+    elif [ $# -gt 0 ]; then
+        sync_config "$repo_root/.config" "$@"
+    else
+        sync_config "$repo_root/.config"
+        sync_scripts "$repo_root/.local/scripts"
+    fi
 }
 
 sync_files "$@"

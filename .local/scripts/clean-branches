@@ -1,0 +1,159 @@
+#!/usr/bin/env -S bun --no-deprecations
+
+async function git(args: string[]): Promise<string> {
+  const proc = Bun.spawn(["git", ...args], { stdout: "pipe", stderr: "pipe" })
+  const out = await new Response(proc.stdout).text()
+  if ((await proc.exited) !== 0) {
+    const err = await new Response(proc.stderr).text()
+    throw new Error(err.trim())
+  }
+  return out.trim()
+}
+
+async function ask(prompt: string): Promise<string> {
+  process.stdout.write(prompt)
+  return await new Promise((r) =>
+    process.stdin.once("data", (d) => r(d.toString().trim()))
+  )
+}
+
+function showHelp() {
+  console.log(`Usage: clean-branches [OPTIONS]
+
+Delete local git branches that have been merged into main/master/develop.
+
+Options:
+  -d, --dry-run    Show what would be deleted without prompting or deleting
+  -h, --help       Show this help message
+
+Protected branches (never deleted):
+  - main, master, develop
+  - Any branch containing 'cycle' (case-insensitive)
+  - The current branch
+
+Exit codes:
+  0 - branches deleted (or would be in dry-run)
+  1 - nothing deleted, or error
+`)
+}
+
+async function main() {
+  const args = process.argv.slice(2)
+  const dryRun = args.includes("--dry-run") || args.includes("-d")
+  const showHelpFlag = args.includes("--help") || args.includes("-h")
+
+  if (showHelpFlag) {
+    showHelp()
+    process.exit(0)
+  }
+
+  process.on("SIGINT", () => {
+    console.log("\nAborted")
+    process.exit(1)
+  })
+
+  let currentBranch: string
+  try {
+    currentBranch = await git(["branch", "--show-current"])
+  } catch {
+    console.error("Error: not a git repository")
+    process.exit(1)
+  }
+
+  const protectedExact = new Set(["main", "master", "develop"])
+  const protectedPatterns = [/cycle/i]
+
+  function isProtected(branch: string): boolean {
+    if (branch === currentBranch) return true
+    if (protectedExact.has(branch)) return true
+    if (protectedPatterns.some((p) => p.test(branch))) return true
+    return false
+  }
+
+  const targets = ["main", "master", "develop"].filter((b) => {
+    try {
+      Bun.spawnSync(["git", "rev-parse", "--verify", b], {
+        stdout: "pipe",
+        stderr: "pipe",
+      })
+      return true
+    } catch {
+      return false
+    }
+  })
+
+  if (targets.length === 0) {
+    console.error("Error: none of main, master, or develop branches exist")
+    process.exit(1)
+  }
+
+  const mergedSet = new Set<string>()
+  const mergedInto = new Map<string, string>()
+
+  for (const target of targets) {
+    try {
+      const output = await git(["branch", "--merged", target])
+      const branches = output
+        .split("\n")
+        .map((b) => b.trim())
+        .filter((b) => b.length > 0)
+
+      for (const b of branches) {
+        if (!mergedSet.has(b)) {
+          mergedSet.add(b)
+          mergedInto.set(b, target)
+        }
+      }
+    } catch {
+      // target might not exist in this repo, skip
+    }
+  }
+
+  const allBranchesOutput = await git(["branch", "--format=%(refname:short)"])
+  const allBranches = allBranchesOutput
+    .split("\n")
+    .map((b) => b.trim())
+    .filter((b) => b.length > 0)
+
+  const candidates = allBranches.filter(
+    (b) => mergedSet.has(b) && !isProtected(b)
+  )
+
+  if (candidates.length === 0) {
+    console.log("No merged branches to delete.")
+    process.exit(1)
+  }
+
+  let deleted = 0
+
+  if (dryRun) {
+    for (const branch of candidates) {
+      const target = mergedInto.get(branch) || "unknown"
+      console.log(`Would delete '${branch}' (merged into '${target}')`)
+    }
+    process.exit(0)
+  }
+
+  for (const branch of candidates) {
+    const target = mergedInto.get(branch) || "unknown"
+    const answer = await ask(
+      `Delete '${branch}' (merged into '${target}')? [y/N] `
+    )
+
+    if (answer.toLowerCase() === "y") {
+      try {
+        await git(["branch", "-d", branch])
+        console.log(`Deleted '${branch}'`)
+        deleted++
+      } catch (e: any) {
+        console.error(`Error deleting '${branch}': ${e.message}`)
+      }
+    } else {
+      console.log(`Skipped '${branch}'`)
+    }
+  }
+
+  process.exit(deleted > 0 ? 0 : 1)
+}
+
+main()

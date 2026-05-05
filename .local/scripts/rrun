@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# rrun — run a command on a selected remote host, pipe result locally
+# Usage: rrun [user] <cmd>
+# Flags: --reuse   skip host picker, reuse last selected host
+# Example: rrun alexy 'idevicesyslog'
+#          rrun --reuse alexy 'idevicesyslog'
+
+CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/rrun-last-host"
+REUSE=0
+
+if [[ "${1:-}" == "--reuse" ]]; then
+  REUSE=1
+  shift
+fi
+
+USER_ARG=""
+if [[ $# -gt 1 ]]; then
+  USER_ARG="${1}@"
+  shift
+fi
+
+[[ $# -eq 0 ]] && { echo "usage: rrun [--reuse] [user] <cmd>" >&2; exit 1; }
+
+if [[ $REUSE -eq 1 && -f "$CACHE" ]]; then
+  TARGET=$(cat "$CACHE")
+else
+  TARGET=$(nmap -sn 192.168.1.0/24 | grep "Nmap scan report" | fzf --prompt="Select device: " | grep -oP "\d+\.\d+\.\d+\.\d+")
+  [[ -z "$TARGET" ]] && exit 1
+  mkdir -p "$(dirname "$CACHE")"
+  echo "$TARGET" > "$CACHE"
+fi
+
+ssh -q "${USER_ARG}${TARGET}" "bash -l -c $(printf '%q' "$*")"

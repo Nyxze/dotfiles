@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+set -e
+
+usage() {
+    cat <<EOF
+Usage: sshfs-umount [OPTIONS] <local_folder>
+
+Unmount an SSHFS mount.
+
+Options:
+    -a, --account <user>    SSH account/username (for display only)
+
+Arguments:
+    local_folder           Local mount point to unmount
+
+Examples:
+    sshfs-umount ~/stuff/emobot/mobile
+    sshfs-umount -a nyxze ~/mount/remote
+EOF
+    exit 1
+}
+
+if [[ $# -eq 0 ]]; then
+    usage
+fi
+
+ACCOUNT=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -a|--account)
+            ACCOUNT="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
+        *)
+            LOCAL_PATH="$1"
+            shift
+            ;;
+    esac
+done
+
+if [[ -z "$LOCAL_PATH" ]]; then
+    echo "Error: local_folder is required."
+    usage
+fi
+
+LOCAL_PATH="${LOCAL_PATH/#\~/$HOME}"
+
+if ! mountpoint -q "$LOCAL_PATH" 2>/dev/null; then
+    echo "Error: $LOCAL_PATH is not a mountpoint."
+    exit 1
+fi
+
+echo "Unmounting $LOCAL_PATH..."
+sudo umount "$LOCAL_PATH"
+
+echo "Unmount complete!"

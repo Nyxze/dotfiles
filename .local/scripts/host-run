@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# host-run — pipe remote stdout into a local command running in a new tmux pane
+# Usage (from inside SSH session): remote-cmd | host-run local-cmd [args]
+# Example: idevicesyslog | host-run lnav
+
+set -euo pipefail
+
+[[ $# -eq 0 ]] && { echo "usage: remote-cmd | host-run <cmd> [args]" >&2; exit 1; }
+[[ -z "${SSH_CLIENT:-}" ]] && { echo "host-run: not in an SSH session" >&2; exit 1; }
+
+LOCAL_HOST=$(awk '{print $1}' <<< "$SSH_CLIENT")
+LOCAL_USER="${HOST_USER:-$USER}"
+FIFO="/tmp/host-run-$$"
+LOCAL_CMD=$(printf '%q ' "$@")
+TMUX_TARGET="${HOST_TMUX_TARGET:-}"
+
+ssh -q "${LOCAL_USER}@${LOCAL_HOST}" "
+  mkfifo '${FIFO}'
+  tmux split-window -h ${TMUX_TARGET:+-t '${TMUX_TARGET}'} '${LOCAL_CMD} < ${FIFO}; rm -f ${FIFO}'
+  cat > '${FIFO}'
+  rm -f '${FIFO}' 2>/dev/null
+"

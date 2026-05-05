@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+dir=$(find "${1:-.}" -mindepth 1 -maxdepth 1 -type d | fzf)
+
+[[ -z "$dir" ]] && exit 0
+
+tmux new-window -n "$(basename "$dir")" -c "$dir"

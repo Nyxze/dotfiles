@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+USER_ARG="${1:-}"
+
+TARGET=$(awk 'NR>1 && $3=="0x2" {print $1}' /proc/net/arp | while read ip; do
+    name=$(getent hosts "$ip" 2>/dev/null | awk '{print $2}')
+    echo "$ip ${name:-unknown}"
+done | fzf --prompt="Select device: " | awk '{print $1}')
+
+if [[ -z "$TARGET" ]]; then
+    exit 0
+fi
+
+if [[ -n "$USER_ARG" ]]; then
+    USER_HOST="${USER_ARG}@${TARGET}"
+else
+    USER_HOST="$TARGET"
+fi
+
+selected=$(ssh -n -o ConnectTimeout=10 "$USER_HOST" "find ~ -mindepth 1 -maxdepth 1 -type d 2>/dev/null" | fzf --prompt="Select project: ")
+
+if [[ -z "$selected" ]]; then
+    exit 0
+fi
+
+selected_name=$(basename "$selected" | tr ":,. " "____")
+
+switch() {
+    if [[ -z "$TMUX" ]]; then
+        tmux attach-session -t "$selected_name"
+    else
+        tmux switch-client -t "$selected_name"
+    fi
+}
+
+if tmux has-session -t="$selected_name" 2>/dev/null; then
+    switch
+    exit 0
+fi
+
+tmux new-session -ds "$selected_name"
+tmux set-option -t "$selected_name" default-command "ssh -t $USER_HOST 'cd $selected && exec \$SHELL'"
+tmux rename-window -t "$selected_name" "$selected_name"
+tmux send-keys -t "$selected_name" "ssh -t $USER_HOST 'cd $selected && exec \$SHELL'" C-m
+
+switch
