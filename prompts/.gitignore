@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.pyo
+
+# Eval artifacts
+skills/android-device-workspace/
