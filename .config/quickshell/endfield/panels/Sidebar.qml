@@ -7,13 +7,13 @@ import QtQuick.Layouts
 Panel {
     anchors {
         top: true
-        left: true
+        right: true
         bottom: true
     }
 
     margins {
         top: 10
-        left: 10
+        right: 10
         bottom: 10
     }
 
