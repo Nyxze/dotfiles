@@ -1,5 +1,7 @@
+import ".."
 import QtQuick
 import QtQuick.Layouts
+import "../components"
 
 // Month grid, Monday first. Navigating never moves `today`, so the current day
 // stays highlighted only when its own month is on screen.
@@ -44,17 +46,17 @@ ColumnLayout {
             font.weight: Font.DemiBold
         }
 
-        NavButton {
+        IconButton {
             glyph: "‹"
             onActivated: cal.shiftMonth(-1)
         }
 
-        NavButton {
+        IconButton {
             glyph: "●"
             onActivated: cal.resetToToday()
         }
 
-        NavButton {
+        IconButton {
             glyph: "›"
             onActivated: cal.shiftMonth(1)
         }

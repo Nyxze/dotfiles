@@ -39,25 +39,8 @@
         "interval": 30,
         "format": "{:%H:%M}",
         "format-alt": "{:%a %d %b  %H:%M}",
-        "tooltip-format": "<tt><small>{calendar}</small></tt>",
+        "tooltip-format": "{:%A %d %B %Y}",
         "locale": "fr_FR.UTF-8",
-        "timezones": [
-            "",
-            "America/New_York",
-            "Europe/London",
-            "Asia/Tokyo"
-        ],
-        "calendar": {
-            "mode": "month",
-            "weeks-pos": "right",
-            "format": {
-                "months": "<span color='#DFE3E3'><b>{}</b></span>",
-                "days": "<span color='#A0AAA9'>{}</span>",
-                "weeks": "<span color='#7E807C'>W{:%V}</span>",
-                "weekdays": "<span color='#657136'><b>{}</b></span>",
-                "today": "<span color='#171717' bgcolor='#FFFA00'><b>{}</b></span>"
-            }
-        },
         "on-click-right": "qs -c endfield ipc call calendar toggle"
     },
     "pulseaudio": {
