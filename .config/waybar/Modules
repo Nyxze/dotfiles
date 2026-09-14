@@ -57,7 +57,8 @@
                 "weekdays": "<span color='#657136'><b>{}</b></span>",
                 "today": "<span color='#171717' bgcolor='#FFFA00'><b>{}</b></span>"
             }
-        }
+        },
+        "on-click-right": "qs -c endfield ipc call calendar toggle"
     },
     "pulseaudio": {
         "format": "{icon}",
