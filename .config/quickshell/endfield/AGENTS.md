@@ -260,4 +260,6 @@ property at all; `NetworkService` parses `ip -j -4 addr show` for it.
 
 **Saved connections here are system-owned** (`psk-flags=0`), so NetworkManager
 reconnects without a secret agent, and `connectWithPsk` passes new secrets
-inline. That is what makes nm-applet optional rather than load-bearing.
+inline. Verified by taking the connection down and back up with nm-applet not
+running. That is what let nm-applet go; what went with it is the interactive
+prompt for VPN and 802.1X secrets, which now needs `nmcli`.

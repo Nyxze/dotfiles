@@ -8,10 +8,14 @@ with real layout and interaction, and the notification daemon.
 It owns `org.freedesktop.Notifications`, so swaync must stay masked — see
 AGENTS.md.
 
-It also replaces the blueman tray icon, which `.config/autostart/blueman.desktop`
-suppresses. BlueZ loses its pairing agent with it: devices already paired
-connect from the panel, but pairing a new one that asks for a PIN needs
-`bluetoothctl` or `blueman-manager` started by hand.
+It also replaces both tray applets, suppressed by `.config/autostart/`:
+
+- **blueman-applet.** BlueZ loses its pairing agent with it. Devices already
+  paired connect from the panel; pairing a new one that asks for a PIN needs
+  `bluetoothctl` or `blueman-manager` started by hand.
+- **nm-applet.** Saved connections are system-owned so they reconnect without a
+  secret agent, and new passphrases go in through the panel. VPN and 802.1X
+  prompts are what is lost — use `nmcli` for those.
 
 ## Panels
 

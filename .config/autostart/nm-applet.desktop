@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=nm-applet
+# The sidebar's Network page replaces the tray icon. Hidden=true makes the XDG
+# autostart generator skip /etc/xdg/autostart/nm-applet.desktop entirely.
+#
+# nm-applet was also NetworkManager's secret agent. Saved connections here are
+# system-owned (psk-flags=0) so they reconnect without one, and the panel passes
+# new passphrases inline through connectWithPsk. What goes with it is the
+# interactive prompt for VPN and 802.1X secrets — those need `nmcli` now.
+Hidden=true
