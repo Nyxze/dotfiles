@@ -4,6 +4,12 @@
 # start; upgrade the system fully rather than pulling it on its own.
 sudo pacman -Syu --needed papirus-icon-theme capitaine-cursors qt5ct qt6ct hypridle
 
+# The Quickshell panels shell out for what no QML binding exposes: pactl for the
+# port availability that decides whether an output is really usable, nmcli and iw
+# for the Wi-Fi band and DNS provider, wl-copy for the addresses the details grid
+# offers to copy.
+sudo pacman -S --needed libpulse networkmanager iw wl-clipboard
+
 # This session's shell owns org.freedesktop.Notifications; a second daemon would
 # race it for the name, and swaync comes back through D-Bus activation unless
 # the unit itself is masked.

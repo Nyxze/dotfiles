@@ -4,11 +4,41 @@ import QtQuick
 import QtQuick.Layouts
 
 ColumnLayout {
+    readonly property bool muted: AudioService.mutedOf(AudioService.sink)
+    readonly property real volume: AudioService.volumeOf(AudioService.sink)
+
     spacing: 16
+
+    // Port availability polling costs a pactl call every 5s; only worth it
+    // while this page is actually on screen.
+    Component.onCompleted: AudioService.setProbing(true)
+    Component.onDestruction: AudioService.setProbing(false)
+
+    PageHeader {
+        Layout.fillWidth: true
+        glyph: AudioService.sinkGlyph(AudioService.sink)
+        title: AudioService.label(AudioService.sink) || "No output"
+        subtitle: muted ? "MUTED" : Math.round(volume * 100) + "%"
+        dimmed: muted
+
+        ToggleSwitch {
+            checked: !muted
+            onToggled: AudioService.toggleMute(AudioService.sink)
+        }
+    }
 
     Section {
         Layout.fillWidth: true
         title: "Devices"
+
+        Text {
+            Layout.fillWidth: true
+            visible: AudioService.sinks.length === 0
+            text: "No output device"
+            color: Theme.overlay
+            font.family: Theme.fontFamily
+            font.pixelSize: 12
+        }
 
         Repeater {
             model: AudioService.sinks
@@ -17,6 +47,7 @@ ColumnLayout {
                 required property var modelData
 
                 Layout.fillWidth: true
+                glyph: AudioService.sinkGlyph(modelData)
                 label: AudioService.label(modelData)
                 trailing: Math.round(AudioService.volumeOf(modelData) * 100) + "%"
                 selected: AudioService.sink && modelData.id === AudioService.sink.id
@@ -33,36 +64,17 @@ ColumnLayout {
         Repeater {
             model: AudioService.streams
 
-            RowLayout {
+            LevelRow {
                 required property var modelData
 
                 Layout.fillWidth: true
-                spacing: 10
-
-                Text {
-                    Layout.preferredWidth: 96
-                    text: AudioService.label(modelData)
-                    elide: Text.ElideRight
-                    color: Theme.lightGray
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 12
-                }
-
-                LevelSlider {
-                    Layout.fillWidth: true
-                    value: AudioService.volumeOf(modelData)
-                    dimmed: AudioService.mutedOf(modelData)
-                    onMoved: level => AudioService.setVolume(modelData, level)
-                }
-
-                Text {
-                    Layout.minimumWidth: 36
-                    horizontalAlignment: Text.AlignRight
-                    text: Math.round(AudioService.volumeOf(modelData) * 100) + "%"
-                    color: Theme.mediumGray
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 12
-                }
+                glyph: AudioService.mutedOf(modelData) ? "󰝟" : "󰕾"
+                label: AudioService.streamLabel(modelData)
+                value: AudioService.volumeOf(modelData)
+                maximum: 1.5
+                dimmed: AudioService.mutedOf(modelData)
+                onGlyphActivated: AudioService.toggleMute(modelData)
+                onMoved: level => AudioService.setVolume(modelData, level)
             }
         }
     }

@@ -4,11 +4,36 @@ import QtQuick
 import QtQuick.Layouts
 
 ColumnLayout {
+    readonly property bool muted: AudioService.mutedOf(AudioService.source)
+    readonly property real volume: AudioService.volumeOf(AudioService.source)
+
     spacing: 16
+
+    PageHeader {
+        Layout.fillWidth: true
+        glyph: AudioService.sourceGlyph(AudioService.source)
+        title: AudioService.label(AudioService.source) || "No input"
+        subtitle: muted ? "MUTED" : Math.round(volume * 100) + "%"
+        dimmed: muted
+
+        ToggleSwitch {
+            checked: !muted
+            onToggled: AudioService.toggleMute(AudioService.source)
+        }
+    }
 
     Section {
         Layout.fillWidth: true
         title: "Devices"
+
+        Text {
+            Layout.fillWidth: true
+            visible: AudioService.sources.length === 0
+            text: "No input device"
+            color: Theme.overlay
+            font.family: Theme.fontFamily
+            font.pixelSize: 12
+        }
 
         Repeater {
             model: AudioService.sources
@@ -17,6 +42,7 @@ ColumnLayout {
                 required property var modelData
 
                 Layout.fillWidth: true
+                glyph: AudioService.sourceGlyph(modelData)
                 label: AudioService.label(modelData)
                 trailing: Math.round(AudioService.volumeOf(modelData) * 100) + "%"
                 selected: AudioService.source && modelData.id === AudioService.source.id
@@ -38,7 +64,7 @@ ColumnLayout {
 
                 Layout.fillWidth: true
                 glyph: "󰍬"
-                label: AudioService.label(modelData)
+                label: AudioService.streamLabel(modelData)
                 trailing: AudioService.mutedOf(modelData) ? "muted" : ""
             }
         }

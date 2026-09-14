@@ -3,4 +3,5 @@ singleton FocusedScreen 1.0 FocusedScreen.qml
 singleton NotificationService 1.0 NotificationService.qml
 singleton AudioService 1.0 AudioService.qml
 singleton TlpService 1.0 TlpService.qml
+singleton BluetoothService 1.0 BluetoothService.qml
 singleton NetworkService 1.0 NetworkService.qml

@@ -38,24 +38,43 @@ ColumnLayout {
         return NetworkService.securityLabel(network);
     }
 
+    function groupTitle(index) {
+        const list = NetworkService.networks;
+        const here = list[index].known;
+        if (index > 0 && list[index - 1].known === here)
+            return "";
+        return here ? "Saved" : "Available";
+    }
+
     spacing: 16
 
-    // Scanning costs power, so it runs only while this page is on screen.
-    Component.onCompleted: NetworkService.setScanning(true)
-    Component.onDestruction: NetworkService.setScanning(false)
+    // Scanning and the detail probes both cost power, so both run only while
+    // this page is on screen.
+    Component.onCompleted: {
+        NetworkService.setScanning(true);
+        NetworkService.setPolling(true);
+    }
+    Component.onDestruction: {
+        NetworkService.setScanning(false);
+        NetworkService.setPolling(false);
+    }
 
-    RowLayout {
+    PageHeader {
         Layout.fillWidth: true
-        spacing: 8
-
-        Text {
-            Layout.fillWidth: true
-            text: NetworkService.ipv4 || NetworkService.status
-            elide: Text.ElideRight
-            color: Theme.lightGray
-            font.family: Theme.fontFamily
-            font.pixelSize: 13
+        glyph: NetworkService.glyph
+        title: {
+            if (NetworkService.active)
+                return NetworkService.linkDetail
+                    ? NetworkService.active.name + " (" + NetworkService.linkDetail + ")"
+                    : NetworkService.active.name;
+            if (NetworkService.wiredUp)
+                return NetworkService.linkDetail
+                    ? "Ethernet (" + NetworkService.linkDetail + ")"
+                    : "Ethernet";
+            return "Not connected";
         }
+        subtitle: NetworkService.reach.toUpperCase()
+        dimmed: !NetworkService.active && !NetworkService.wiredUp
 
         IconButton {
             enabled: NetworkService.wifiEnabled
@@ -67,10 +86,25 @@ ColumnLayout {
             }
         }
 
-        IconButton {
-            glyph: NetworkService.wifiEnabled ? "󰖩" : "󰖪"
-            onActivated: NetworkService.toggleWifi()
+        ToggleSwitch {
+            checked: NetworkService.wifiEnabled
+            onToggled: NetworkService.toggleWifi()
         }
+    }
+
+    DetailGrid {
+        Layout.fillWidth: true
+        visible: NetworkService.active !== null || NetworkService.wiredUp
+        entries: [
+            { label: "Ping", value: NetworkService.formatLatency(NetworkService.latency) },
+            { label: "Loss", value: NetworkService.formatLoss(NetworkService.packetLoss) },
+            { label: "Down", value: NetworkService.formatRate(NetworkService.rxRate) },
+            { label: "Up", value: NetworkService.formatRate(NetworkService.txRate) },
+            { label: "Received", value: NetworkService.formatBytes(NetworkService.rxTotal) },
+            { label: "Sent", value: NetworkService.formatBytes(NetworkService.txTotal) },
+            { label: "IP", value: NetworkService.ipv4 || "—", copy: NetworkService.ipv4 !== "" },
+            { label: "Gateway", value: NetworkService.gateway || "—", copy: NetworkService.gateway !== "" }
+        ]
     }
 
     Section {
@@ -100,8 +134,45 @@ ColumnLayout {
 
     Section {
         Layout.fillWidth: true
+        title: "Band"
+        visible: NetworkService.bandAvailable.length > 1
+
+        PillRow {
+            Layout.fillWidth: true
+            // Pinning a band reassociates and takes several seconds.
+            enabled: !NetworkService.busy
+            options: [{ key: "auto", label: "Auto" }].concat(
+                NetworkService.bandAvailable.map(b => ({ key: b, label: b + " GHz" })))
+            current: NetworkService.bandSelected
+            onPicked: key => NetworkService.setBand(key)
+        }
+    }
+
+    Section {
+        Layout.fillWidth: true
+        title: "DNS"
+        // Only the active Wi-Fi profile can be rewritten, not a wired one.
+        visible: NetworkService.active !== null
+
+        PillRow {
+            Layout.fillWidth: true
+            enabled: !NetworkService.busy
+            options: [
+                { key: "dhcp", label: "DHCP" },
+                { key: "cloudflare", label: "Cloudflare" },
+                { key: "google", label: "Google" },
+                { key: "quad9", label: "Quad9" }
+            ]
+            current: NetworkService.dns
+            onPicked: key => NetworkService.setDns(key)
+        }
+    }
+
+    // No section title: the Saved/Available headings inside the list already
+    // label it, and two stacked headers read as a mistake.
+    Section {
+        Layout.fillWidth: true
         visible: NetworkService.wifi !== null
-        title: "Wi-Fi"
 
         Text {
             Layout.fillWidth: true
@@ -128,6 +199,7 @@ ColumnLayout {
                 id: entry
 
                 required property var modelData
+                required property int index
 
                 readonly property bool prompting: page.prompting === modelData
 
@@ -142,6 +214,19 @@ ColumnLayout {
                         if (reason === ConnectionFailReason.NoSecrets)
                             page.prompting = entry.modelData;
                     }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 4
+                    text: page.groupTitle(entry.index)
+                    visible: text !== ""
+                    color: Theme.mediumGray
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                    font.capitalization: Font.AllUppercase
+                    font.weight: Font.DemiBold
+                    font.letterSpacing: 0.8
                 }
 
                 ListRow {

@@ -15,9 +15,13 @@ endfield/
   NotificationService.qml  singleton: owns org.freedesktop.Notifications
   AudioService.qml       singleton: the one view onto PipeWire, holds the tracker
   TlpService.qml         singleton: power mode, read and written through tlp-ctl.sh
-  NetworkService.qml     singleton: NetworkManager, plus the IPv4 iproute2 has to supply
+  NetworkService.qml     singleton: NetworkManager, plus everything nmcli and
+                         iproute2 have to supply
+  BluetoothService.qml   singleton: BlueZ, grouped device lists, audio hand-off
+  scripts/               what no QML binding exposes — nmcli and pactl, nothing else
   components/            reusable and domain-free — Panel, Tile, SliderRow, ListRow,
-                         Section, IconButton, LevelSlider, PasswordField
+                         Section, IconButton, LevelSlider, PasswordField, PageHeader,
+                         ToggleSwitch, PillRow, DetailGrid, LevelRow
   widgets/               always-visible pieces of the sidebar head
   pages/                 the swappable detail views
   panels/                composes the above into a surface
@@ -214,6 +218,16 @@ name. Multiply by 100 to display it.
 `isSink && !isStream`; applications playing sound are `isSink && isStream`.
 Capture devices and recording streams mirror that with `isSink` false.
 
+**A sink stays in the graph with nothing plugged into it.** PipeWire keeps the
+headphone jack and an idle HDMI output selectable, and picking one silently
+swallows the sound. Only `pactl` knows a port is unavailable, which is what
+`scripts/sink-availability.sh` reports; `AudioService.sinks` filters on it while
+`setProbing(true)` is on.
+
+**`Pipewire.nodes.values` empties for a frame while it rebinds.** Bind a list
+straight to it and the device rows flash blank. `AudioService` keeps the last
+non-empty result and falls back to it.
+
 **Pipewire node properties stay empty without a tracker.** A
 `PwObjectTracker { objects: … }` covering the nodes you bind to is what makes
 `node.audio.volume` readable at all.
@@ -256,9 +270,25 @@ Configuration tab is therefore out of reach through QML and needs `pactl` in a
 - turning an HDMI card on so sound can leave through the monitor,
 - choosing between the speaker and headphone port of one card.
 
+Port *availability* is the one piece of that already handled — see
+`scripts/sink-availability.sh`. Anything that has to write a profile still
+belongs to pavucontrol, which is what waybar's right-click still opens.
+
 `Bluetooth` by contrast is complete: adapters expose `enabled` and
 `discovering`, devices expose `connected`, `paired`, `battery` and the
 connect/disconnect/pair/forget methods.
+
+## Bluetooth quirks
+
+**BlueZ reports a state change a beat after the request**, so a row clicked to
+connect reads "paired" again for a second. `BluetoothService.pending` holds what
+was asked for until the real state agrees, or 20 s pass and it gives up — a
+request BlueZ silently drops must not leave a row stuck.
+
+**A headset's PipeWire sink appears a second or two after BlueZ says it is
+connected.** Switching the default output on the connect signal alone finds
+nothing, so `BluetoothService` polls `AudioService.sinks` for a name containing
+the device address (`:` becomes `_`) eight times at 750 ms before giving up.
 
 ## Networking quirks
 
@@ -277,6 +307,25 @@ appears and off when it goes, so a closed panel is not scanning on battery.
 
 **`NetworkDevice.address` is the MAC address**, not the IP. There is no IP
 property at all; `NetworkService` parses `ip -j -4 addr show` for it.
+
+**Band and DNS need nmcli, not the binding.** Neither is exposed in QML, so
+`scripts/net-ctl.sh` owns them: `status` reports the band in use, the pinned
+band, the bands the access point actually answers on, and which DNS provider the
+active profile points at; `band` and `dns` write them back. Both write paths
+reassociate the Wi-Fi, which takes seconds — `NetworkService.busy` is what keeps
+the pills from being clicked again meanwhile.
+
+**Never offer a band the access point does not answer on.** Pinning one drops
+the connection with nothing to reassociate to, which is why the script
+intersects with a cached scan rather than listing 2.4/5/6 unconditionally.
+
+**The details probes are gated on `setPolling`.** Throughput reads
+`/sys/class/net/<if>/statistics`, latency shells out to `ping`, and the band and
+DNS come from the script — none of it is worth running while the page is closed.
+Totals belong to an interface, so they all reset when `interfaceName` changes.
+
+**`NetworkConnectivity` distinguishes `Portal` from `Limited`**, so a captive
+portal is detectable without a probe of our own.
 
 **Saved connections here are system-owned** (`psk-flags=0`), so NetworkManager
 reconnects without a secret agent, and `connectWithPsk` passes new secrets

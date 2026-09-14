@@ -63,6 +63,7 @@
             ]
         },
         "scroll-step": 5.0,
+        "on-click": "qs -c endfield ipc call sidebar page output",
         "on-click-right": "pavucontrol -t 3",
         "tooltip-format": "{icon} {desc} | {volume}%",
         "smooth-scrolling-threshold": 1,
@@ -95,6 +96,7 @@
         "format": "{format_source}",
         "format-source": " {volume}%",
         "format-source-muted": "",
+        "on-click": "qs -c endfield ipc call sidebar page input",
         "on-click-right": "pavucontrol -t 4",
         "tooltip-format": "{source_desc} | {source_volume}%",
         "scroll-step": 5
