@@ -162,3 +162,19 @@ kept bringing swaync back from the dead even after stopping the unit.
 tracked; `popups` is the subset currently on screen. A toast timing out leaves
 history alone, dismissing removes it from both. A notification that is not
 marked `tracked` is destroyed as soon as the signal handler returns.
+
+## What the audio API does not cover
+
+Quickshell's Pipewire binding exposes nodes and links only — `PwNode`,
+`PwNodeAudio`, `PwLink`, `PwLinkGroup`, `PwNodePeakMonitor`, `PwObjectTracker`.
+There is no card, profile, port or route type. Everything in pavucontrol's
+Configuration tab is therefore out of reach through QML and needs `pactl` in a
+`Process`:
+
+- switching a Bluetooth headset between A2DP and HFP/HSP,
+- turning an HDMI card on so sound can leave through the monitor,
+- choosing between the speaker and headphone port of one card.
+
+`Bluetooth` by contrast is complete: adapters expose `enabled` and
+`discovering`, devices expose `connected`, `paired`, `battery` and the
+connect/disconnect/pair/forget methods.

@@ -45,6 +45,14 @@ Panel {
                 Layout.fillWidth: true
             }
 
+            MicrophoneWidget {
+                Layout.fillWidth: true
+            }
+
+            BluetoothWidget {
+                Layout.fillWidth: true
+            }
+
             CalendarWidget {
                 Layout.fillWidth: true
             }
