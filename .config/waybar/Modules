@@ -40,8 +40,7 @@
         "format": "{:%H:%M}",
         "format-alt": "{:%a %d %b  %H:%M}",
         "tooltip-format": "{:%A %d %B %Y}",
-        "locale": "fr_FR.UTF-8",
-        "on-click-right": "qs -c endfield ipc call sidebar toggle"
+        "locale": "fr_FR.UTF-8"
     },
     "pulseaudio": {
         "format": "{icon}",

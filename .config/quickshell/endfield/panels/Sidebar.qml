@@ -11,22 +11,63 @@ import QtQuick.Layouts
 Panel {
     id: sidebar
 
-    readonly property var pageTitles: ({
-        notifications: "Notifications",
-        output: "Output",
-        input: "Input",
-        network: "Network",
-        bluetooth: "Bluetooth",
-        calendar: "Calendar",
-        power: "Power"
-    })
+    // One list drives the rail and the heading; the loader below maps the key
+    // to a component, which the array cannot hold — ids do not resolve from
+    // inside a property literal.
+    readonly property var pages: [
+        {
+            key: "notifications",
+            title: "Notifications",
+            glyph: "󰂚"
+        },
+        {
+            key: "output",
+            title: "Output",
+            glyph: "󰕾"
+        },
+        {
+            key: "input",
+            title: "Input",
+            glyph: "󰍬"
+        },
+        {
+            key: "network",
+            title: "Network",
+            glyph: "󰤨"
+        },
+        {
+            key: "bluetooth",
+            title: "Bluetooth",
+            glyph: "󰂯"
+        },
+        {
+            key: "calendar",
+            title: "Calendar",
+            glyph: "󰃭"
+        },
+        {
+            key: "power",
+            title: "Power",
+            glyph: "󰐥"
+        }
+    ]
 
     property string page: "notifications"
 
+    readonly property var currentPage: pages.find(entry => entry.key === page) || pages[0]
+
     // Clicking the chevron that is already open goes back, so a tile is both
-    // the way in and the way out.
-    function show(name) {
+    // the way in and the way out. The rail selects outright instead.
+    function openPage(name) {
         page = page === name ? "notifications" : name;
+    }
+
+    // Escape leaves the page before it leaves the panel.
+    function dismiss() {
+        if (page !== "notifications")
+            page = "notifications";
+        else
+            closePanel();
     }
 
     anchors {
@@ -61,17 +102,17 @@ Panel {
 
         SidebarHeader {
             Layout.fillWidth: true
-            onPageRequested: name => sidebar.show(name)
+            onPageRequested: name => sidebar.openPage(name)
         }
 
         QuickTiles {
             Layout.fillWidth: true
-            onPageRequested: name => sidebar.show(name)
+            onPageRequested: name => sidebar.openPage(name)
         }
 
         VolumeControls {
             Layout.fillWidth: true
-            onPageRequested: name => sidebar.show(name)
+            onPageRequested: name => sidebar.openPage(name)
         }
 
         Rectangle {
@@ -81,19 +122,20 @@ Panel {
             color: Qt.alpha(Theme.overlay, 0.4)
         }
 
+        PageRail {
+            Layout.fillWidth: true
+            pages: sidebar.pages
+            current: sidebar.page
+            onSelected: key => sidebar.page = key
+        }
+
         RowLayout {
             Layout.fillWidth: true
             spacing: 6
 
-            IconButton {
-                visible: sidebar.page !== "notifications"
-                glyph: "‹"
-                onActivated: sidebar.page = "notifications"
-            }
-
             Text {
                 Layout.fillWidth: true
-                text: sidebar.pageTitles[sidebar.page]
+                text: sidebar.currentPage.title
                 color: Theme.mediumGray
                 font.family: Theme.fontFamily
                 font.pixelSize: 11

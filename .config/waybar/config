@@ -32,8 +32,15 @@
     "modules-center": [],
     "modules-right": [
         "group/status",
+        "custom/control",
         "clock",
         "tray",
         "custom/power"
-    ]
+    ],
+    "custom/control": {
+        "format": "󰒓",
+        "on-click": "qs -c endfield ipc call sidebar toggle",
+        "tooltip": true,
+        "tooltip-format": "Control centre"
+    }
 }

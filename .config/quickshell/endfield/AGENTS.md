@@ -45,18 +45,27 @@ SidebarHeader     clock · battery          → calendar / power page
 QuickTiles        network · bluetooth · dnd · tlp
 VolumeControls    output · input · live input meter
 ─────────────
-<page>            notifications by default, detail pages behind the chevrons
+PageRail          one icon per page, so the set is visible without hunting
+<page>            notifications by default
 ```
 
-`Sidebar.page` names the visible page; `show(name)` toggles, so a chevron is
-both the way in and the way back. Closing the panel resets to notifications.
+`Sidebar.pages` is the single list the rail and the heading both read;
+`Sidebar.page` names the visible one. The rail selects outright, while
+`openPage(name)` toggles so a tile chevron is both the way in and the way back.
+Escape leaves the page before it leaves the panel, and closing resets to
+notifications.
+
+Every page also has a keybind in `.config/hypr/keybinds.conf`
+(`SUPER+CTRL+{C,A,M,W,B,D,P}`), and waybar's gear button toggles the panel.
 
 ## Adding a page
 
 1. `pages/YourPage.qml` — a `ColumnLayout`, no frame of its own; group rows with
    `Section` and use `ListRow` for anything selectable.
-2. Add a case to `Sidebar`'s `sourceComponent` switch, a `Component` wrapper,
-   and an entry in `pageTitles`.
+2. Add an entry to `Sidebar.pages`, a `Component` wrapper, and a case to the
+   `sourceComponent` switch. The switch cannot collapse into the array: an `id`
+   does not resolve from inside a property literal, so a `view: somePage` key
+   silently leaves the whole array undefined.
 3. Give it an entry point: a `Tile` with `expandable: true`, or a `SliderRow`
    chevron.
 
@@ -94,9 +103,13 @@ invisible until it is also declared. Put components in a subdirectory.
 **Subdirectories need `import ".."`** to reach the singletons. Each directory is
 its own implicit module.
 
-**Never name a `Panel` member `open`, `close`, `show` or `hide`.** `PanelWindow`
-inherits `Window`, which already defines them; the override is silently ignored
-and the call does nothing. Hence `openPanel` / `closePanel`.
+**Never name a `Panel` member `open`, `close`, `show`, `hide` or `escape`.**
+`PanelWindow` inherits `Window`, which already defines the first four; the
+override is silently ignored and the call does nothing — a `show(name)` that
+looked fine was really calling `Window.show()` and never changed the page.
+`escape` is worse and better at once: QML rejects it outright with
+`Illegal method name`, so at least it fails loudly. Hence `openPanel`,
+`closePanel`, `openPage`, `dismiss`.
 
 **`Hyprland.focusedMonitor` is unusable.** It is never seeded at startup and
 stays null until a focus change happens after Quickshell launches, and
@@ -151,10 +164,12 @@ Two traps when reading the result:
 - `hyprctl layers` lists panels under `surfaceName`. A panel that does not set
   one appears as `quickshell`, which makes it look absent if you grep for the
   name you expected.
-- **Never point a workspace rule at the headless output.** Removing the output
-  afterwards leaves that workspace with no monitor and its `SUPER+n` bind dead
-  until `hyprctl reload`. `focusmonitor` alone is enough — Hyprland gives a new
-  output a workspace by itself.
+- **Run `hyprctl reload` after removing the headless output**, every time.
+  Removing it strands whichever workspace was on it (`monitor: '?'` in
+  `hyprctl workspaces -j`) and that workspace's `SUPER+n` bind goes dead. The
+  reload reattaches it. Never point a workspace rule at the output either —
+  `focusmonitor` alone is enough, Hyprland gives a new output a workspace by
+  itself.
 - The output is named after the ones already there, so a second one is
   `HEADLESS-2`. Resolve the name instead of hardcoding it, or the mode you set
   lands on nothing and the capture comes back at scale 2.
@@ -202,6 +217,11 @@ Capture devices and recording streams mirror that with `isSink` false.
 **Pipewire node properties stay empty without a tracker.** A
 `PwObjectTracker { objects: … }` covering the nodes you bind to is what makes
 `node.audio.volume` readable at all.
+
+**Never read `PwNode.properties`.** It is invalid until the node is bound, and
+reading it while capture streams come and go can destabilise Quickshell's
+Pipewire service. Tell node kinds apart with `isSink`/`isStream` instead, which
+is what `AudioService` does.
 
 **`UPower.PowerProfiles` reports nothing on this machine.** It talks to
 power-profiles-daemon, and this system runs TLP instead. `tlp-stat -m` reads

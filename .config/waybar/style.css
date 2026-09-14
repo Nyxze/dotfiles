@@ -50,6 +50,7 @@
 #clock,
 #pulseaudio,
 #custom-tlp,
+#custom-control,
 #custom-power,
 #custom-notification,
 #network,
@@ -64,6 +65,7 @@
 #clock:hover,
 #pulseaudio:hover,
 #custom-tlp:hover,
+#custom-control:hover,
 #custom-power:hover,
 #custom-notification:hover,
 #network:hover {
@@ -74,6 +76,11 @@
 
 #clock {
     color: @feint-yellow;
+}
+
+#custom-control {
+    font-size: 17px;
+    color: @medium-gray;
 }
 
 #custom-power {

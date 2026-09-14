@@ -58,6 +58,12 @@ PanelWindow {
             openPanel();
     }
 
+    // Overridable: a panel with its own navigation backs out one level before
+    // it closes. Not named `escape`: QML reserves it, like open/close/show/hide.
+    function dismiss() {
+        closePanel();
+    }
+
     mask: Region {
         item: frame
     }
@@ -78,7 +84,7 @@ PanelWindow {
         border.color: Theme.overlay
 
         focus: true
-        Keys.onEscapePressed: panel.closePanel()
+        Keys.onEscapePressed: panel.dismiss()
 
         Item {
             id: body
