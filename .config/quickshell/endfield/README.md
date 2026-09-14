@@ -3,13 +3,17 @@
 Quickshell panels for Hyprland, on the endfield palette.
 
 waybar remains the status bar. This holds what a status bar cannot do: panels
-with real layout and interaction.
+with real layout and interaction, and the notification daemon.
+
+It owns `org.freedesktop.Notifications`, so swaync must stay masked — see
+AGENTS.md.
 
 ## Panels
 
 | Panel   | Contents                  | Opens with                                 |
 | ------- | ------------------------- | ------------------------------------------ |
-| Sidebar | Power, audio, calendar    | `SUPER+D`, or right-click the waybar clock |
+| Sidebar | Notifications, power, audio, calendar | `SUPER+D`, or right-click the waybar clock |
+| Toasts  | Live notifications                    | appear on their own                        |
 
 Escape closes whichever panel has focus. A panel opens on the screen that has
 focus, below the bar.

@@ -33,6 +33,10 @@ Panel {
             width: parent.width
             spacing: 14
 
+            NotificationsWidget {
+                Layout.fillWidth: true
+            }
+
             PowerWidget {
                 Layout.fillWidth: true
             }

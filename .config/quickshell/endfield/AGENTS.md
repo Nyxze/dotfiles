@@ -147,9 +147,18 @@ power-profiles-daemon, and this system runs TLP instead. `tlp-stat -m` reads
 the current mode without root; changing it goes through `pkexec` and will
 prompt for a password.
 
-## Division of labour with swaync
+## Notifications
 
-swaync stays the notification daemon and owns notification history, do-not-
-disturb and the media player. Its control centre was trimmed to those when the
-sidebar took over toggles and sliders — do not reintroduce a control that
-exists on both sides.
+This shell owns `org.freedesktop.Notifications`. Only one process on the
+session can, so no other notification daemon may run: swaync is masked
+(`systemctl --user mask swaync`), which also blocks its D-Bus activation since
+its activation file delegates to the systemd unit.
+
+Watch for anything that re-activates a competing daemon. waybar's
+`custom/notification` module ran `swaync-client -swb` once per output, which
+kept bringing swaync back from the dead even after stopping the unit.
+
+`NotificationService` keeps two lists on purpose. `history` is everything still
+tracked; `popups` is the subset currently on screen. A toast timing out leaves
+history alone, dismissing removes it from both. A notification that is not
+marked `tracked` is destroyed as soon as the signal handler returns.

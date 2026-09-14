@@ -112,25 +112,5 @@
         "interval": 5,
         "on-click": "uwsm app -- nm-connection-editor",
         "format-alt": "󰖩  {signalStrength}%"
-    },
-    "custom/notification": {
-        "format": "{icon}",
-        "format-icons": {
-            "notification": "󰂚",
-            "none": "󰂜",
-            "dnd-notification": "󰂛",
-            "dnd-none": "󰪑",
-            "inhibited-notification": "󰂚",
-            "inhibited-none": "󰂜",
-            "dnd-inhibited-notification": "󰂛",
-            "dnd-inhibited-none": "󰪑"
-        },
-        "return-type": "json",
-        "exec": "swaync-client -swb",
-        "exec-if": "which swaync-client",
-        "on-click": "swaync-client -t -sw",
-        "on-click-right": "swaync-client -d -sw",
-        "tooltip": false,
-        "escape": true
     }
 }

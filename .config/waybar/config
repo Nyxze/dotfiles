@@ -33,7 +33,6 @@
     "modules-right": [
         "group/status",
         "clock",
-        "custom/notification",
         "tray",
         "custom/power"
     ]

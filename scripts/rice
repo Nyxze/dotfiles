@@ -3,3 +3,8 @@
 # hypridle links against hyprutils, so a partial upgrade leaves it unable to
 # start; upgrade the system fully rather than pulling it on its own.
 sudo pacman -Syu --needed papirus-icon-theme capitaine-cursors qt5ct qt6ct hypridle
+
+# This session's shell owns org.freedesktop.Notifications; a second daemon would
+# race it for the name, and swaync comes back through D-Bus activation unless
+# the unit itself is masked.
+systemctl --user mask swaync 2>/dev/null || true
