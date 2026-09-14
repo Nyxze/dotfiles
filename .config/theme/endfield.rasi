@@ -6,7 +6,9 @@
     overlay:       #565656;
     medium-gray:   #7E807C;
     light-gray:    #A0AAA9;
-    text-color:    #DFE3E3;
+    /* Not named "text": rofi would read text-color as its own property
+     * rather than as a variable. */
+    fg:            #DFE3E3;
 
     olive-green:   #657136;
     feint-yellow:  #F8F546;
