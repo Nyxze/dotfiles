@@ -22,9 +22,9 @@
     },
     "custom/power": {
         "format": "󰐥",
-        "on-click": "nwg-bar",
+        "on-click": "qs -c endfield ipc call sidebar page power",
         "tooltip": true,
-        "tooltip-format": "Power menu"
+        "tooltip-format": "Session"
     },
     "modules-left": [
         "hyprland/workspaces"

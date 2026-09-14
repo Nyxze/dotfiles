@@ -110,7 +110,7 @@
         "tooltip-format-ethernet": "{ifname} | {ipaddr}",
         "tooltip-format-disconnected": "Disconnected",
         "interval": 5,
-        "on-click": "uwsm app -- nm-connection-editor",
+        "on-click": "qs -c endfield ipc call sidebar page network",
         "format-alt": "󰖩  {signalStrength}%"
     }
 }

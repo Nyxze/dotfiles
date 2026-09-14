@@ -15,8 +15,9 @@ endfield/
   NotificationService.qml  singleton: owns org.freedesktop.Notifications
   AudioService.qml       singleton: the one view onto PipeWire, holds the tracker
   TlpService.qml         singleton: power mode, read and written through tlp-ctl.sh
+  NetworkService.qml     singleton: NetworkManager, plus the IPv4 iproute2 has to supply
   components/            reusable and domain-free — Panel, Tile, SliderRow, ListRow,
-                         Section, IconButton, LevelSlider
+                         Section, IconButton, LevelSlider, PasswordField
   widgets/               always-visible pieces of the sidebar head
   pages/                 the swappable detail views
   panels/                composes the above into a surface
@@ -41,7 +42,7 @@ content region that swaps.
 
 ```
 SidebarHeader     clock · battery          → calendar / power page
-QuickTiles        bluetooth · dnd · tlp · session
+QuickTiles        network · bluetooth · dnd · tlp
 VolumeControls    output · input · live input meter
 ─────────────
 <page>            notifications by default, detail pages behind the chevrons
@@ -150,6 +151,13 @@ Two traps when reading the result:
 - `hyprctl layers` lists panels under `surfaceName`. A panel that does not set
   one appears as `quickshell`, which makes it look absent if you grep for the
   name you expected.
+- **Never point a workspace rule at the headless output.** Removing the output
+  afterwards leaves that workspace with no monitor and its `SUPER+n` bind dead
+  until `hyprctl reload`. `focusmonitor` alone is enough — Hyprland gives a new
+  output a workspace by itself.
+- The output is named after the ones already there, so a second one is
+  `HEADLESS-2`. Resolve the name instead of hardcoding it, or the mode you set
+  lands on nothing and the capture comes back at scale 2.
 
 Errors go to the log, not to stdout, once daemonised:
 
@@ -167,6 +175,20 @@ them.
 
 Never hardcode a colour in a component. If `Theme` is missing a token, add it
 there.
+
+## Glyphs
+
+Check a codepoint before using it:
+
+```bash
+fc-list ":charset=F0200" family | grep -c 'NotoMono Nerd Font'
+```
+
+Coverage is necessary and not sufficient. Several Material icons are dense
+enough to collapse into a grey lump at the 13–14 px these panels use — the
+ethernet port `󰈀` is one. Render a candidate at the real size before committing
+to it, and drop the icon rather than ship an unreadable one: a glyph that
+carries no information the row does not already state is noise anyway.
 
 ## Service quirks found so far
 
@@ -217,3 +239,25 @@ Configuration tab is therefore out of reach through QML and needs `pactl` in a
 `Bluetooth` by contrast is complete: adapters expose `enabled` and
 `discovering`, devices expose `connected`, `paired`, `battery` and the
 connect/disconnect/pair/forget methods.
+
+## Networking quirks
+
+`Networking` is complete enough to replace nm-applet: `connect`, `disconnect`,
+`forget`, `connectWithPsk`, `known`, `signalStrength`, and a `connectionFailed`
+signal whose `NoSecrets` reason is the cue to ask for a passphrase.
+
+**`Networking.devices` is empty for about a second after startup.** Everything
+reading it has to tolerate a null device rather than assume one.
+
+**`signalStrength` is a 0..1 fraction**, not the 0..100 NetworkManager reports.
+
+**No scan happens until `WifiDevice.scannerEnabled` is set.** Until then the
+network list holds only the one currently connected. Turn it on when the page
+appears and off when it goes, so a closed panel is not scanning on battery.
+
+**`NetworkDevice.address` is the MAC address**, not the IP. There is no IP
+property at all; `NetworkService` parses `ip -j -4 addr show` for it.
+
+**Saved connections here are system-owned** (`psk-flags=0`), so NetworkManager
+reconnects without a secret agent, and `connectWithPsk` passes new secrets
+inline. That is what makes nm-applet optional rather than load-bearing.

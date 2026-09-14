@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=blueman-applet
+# The sidebar's Bluetooth page replaces the tray icon. Hidden=true makes the
+# XDG autostart generator skip /etc/xdg/autostart/blueman.desktop entirely.
+#
+# blueman-applet was also the BlueZ pairing agent, so pairing a device that
+# asks for a PIN now needs `bluetoothctl` or blueman-manager started by hand.
+# Devices already paired connect from the panel without it.
+Hidden=true

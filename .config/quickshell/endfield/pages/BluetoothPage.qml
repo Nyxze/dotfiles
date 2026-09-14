@@ -101,7 +101,9 @@ ColumnLayout {
                 label: modelData.deviceName || modelData.name || modelData.address
                 trailing: page.stateOf(modelData)
                 selected: modelData.connected
+                actionGlyph: modelData.paired ? "󰅖" : ""
 
+                onActionActivated: modelData.forget()
                 onActivated: {
                     if (busy)
                         return;

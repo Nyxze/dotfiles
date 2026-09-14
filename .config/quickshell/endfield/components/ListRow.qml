@@ -13,7 +13,12 @@ Rectangle {
     property bool selected: false
     property color accent: Theme.brightYellow
 
+    // Optional destructive shortcut on the right — forget a network, unpair a
+    // device. Empty means the row has no second action.
+    property string actionGlyph: ""
+
     signal activated
+    signal actionActivated
 
     readonly property bool hovered: mouse.containsMouse
     readonly property color foreground: hovered ? Theme.base : (selected ? accent : Theme.lightGray)
@@ -61,8 +66,8 @@ Rectangle {
 
     Text {
         id: trail
-        anchors.right: parent.right
-        anchors.rightMargin: 10
+        anchors.right: action.visible ? action.left : parent.right
+        anchors.rightMargin: action.visible ? 4 : 10
         anchors.verticalCenter: parent.verticalCenter
         text: item.trailing
         color: item.hovered ? Theme.base : Theme.mediumGray
@@ -76,5 +81,35 @@ Rectangle {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: item.activated()
+    }
+
+    // Stacked after the row's own MouseArea so it wins the click.
+    Rectangle {
+        id: action
+
+        anchors.right: parent.right
+        anchors.rightMargin: 4
+        anchors.verticalCenter: parent.verticalCenter
+        visible: item.actionGlyph !== "" && (item.hovered || actionMouse.containsMouse)
+        width: 26
+        height: 26
+        radius: 6
+        color: actionMouse.containsMouse ? Theme.critical : "transparent"
+
+        Text {
+            anchors.centerIn: parent
+            text: item.actionGlyph
+            color: actionMouse.containsMouse ? Theme.text : Theme.base
+            font.family: Theme.fontFamily
+            font.pixelSize: 14
+        }
+
+        MouseArea {
+            id: actionMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: item.actionActivated()
+        }
     }
 }

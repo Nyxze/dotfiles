@@ -19,6 +19,19 @@ GridLayout {
     Tile {
         Layout.fillWidth: true
 
+        glyph: NetworkService.glyph
+        label: "Network"
+        sublabel: NetworkService.status
+        active: NetworkService.online
+        expandable: true
+
+        onToggled: NetworkService.toggleWifi()
+        onExpanded: tiles.pageRequested("network")
+    }
+
+    Tile {
+        Layout.fillWidth: true
+
         glyph: tiles.adapter && tiles.adapter.enabled ? "󰂯" : "󰂲"
         label: "Bluetooth"
         sublabel: {
@@ -67,17 +80,5 @@ GridLayout {
         active: !TlpService.onBattery
 
         onToggled: TlpService.toggle()
-    }
-
-    Tile {
-        Layout.fillWidth: true
-
-        glyph: "󰐥"
-        label: "Session"
-        sublabel: "Lock · Sleep · Off"
-        expandable: true
-
-        onToggled: tiles.pageRequested("power")
-        onExpanded: tiles.pageRequested("power")
     }
 }

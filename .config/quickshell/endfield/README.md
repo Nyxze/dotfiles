@@ -8,6 +8,11 @@ with real layout and interaction, and the notification daemon.
 It owns `org.freedesktop.Notifications`, so swaync must stay masked — see
 AGENTS.md.
 
+It also replaces the blueman tray icon, which `.config/autostart/blueman.desktop`
+suppresses. BlueZ loses its pairing agent with it: devices already paired
+connect from the panel, but pairing a new one that asks for a PIN needs
+`bluetoothctl` or `blueman-manager` started by hand.
+
 ## Panels
 
 | Panel   | Contents            | Opens with                                 |
@@ -24,6 +29,7 @@ permanently on screen; everything else is a page behind a chevron.
 | Page          | Holds                                              |
 | ------------- | -------------------------------------------------- |
 | notifications | the feed, newest first — the resting page          |
+| network       | wired link, wi-fi list, connect / forget, passphrase entry |
 | output        | sinks, and a slider per playing application        |
 | input         | sources, and what is currently recording           |
 | bluetooth     | adapter power, scan, paired devices with battery   |

@@ -15,6 +15,7 @@ Panel {
         notifications: "Notifications",
         output: "Output",
         input: "Input",
+        network: "Network",
         bluetooth: "Bluetooth",
         calendar: "Calendar",
         power: "Power"
@@ -132,6 +133,8 @@ Panel {
                         return outputPage;
                     case "input":
                         return inputPage;
+                    case "network":
+                        return networkPage;
                     case "bluetooth":
                         return bluetoothPage;
                     case "calendar":
@@ -162,6 +165,12 @@ Panel {
         id: inputPage
 
         InputPage {}
+    }
+
+    Component {
+        id: networkPage
+
+        NetworkPage {}
     }
 
     Component {
