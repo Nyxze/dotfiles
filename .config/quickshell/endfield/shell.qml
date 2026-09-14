@@ -7,16 +7,56 @@ ShellRoot {
     id: root
 
     property bool calendarVisible: false
+    property var targetScreen: null
+
+    // Quickshell's Hyprland.focusedMonitor is never seeded at startup — it only
+    // reflects focus changes that happen afterwards — so ask Hyprland directly
+    // each time instead. One subprocess per toggle is not worth optimising.
+    Process {
+        id: focusQuery
+        command: ["hyprctl", "monitors", "-j"]
+
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let focusedName = "";
+                try {
+                    const monitors = JSON.parse(this.text);
+                    for (const monitor of monitors) {
+                        if (monitor.focused) {
+                            focusedName = monitor.name;
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("calendar: could not read hyprctl monitors:", e);
+                }
+                root.showOn(focusedName);
+            }
+        }
+    }
+
+    function showOn(screenName) {
+        for (const screen of Quickshell.screens) {
+            if (screen.name === screenName) {
+                targetScreen = screen;
+                break;
+            }
+        }
+        calendarVisible = true;
+    }
 
     IpcHandler {
         target: "calendar"
 
         function toggle(): void {
-            root.calendarVisible = !root.calendarVisible;
+            if (root.calendarVisible)
+                root.calendarVisible = false;
+            else
+                focusQuery.running = true;
         }
 
         function show(): void {
-            root.calendarVisible = true;
+            focusQuery.running = true;
         }
 
         function hide(): void {
@@ -28,6 +68,7 @@ ShellRoot {
         id: win
 
         visible: root.calendarVisible
+        screen: root.targetScreen
 
         anchors {
             top: true
@@ -46,7 +87,11 @@ ShellRoot {
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "endfield-calendar"
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
-        exclusionMode: ExclusionMode.Ignore
+
+        // Sit below the bar without reserving any space of its own: Normal
+        // respects other surfaces' zones, and a zero zone claims none.
+        exclusionMode: ExclusionMode.Normal
+        exclusiveZone: 0
 
         Rectangle {
             anchors.fill: parent
