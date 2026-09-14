@@ -35,5 +35,20 @@
         "interval": 20,
         "on-click": "~/.config/hypr/scripts/tlp-ctl.sh toggle",
         "on-click-right": "~/.config/hypr/scripts/tlp-ctl.sh set auto"
+    },
+    "group/status": {
+        "orientation": "horizontal",
+        "drawer": {
+            "transition-duration": 300,
+            "children-class": "status-child",
+            "transition-left-to-right": false
+        },
+        "modules": [
+            "battery",
+            "custom/tlp",
+            "network",
+            "pulseaudio",
+            "pulseaudio#microphone"
+        ]
     }
 }

@@ -159,3 +159,16 @@
     background-color: @critical;
     border-radius: 5px;
 }
+
+/* --- Tooltips, including the clock calendar --- */
+
+tooltip {
+    background-color: @base;
+    border: 1px solid alpha(@overlay, 0.45);
+    border-radius: 8px;
+}
+
+tooltip label {
+    color: @light-gray;
+    padding: 6px;
+}

@@ -13,11 +13,11 @@
             "warning": 30,
             "critical": 15
         },
-        "format": "{icon} {capacity}%",
-        "format-charging": " {capacity}%",
-        "format-plugged": "󱘖 {capacity}%",
-        "format-full": "{icon} Full",
-        "format-alt": "{icon} {time}",
+        "format": "{icon}",
+        "format-charging": "{icon}",
+        "format-plugged": "{icon}",
+        "format-full": "{icon}",
+        "format-alt": "{icon}  {capacity}%",
         "format-icons": [
             "󰂎",
             "󰁺",
@@ -33,12 +33,12 @@
         ],
         "format-time": "{H}h {M}min",
         "tooltip": true,
-        "tooltip-format": "{timeTo} {power}w"
+        "tooltip-format": "{capacity}%  |  {timeTo}  |  {power}w"
     },
     "clock": {
-        "interval": 1,
-        "format": "{:%I:%M %p}",
-        "format-alt": "{:%H:%M   %Y, %d %B, %A}",
+        "interval": 30,
+        "format": "{:%H:%M}",
+        "format-alt": "{:%a %d %b  %H:%M}",
         "tooltip-format": "<tt><small>{calendar}</small></tt>",
         "locale": "fr_FR.UTF-8",
         "timezones": [
@@ -51,17 +51,17 @@
             "mode": "month",
             "weeks-pos": "right",
             "format": {
-                "months": "<span color='#ffead3'><b>{}</b></span>",
-                "days": "<span color='#ecc6d9'><b>{}</b></span>",
-                "weeks": "<span color='#99ffdd'><b>W{:%V}</b></span>",
-                "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
-                "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
+                "months": "<span color='#DFE3E3'><b>{}</b></span>",
+                "days": "<span color='#A0AAA9'>{}</span>",
+                "weeks": "<span color='#7E807C'>W{:%V}</span>",
+                "weekdays": "<span color='#657136'><b>{}</b></span>",
+                "today": "<span color='#171717' bgcolor='#FFFA00'><b>{}</b></span>"
             }
         }
     },
     "pulseaudio": {
-        "format": "{icon}   {volume}%",
-        "format-bluetooth": "{icon} 󰂰  {volume}%",
+        "format": "{icon}",
+        "format-bluetooth": "{icon}",
         "format-muted": "󰖁",
         "format-icons": {
             "headphone": "",
@@ -82,7 +82,8 @@
         "scroll-step": 5.0,
         "on-click-right": "pavucontrol -t 3",
         "tooltip-format": "{icon} {desc} | {volume}%",
-        "smooth-scrolling-threshold": 1
+        "smooth-scrolling-threshold": 1,
+        "format-alt": "{icon}  {volume}%"
     },
     "pulseaudio#1": {
         "format": "{icon} {volume}%",
@@ -116,7 +117,7 @@
         "scroll-step": 5
     },
     "network": {
-        "format-wifi": "󰖩  {signalStrength}%",
+        "format-wifi": "󰖩",
         "format-ethernet": "󰈀",
         "format-linked": "󰈀",
         "format-disconnected": "󰖪",
@@ -125,7 +126,8 @@
         "tooltip-format-ethernet": "{ifname} | {ipaddr}",
         "tooltip-format-disconnected": "Disconnected",
         "interval": 5,
-        "on-click": "uwsm app -- nm-connection-editor"
+        "on-click": "uwsm app -- nm-connection-editor",
+        "format-alt": "󰖩  {signalStrength}%"
     },
     "custom/notification": {
         "format": "{icon}",
