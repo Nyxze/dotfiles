@@ -12,54 +12,75 @@ endfield/
   qmldir                 declares the singletons (see the constraint below)
   Theme.qml              singleton: palette, fonts, metrics
   FocusedScreen.qml      singleton: resolves which ShellScreen a panel opens on
-  components/            reusable and domain-free — Panel, Card, IconButton, LevelSlider
-  widgets/               one subject each: audio, power, calendar
-  panels/                composes widgets into a surface
+  NotificationService.qml  singleton: owns org.freedesktop.Notifications
+  AudioService.qml       singleton: the one view onto PipeWire, holds the tracker
+  TlpService.qml         singleton: power mode, read and written through tlp-ctl.sh
+  components/            reusable and domain-free — Panel, Tile, SliderRow, ListRow,
+                         Section, IconButton, LevelSlider
+  widgets/               always-visible pieces of the sidebar head
+  pages/                 the swappable detail views
+  panels/                composes the above into a surface
 ```
 
 The split that matters: `components/` must stay ignorant of what it displays. A
 component that mentions a month, a volume level or a battery belongs in
-`widgets/`. When a widget grows a piece a second widget could use, move that
-piece into `components/` and strip whatever tied it to the first.
+`widgets/` or `pages/`. When one of those grows a piece a second could use,
+move that piece into `components/` and strip whatever tied it to the first.
 
-`panels/` should contain almost no markup — a panel picks widgets and stacks
-them. Logic there is a sign something belongs in a widget.
+Anything that talks to a daemon belongs in a singleton, not in the view. A
+widget and a page that need the same state must read it from the same service —
+two `Process` blocks polling the same command is the failure mode to avoid.
 
-## Adding a widget
+`panels/` should contain almost no markup — a panel arranges widgets and routes
+between pages.
 
-Derive from `Card`, take the title, and put the subject's own state in it.
-Children stack vertically; non-visual children (`Process`, `Timer`,
-`PwObjectTracker`) can sit alongside the visual ones.
+## The sidebar
 
-```qml
-import ".."
-import "../components"
-import QtQuick.Layouts
+Quick settings, not a stack of cards: a fixed head that never scrolls over a
+content region that swaps.
 
-Card {
-    title: "Subject"
-
-    RowLayout {
-        Layout.fillWidth: true
-        // …
-    }
-}
+```
+SidebarHeader     clock · battery          → calendar / power page
+QuickTiles        bluetooth · dnd · tlp · session
+VolumeControls    output · input · live input meter
+─────────────
+<page>            notifications by default, detail pages behind the chevrons
 ```
 
-Then add it to a panel's stack. Nothing else to register.
+`Sidebar.page` names the visible page; `show(name)` toggles, so a chevron is
+both the way in and the way back. Closing the panel resets to notifications.
+
+## Adding a page
+
+1. `pages/YourPage.qml` — a `ColumnLayout`, no frame of its own; group rows with
+   `Section` and use `ListRow` for anything selectable.
+2. Add a case to `Sidebar`'s `sourceComponent` switch, a `Component` wrapper,
+   and an entry in `pageTitles`.
+3. Give it an entry point: a `Tile` with `expandable: true`, or a `SliderRow`
+   chevron.
+
+Reach it directly with `qs -c endfield ipc call sidebar page <name>` — which is
+also how to screenshot it without clicking.
+
+## Adding a head widget
+
+Only for state worth keeping on screen permanently. Everything else is a page.
+A head widget emits `pageRequested(string)` rather than knowing what the
+sidebar does with it.
 
 ## Adding a panel
 
 1. `panels/YourPanel.qml` — derive from `Panel`, set `surfaceName`, size and
-   anchors, stack widgets inside.
+   anchors, put the content inside.
 2. Mount it in `shell.qml` and add an `IpcHandler` with its own `target`.
 3. Bind it in `.config/hypr/keybinds.conf` with
    `qs -c endfield ipc call <target> toggle`.
 
 `Panel` already handles layer-shell placement, the frame, Escape to close, and
 opening on the focused screen. A panel that re-implements any of that is a bug.
-Wrap the stack in a `Flickable` so it scrolls instead of clipping on a short
-screen.
+
+Set `contentHeight` so the frame grows with what is in it, and wrap any list
+that can outgrow the screen in a `Flickable`.
 
 ## Constraints that cost time to find
 
@@ -88,6 +109,24 @@ makes it disregard waybar's exclusive zone and sit underneath it. `Normal` plus
 **`qs -c endfield ipc call <target> show` collides with the `ipc show`
 subcommand** and prints the target list instead of calling. Use `toggle`, or
 call the function something other than `show`.
+
+**A panel cannot work out how much height the bar left it.** Anchoring top only
+and capping at `screen.height` overshoots by the bar's exclusive zone. Anchor
+top *and* bottom so the compositor reports the real available height in
+`panel.height`, size the frame to `min(contentHeight, panel.height)`, and set
+`mask: Region { item: frame }` so the unused strip still passes clicks through.
+
+**A `MouseArea` placed straight into a `RowLayout` or `ColumnLayout` is sized by
+the layout**, so `anchors.fill: parent` warns and does nothing useful. Wrap the
+block in a plain `Item` and put the `MouseArea` inside that.
+
+**`Timer` comes from `QtQuick`.** A singleton that imports only `Quickshell` and
+`Quickshell.Io` fails to load with `Timer is not a type`, and the error surfaces
+as a chain of unrelated "Type X unavailable" lines up through every singleton.
+
+**Edits to this repository are not live.** Quickshell watches
+`~/.config/quickshell/endfield`. Deploy before testing, or you will be reading
+screenshots of the previous version.
 
 ## Testing without taking over the screen
 

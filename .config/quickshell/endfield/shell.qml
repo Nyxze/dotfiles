@@ -28,6 +28,13 @@ ShellRoot {
         function close(): void {
             sidebar.closePanel();
         }
+
+        // Lets a keybind land straight on a detail page, and is how the panel
+        // gets driven during headless screenshot runs.
+        function page(name: string): void {
+            sidebar.openPanel();
+            sidebar.page = name;
+        }
     }
 
     IpcHandler {

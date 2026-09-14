@@ -18,6 +18,12 @@ PanelWindow {
     property bool shown: false
     property var resolvedScreen: null
 
+    // Height of the visible frame, or -1 to fill the window. A panel anchored
+    // top to bottom gets the real available height from the compositor, which
+    // is the only way to know what the bar's exclusive zone left over; the
+    // input mask then keeps the unused strip click-through.
+    property int contentHeight: -1
+
     visible: shown
     screen: resolvedScreen
     color: "transparent"
@@ -52,8 +58,20 @@ PanelWindow {
             openPanel();
     }
 
+    mask: Region {
+        item: frame
+    }
+
     Rectangle {
-        anchors.fill: parent
+        id: frame
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        height: panel.contentHeight < 0
+            ? panel.height
+            : Math.min(panel.contentHeight, panel.height)
+
         radius: Theme.radius
         color: Theme.base
         border.width: 1

@@ -5,7 +5,7 @@ import QtQuick.Layouts
 
 // Month grid, Monday first. Navigating never moves `today`, so the current day
 // stays highlighted only when its own month is on screen.
-Card {
+ColumnLayout {
     id: cal
 
     readonly property var locale: Qt.locale("fr_FR")
@@ -30,7 +30,7 @@ Card {
         viewMonth = today.getMonth();
     }
 
-    title: "Calendar"
+    spacing: 10
 
     RowLayout {
         Layout.fillWidth: true
@@ -52,7 +52,7 @@ Card {
         }
 
         IconButton {
-            glyph: "●"
+            glyph: "󰃭"
             onActivated: cal.resetToToday()
         }
 
@@ -70,8 +70,10 @@ Card {
 
         Repeater {
             model: 7
+
             Text {
                 required property int index
+
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 text: cal.locale.standaloneDayName((index + 1) % 7, Locale.ShortFormat)
@@ -97,13 +99,13 @@ Card {
                     && cal.viewYear === cal.today.getFullYear()
 
                 Layout.fillWidth: true
-                implicitHeight: 30
+                implicitHeight: 34
 
                 Rectangle {
                     anchors.centerIn: parent
-                    width: 27
-                    height: 27
-                    radius: 8
+                    width: 28
+                    height: 28
+                    radius: 9
                     color: parent.isToday ? Theme.brightYellow : "transparent"
                 }
 

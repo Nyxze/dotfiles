@@ -10,13 +10,31 @@ AGENTS.md.
 
 ## Panels
 
-| Panel   | Contents                  | Opens with                                 |
-| ------- | ------------------------- | ------------------------------------------ |
-| Sidebar | Notifications, power, audio, calendar | `SUPER+D`, or right-click the waybar clock |
-| Toasts  | Live notifications                    | appear on their own                        |
+| Panel   | Contents            | Opens with                                 |
+| ------- | ------------------- | ------------------------------------------ |
+| Sidebar | Quick settings      | `SUPER+D`, or right-click the waybar clock |
+| Toasts  | Live notifications  | appear on their own                        |
 
 Escape closes whichever panel has focus. A panel opens on the screen that has
-focus, below the bar.
+focus, below the bar, and is only as tall as its content.
+
+The sidebar keeps the clock, battery, quick toggles and the two volume sliders
+permanently on screen; everything else is a page behind a chevron.
+
+| Page          | Holds                                              |
+| ------------- | -------------------------------------------------- |
+| notifications | the feed, newest first — the resting page          |
+| output        | sinks, and a slider per playing application        |
+| input         | sources, and what is currently recording           |
+| bluetooth     | adapter power, scan, paired devices with battery   |
+| calendar      | month grid                                         |
+| power         | TLP mode, and lock / suspend / log out / reboot / off |
+
+Jump straight to one:
+
+```bash
+qs -c endfield ipc call sidebar page bluetooth
+```
 
 ## Running
 
