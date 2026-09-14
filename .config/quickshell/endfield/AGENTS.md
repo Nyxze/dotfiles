@@ -12,40 +12,54 @@ endfield/
   qmldir                 declares the singletons (see the constraint below)
   Theme.qml              singleton: palette, fonts, metrics
   FocusedScreen.qml      singleton: resolves which ShellScreen a panel opens on
-  components/            reusable and domain-free — no calendar, no clock, no battery
-  panels/                one file per panel, plus the widgets only that panel uses
+  components/            reusable and domain-free — Panel, Card, IconButton, LevelSlider
+  widgets/               one subject each: audio, power, calendar
+  panels/                composes widgets into a surface
 ```
 
 The split that matters: `components/` must stay ignorant of what it displays. A
-component that mentions a month, a volume level or a workspace belongs in
-`panels/`. When two panels need the same piece, move it into `components/` and
-strip whatever tied it to one of them.
+component that mentions a month, a volume level or a battery belongs in
+`widgets/`. When a widget grows a piece a second widget could use, move that
+piece into `components/` and strip whatever tied it to the first.
+
+`panels/` should contain almost no markup — a panel picks widgets and stacks
+them. Logic there is a sign something belongs in a widget.
+
+## Adding a widget
+
+Derive from `Card`, take the title, and put the subject's own state in it.
+Children stack vertically; non-visual children (`Process`, `Timer`,
+`PwObjectTracker`) can sit alongside the visual ones.
+
+```qml
+import ".."
+import "../components"
+import QtQuick.Layouts
+
+Card {
+    title: "Subject"
+
+    RowLayout {
+        Layout.fillWidth: true
+        // …
+    }
+}
+```
+
+Then add it to a panel's stack. Nothing else to register.
 
 ## Adding a panel
 
 1. `panels/YourPanel.qml` — derive from `Panel`, set `surfaceName`, size and
-   anchors, put the content inside.
+   anchors, stack widgets inside.
 2. Mount it in `shell.qml` and add an `IpcHandler` with its own `target`.
 3. Bind it in `.config/hypr/keybinds.conf` with
    `qs -c endfield ipc call <target> toggle`.
 
 `Panel` already handles layer-shell placement, the frame, Escape to close, and
 opening on the focused screen. A panel that re-implements any of that is a bug.
-
-```qml
-import ".."
-import "../components"
-
-Panel {
-    anchors { top: true; right: true }
-    margins { top: 10; right: 10 }
-    surfaceName: "endfield-yourpanel"
-    implicitWidth: 340
-    implicitHeight: 400
-
-    YourContent { anchors.fill: parent }
-}
-```
+Wrap the stack in a `Flickable` so it scrolls instead of clipping on a short
+screen.
 
 ## Constraints that cost time to find
 
@@ -81,17 +95,19 @@ Hyprland can create an off-screen output to render into:
 
 ```bash
 hyprctl output create headless                    # appears as HEADLESS-n
+hyprctl keyword monitor HEADLESS-1,1920x1080@60,3520x0,1   # match a real screen
 hyprctl keyword workspace 6,monitor:HEADLESS-1,default:true
 hyprctl dispatch focusmonitor HEADLESS-1          # panels open on the focused screen
-qs -c endfield ipc call calendar toggle
+qs -c endfield ipc call sidebar toggle
 grim -o HEADLESS-1 /tmp/shot.png
 hyprctl output remove HEADLESS-1
 ```
 
 Two traps when reading the result:
 
-- The headless output renders at scale 2, so a 340×400 panel is 680×800 pixels
-  in the capture.
+- A fresh headless output defaults to 1920x1080 at scale 2, so it is 960x540
+  logical and captures at 2x — panels get clipped and every measurement is
+  doubled. Set its mode explicitly, as above, before judging a layout.
 - `hyprctl layers` lists panels under `surfaceName`. A panel that does not set
   one appears as `quickshell`, which makes it look absent if you grep for the
   name you expected.
@@ -112,3 +128,28 @@ them.
 
 Never hardcode a colour in a component. If `Theme` is missing a token, add it
 there.
+
+## Service quirks found so far
+
+**`UPowerDevice.percentage` is a 0..1 fraction**, not a percentage, despite the
+name. Multiply by 100 to display it.
+
+**Pipewire nodes are told apart by two flags, not one.** Output devices are
+`isSink && !isStream`; applications playing sound are `isSink && isStream`.
+Capture devices and recording streams mirror that with `isSink` false.
+
+**Pipewire node properties stay empty without a tracker.** A
+`PwObjectTracker { objects: … }` covering the nodes you bind to is what makes
+`node.audio.volume` readable at all.
+
+**`UPower.PowerProfiles` reports nothing on this machine.** It talks to
+power-profiles-daemon, and this system runs TLP instead. `tlp-stat -m` reads
+the current mode without root; changing it goes through `pkexec` and will
+prompt for a password.
+
+## Division of labour with swaync
+
+swaync stays the notification daemon and owns notification history, do-not-
+disturb and the media player. Its control centre was trimmed to those when the
+sidebar took over toggles and sliders — do not reintroduce a control that
+exists on both sides.

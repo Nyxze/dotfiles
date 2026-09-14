@@ -1,11 +1,11 @@
 import ".."
+import "../components"
 import QtQuick
 import QtQuick.Layouts
-import "../components"
 
 // Month grid, Monday first. Navigating never moves `today`, so the current day
 // stays highlighted only when its own month is on screen.
-ColumnLayout {
+Card {
     id: cal
 
     readonly property var locale: Qt.locale("fr_FR")
@@ -30,7 +30,7 @@ ColumnLayout {
         viewMonth = today.getMonth();
     }
 
-    spacing: 12
+    title: "Calendar"
 
     RowLayout {
         Layout.fillWidth: true
@@ -41,7 +41,7 @@ ColumnLayout {
             text: cal.viewDate.toLocaleString(cal.locale, "MMMM yyyy")
             color: Theme.text
             font.family: Theme.fontFamily
-            font.pixelSize: 17
+            font.pixelSize: 16
             font.capitalization: Font.Capitalize
             font.weight: Font.DemiBold
         }
@@ -77,7 +77,7 @@ ColumnLayout {
                 text: cal.locale.standaloneDayName((index + 1) % 7, Locale.ShortFormat)
                 color: Theme.oliveGreen
                 font.family: Theme.fontFamily
-                font.pixelSize: 12
+                font.pixelSize: 11
                 font.capitalization: Font.AllUppercase
                 font.weight: Font.DemiBold
             }
@@ -97,12 +97,12 @@ ColumnLayout {
                     && cal.viewYear === cal.today.getFullYear()
 
                 Layout.fillWidth: true
-                implicitHeight: 34
+                implicitHeight: 30
 
                 Rectangle {
                     anchors.centerIn: parent
-                    width: 30
-                    height: 30
+                    width: 27
+                    height: 27
                     radius: 8
                     color: parent.isToday ? Theme.brightYellow : "transparent"
                 }
@@ -113,7 +113,7 @@ ColumnLayout {
                     text: parent.day
                     color: parent.isToday ? Theme.base : Theme.lightGray
                     font.family: Theme.fontFamily
-                    font.pixelSize: 14
+                    font.pixelSize: 13
                     font.weight: parent.isToday ? Font.Bold : Font.Normal
                 }
             }

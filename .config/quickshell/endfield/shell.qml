@@ -5,23 +5,23 @@ import "panels"
 // Entry point. Mounts each panel and exposes it over IPC; panels own their own
 // layout and content, the shell only wires them up.
 ShellRoot {
-    CalendarPanel {
-        id: calendar
+    Sidebar {
+        id: sidebar
     }
 
     IpcHandler {
-        target: "calendar"
+        target: "sidebar"
 
         function toggle(): void {
-            calendar.toggle();
+            sidebar.toggle();
         }
 
-        function show(): void {
-            calendar.openPanel();
+        function open(): void {
+            sidebar.openPanel();
         }
 
-        function hide(): void {
-            calendar.closePanel();
+        function close(): void {
+            sidebar.closePanel();
         }
     }
 }

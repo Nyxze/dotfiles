@@ -7,9 +7,9 @@ with real layout and interaction.
 
 ## Panels
 
-| Panel    | Opens with                              |
-| -------- | --------------------------------------- |
-| Calendar | `SUPER+D`, or right-click the waybar clock |
+| Panel   | Contents                  | Opens with                                 |
+| ------- | ------------------------- | ------------------------------------------ |
+| Sidebar | Power, audio, calendar    | `SUPER+D`, or right-click the waybar clock |
 
 Escape closes whichever panel has focus. A panel opens on the screen that has
 focus, below the bar.
