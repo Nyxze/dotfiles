@@ -54,6 +54,7 @@ keybind = ctrl+F4=close_tab
 cursor-style = bar
 cursor-style-blink = true
 keybind = ctrl+enter=unbind
+keybind = ctrl+tab=text:\x1b[9;5u
 font-family = "NotoMono Nerd Font"
 font-size = 12
 shell-integration-features = ssh-terminfo, no-cursor

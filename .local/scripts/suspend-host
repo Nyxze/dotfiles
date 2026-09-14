@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Suspend a remote machine over SSH. Defaults to nixze-hq.
+# Usage: suspend-host [host]
+
+set -euo pipefail
+
+HOST="${1:-nixze-hq}"
+
+ssh -t "$HOST" 'sudo systemctl suspend'

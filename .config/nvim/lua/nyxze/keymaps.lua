@@ -22,7 +22,7 @@ vim.keymap.set('n', '<C-f>', '<cmd>silent !tmux neww tmux-sus<CR>')
 
 vim.keymap.set('n', 'Q', '<nop>')
 -- Copy
-vim.keymap.set('x', 'p', '"_dp')
+vim.keymap.set('x', 'p', '"_dP')
 
 -- Diagnostic keymaps
 vim.keymap.set({ 'n', 'i' }, '<C-/>', 'gcc', { desc = '[C]omment selection' })
@@ -54,4 +54,8 @@ vim.keymap.set('n', '<leader>gb', function()
   require('gitsigns').blame_line { full = true }
 end, { desc = '[G]it [B]lame ' })
 
+vim.keymap.set('n', '<leader><Tab>', '<C-^>', { desc = 'Toggle last buffer' })
+vim.keymap.set('n', '<C-Tab>', '<C-^>', { desc = 'Toggle last buffer' })
+
 vim.keymap.set('n', '<leader>q', '<cmd>bdelete<CR>', { desc = '[Q]uit buffer' })
+

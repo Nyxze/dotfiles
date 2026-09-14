@@ -277,7 +277,6 @@
   "git.replaceTagsWhenPull": true,
   "editor.minimap.enabled": false,
   "editor.cursorSurroundingLinesStyle": "all",
-  "editor.cursorSurroundingLines": 50,
   "git.confirmSync": false,
   "redhat.telemetry.enabled": true,
   "explorer.confirmDelete": false,
@@ -290,5 +289,21 @@
       "name": "Community Server Connector",
       "startOnActivation": true
     }
-  ]
+  ],
+  "workbench.activityBar.location": "top",
+  "workbench.secondarySideBar.defaultVisibility": "visible",
+  "chat.viewSessions.orientation": "stacked",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "explorer.confirmDragAndDrop": false,
+  "chat.mcp.gallery.enabled": true,
+  "jupyter.askForKernelRestart": false,
+  "explorer.confirmPasteNative": false,
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false
+  },
+  "security.workspace.trust.untrustedFiles": "open"
 }
