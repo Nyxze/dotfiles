@@ -1,0 +1,37 @@
+@import url("../theme/endfield.css");
+
+/* libadwaita reads these at runtime, so redefining them is enough here. */
+@define-color accent_color @feint-yellow;
+@define-color accent_bg_color @bright-yellow;
+@define-color accent_fg_color @base;
+
+@define-color destructive_color @critical;
+@define-color destructive_bg_color @critical;
+@define-color destructive_fg_color @base;
+
+@define-color success_color @success;
+@define-color success_bg_color @success;
+@define-color success_fg_color @base;
+
+@define-color warning_color @feint-yellow;
+@define-color warning_bg_color @feint-yellow;
+@define-color warning_fg_color @base;
+
+@define-color error_color @critical;
+@define-color error_bg_color @critical;
+@define-color error_fg_color @base;
+
+@define-color window_bg_color @base;
+@define-color window_fg_color @text;
+@define-color view_bg_color @base;
+@define-color view_fg_color @text;
+@define-color headerbar_bg_color @charcoal;
+@define-color headerbar_fg_color @text;
+@define-color sidebar_bg_color @charcoal;
+@define-color sidebar_fg_color @text;
+@define-color popover_bg_color @charcoal;
+@define-color popover_fg_color @text;
+@define-color card_bg_color @charcoal;
+@define-color card_fg_color @text;
+@define-color dialog_bg_color @charcoal;
+@define-color dialog_fg_color @text;

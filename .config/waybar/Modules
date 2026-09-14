@@ -114,5 +114,37 @@
         "on-click-right": "pavucontrol -t 4",
         "tooltip-format": "{source_desc} | {source_volume}%",
         "scroll-step": 5
+    },
+    "network": {
+        "format-wifi": "󰖩  {signalStrength}%",
+        "format-ethernet": "󰈀",
+        "format-linked": "󰈀",
+        "format-disconnected": "󰖪",
+        "tooltip-format": "{ifname} via {gwaddr}",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%) | {ipaddr}",
+        "tooltip-format-ethernet": "{ifname} | {ipaddr}",
+        "tooltip-format-disconnected": "Disconnected",
+        "interval": 5,
+        "on-click": "uwsm app -- nm-connection-editor"
+    },
+    "custom/notification": {
+        "format": "{icon}",
+        "format-icons": {
+            "notification": "󰂚",
+            "none": "󰂜",
+            "dnd-notification": "󰂛",
+            "dnd-none": "󰪑",
+            "inhibited-notification": "󰂚",
+            "inhibited-none": "󰂜",
+            "dnd-inhibited-notification": "󰂛",
+            "dnd-inhibited-none": "󰪑"
+        },
+        "return-type": "json",
+        "exec": "swaync-client -swb",
+        "exec-if": "which swaync-client",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
+        "tooltip": false,
+        "escape": true
     }
 }

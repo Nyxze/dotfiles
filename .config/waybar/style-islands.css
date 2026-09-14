@@ -1,75 +1,82 @@
-/* Flat variant: no module backgrounds, the bar reads as text over the wallpaper.
- * Active state is carried by the yellow rule above a workspace, never by a fill. */
+/* Islands variant: same modules and same palette as the flat stylesheet, but each
+ * module sits in its own charcoal pill instead of floating on the wallpaper.
+ * Pills are applied per module rather than per group, so a drawer child slides
+ * out as its own pill instead of growing the parent. */
 
 @import "../theme/endfield.css";
 
 * {
     font-family: "HarmonyOS Sans", "NotoMono Nerd Font", sans-serif;
-    font-size: 16px;
+    font-size: 15px;
     min-height: 0;
 }
 
 #waybar {
     background: transparent;
     color: @light-gray;
-    margin: 4px 4px;
+}
+
+#workspaces,
+#clock,
+#battery,
+#custom-tlp,
+#pulseaudio,
+#network,
+#custom-notification,
+#custom-power,
+#tray {
+    background-color: @charcoal;
+    border: 1px solid alpha(@overlay, 0.35);
+    border-radius: 8px;
+    color: @light-gray;
+    margin: 5px 3px;
+    padding: 0 12px;
+    transition: all 0.2s ease;
 }
 
 /* --- Workspaces --- */
 
+#workspaces {
+    padding: 0 4px;
+}
+
 #workspaces button {
     color: @medium-gray;
     background-color: transparent;
-    font-size: 18px;
-    padding: 0 12px;
-    margin: 4px 4px 0 4px;
-    border-top: 4px solid transparent;
-    border-radius: 2px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    padding: 0 10px;
+    margin: 3px 2px;
     transition: all 0.2s ease;
 }
 
 #workspaces button.active {
-    color: @bright-yellow;
-    border-top-color: @bright-yellow;
+    color: @base;
+    background-color: @bright-yellow;
 }
 
 #workspaces button.urgent {
-    color: @critical;
-    border-top-color: @critical;
+    color: @base;
+    background-color: @critical;
 }
 
 #workspaces button:hover {
-    background-color: @olive-green;
     color: @base;
-    border-top-color: @feint-yellow;
+    background-color: @olive-green;
 }
 
-/* --- Right-hand modules --- */
+/* --- Hover --- */
 
-#battery,
-#clock,
-#pulseaudio,
-#custom-tlp,
-#custom-power,
-#custom-notification,
-#network,
-#tray {
-    color: @light-gray;
-    background-color: transparent;
-    padding: 0 10px;
-    transition: all 0.2s ease;
-}
-
-#battery:hover,
 #clock:hover,
-#pulseaudio:hover,
+#battery:hover,
 #custom-tlp:hover,
-#custom-power:hover,
-#custom-notification:hover,
-#network:hover {
-    color: @base;
+#pulseaudio:hover,
+#network:hover,
+#custom-notification:hover {
     background-color: @olive-green;
-    border-radius: 5px;
+    border-color: @feint-yellow;
+    color: @base;
 }
 
 #clock {
@@ -77,13 +84,15 @@
 }
 
 #custom-power {
-    font-size: 20px;
     color: @medium-gray;
+    font-size: 18px;
+    padding: 0 14px;
 }
 
 #custom-power:hover {
-    color: @base;
     background-color: @critical;
+    border-color: @critical;
+    color: @base;
 }
 
 /* --- Battery states ---
@@ -108,7 +117,9 @@
 }
 
 #battery.critical:not(.charging):not(.plugged) {
-    color: @critical;
+    color: @base;
+    background-color: @critical;
+    border-color: @critical;
 }
 
 /* --- Audio --- */
@@ -156,6 +167,4 @@
 
 #tray > .needs-attention {
     -gtk-icon-effect: highlight;
-    background-color: @critical;
-    border-radius: 5px;
 }

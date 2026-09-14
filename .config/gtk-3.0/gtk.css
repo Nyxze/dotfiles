@@ -1,0 +1,56 @@
+@import url("../theme/endfield.css");
+
+/* GTK3 resolves a theme's named colours while parsing that theme, so
+ * redefining accent_bg_color here never reaches Adwaita. Every accent has to
+ * be restated as a real rule. GTK4 does not have this problem. */
+
+selection,
+*:selected,
+*:selected:focus {
+    background-color: @bright-yellow;
+    color: @base;
+}
+
+entry selection,
+textview text selection {
+    background-color: @bright-yellow;
+    color: @base;
+}
+
+*:link,
+button.link {
+    color: @feint-yellow;
+}
+
+check:checked,
+radio:checked {
+    background-color: @bright-yellow;
+    border-color: @bright-yellow;
+    color: @base;
+}
+
+switch:checked {
+    background-color: @bright-yellow;
+}
+
+switch:checked slider {
+    background-color: @base;
+}
+
+progressbar progress,
+levelbar block.filled {
+    background-color: @bright-yellow;
+    border-color: @bright-yellow;
+}
+
+scale highlight {
+    background-color: @bright-yellow;
+}
+
+*:focus-visible {
+    outline-color: @feint-yellow;
+}
+
+spinner {
+    color: @bright-yellow;
+}

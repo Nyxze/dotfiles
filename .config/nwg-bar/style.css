@@ -1,35 +1,46 @@
+/* Endfield power menu. */
+
+@import "../theme/endfield.css";
+
 window {
-        background-color: rgba (0, 0, 0, 1.0)
+    background-color: alpha(@base, 0.75);
 }
 
 /* Outer bar container, takes all the window width/height */
 #outer-box {
-	margin: 0px
+    margin: 0;
 }
 
 /* Inner bar container, surrounds buttons */
 #inner-box {
-	background-color: rgba (0, 0, 0, 0.85);
-	border-radius: 10px;
-	border-style: none;
-	border-width: 1px;
-	border-color: rgba (156, 142, 122, 0.7);
-	padding: 5px;
-	margin: 5px
+    background-color: @base;
+    border: 1px solid alpha(@overlay, 0.45);
+    border-radius: 12px;
+    margin: 5px;
+    padding: 10px;
 }
 
 button, image {
-	background: none;
-	border: none;
-	box-shadow: none
+    background: none;
+    border: none;
+    box-shadow: none;
 }
 
 button {
-	padding-left: 10px;
-	padding-right: 10px;
-	margin: 5px
+    border: 2px solid transparent;
+    border-radius: 10px;
+    color: @light-gray;
+    margin: 6px;
+    padding: 12px 18px;
+    transition: all 0.15s ease;
 }
 
 button:hover {
-	background-color: rgba (255, 255, 255, 0.1)
+    background-color: @charcoal;
+    border-color: @bright-yellow;
+    color: @text;
+}
+
+button:focus {
+    border-color: @feint-yellow;
 }

@@ -1,0 +1,17 @@
+/* Endfield palette for rofi. */
+
+* {
+    base:          #171717;
+    charcoal:      #313739;
+    overlay:       #565656;
+    medium-gray:   #7E807C;
+    light-gray:    #A0AAA9;
+    text-color:    #DFE3E3;
+
+    olive-green:   #657136;
+    feint-yellow:  #F8F546;
+    bright-yellow: #FFFA00;
+
+    success:       #A3B84A;
+    critical:      #E95460;
+}

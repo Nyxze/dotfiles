@@ -1,0 +1,99 @@
+@import "../theme/endfield.rasi"
+
+* {
+    background-color: transparent;
+    text-color:       @light-gray;
+    margin:           0;
+    padding:          0;
+    spacing:          0;
+}
+
+window {
+    background-color: @base;
+    border:           2px;
+    border-color:     @bright-yellow;
+    border-radius:    10px;
+    width:            36%;
+    padding:          16px;
+}
+
+mainbox {
+    children: [ inputbar, message, listview ];
+    spacing:  12px;
+}
+
+inputbar {
+    background-color: @charcoal;
+    border-radius:    8px;
+    padding:          10px 14px;
+    spacing:          10px;
+    children:         [ prompt, entry ];
+}
+
+prompt {
+    text-color: @bright-yellow;
+}
+
+entry {
+    placeholder:       "";
+    placeholder-color: @overlay;
+    text-color:        @text;
+}
+
+message {
+    background-color: @charcoal;
+    border-radius:    8px;
+    padding:          8px 14px;
+}
+
+listview {
+    lines:        10;
+    columns:      1;
+    scrollbar:    false;
+    fixed-height: false;
+    spacing:      4px;
+}
+
+element {
+    border-radius: 8px;
+    padding:       9px 14px;
+    spacing:       12px;
+}
+
+element normal.normal {
+    text-color: @light-gray;
+}
+
+element alternate.normal {
+    text-color: @light-gray;
+}
+
+element selected.normal {
+    background-color: @bright-yellow;
+    text-color:       @base;
+}
+
+element urgent.normal {
+    text-color: @critical;
+}
+
+element active.normal {
+    text-color: @feint-yellow;
+}
+
+element selected.active {
+    background-color: @olive-green;
+    text-color:       @base;
+}
+
+element-icon {
+    size:              24px;
+    vertical-align:    0.5;
+    background-color:  transparent;
+}
+
+element-text {
+    vertical-align:   0.5;
+    background-color: transparent;
+    text-color:       inherit;
+}

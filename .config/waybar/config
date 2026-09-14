@@ -31,8 +31,10 @@
     ],
     "modules-center": [],
     "modules-right": [
-    	"group/battery",
+        "group/battery",
+        "network",
         "clock",
+        "custom/notification",
         "custom/power",
         "tray",
         "group/audio"

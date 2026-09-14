@@ -1,0 +1,206 @@
+/* Endfield notification centre. Toasts and the control centre share one
+ * charcoal-on-base language; yellow marks anything actionable. */
+
+@import "../theme/endfield.css";
+
+* {
+    font-family: "HarmonyOS Sans", "NotoMono Nerd Font", sans-serif;
+    font-size: 14px;
+}
+
+/* swaync paints this behind the control centre; anything but fully
+ * transparent shows up as a grey sheet over the whole screen. */
+.blank-window {
+    background: transparent;
+}
+
+/* --- Toasts --- */
+
+.floating-notifications .notification-row {
+    background: transparent;
+}
+
+.notification-row {
+    outline: none;
+}
+
+.notification {
+    background-color: @base;
+    border: 1px solid alpha(@overlay, 0.4);
+    border-radius: 10px;
+    margin: 6px 10px;
+    padding: 0;
+}
+
+.notification-content {
+    background: transparent;
+    color: @text;
+    padding: 12px;
+}
+
+.notification.critical {
+    border-color: @critical;
+}
+
+.notification.low {
+    border-color: alpha(@overlay, 0.25);
+}
+
+.summary {
+    color: @text;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.time {
+    color: @medium-gray;
+    font-size: 12px;
+}
+
+.body {
+    color: @light-gray;
+}
+
+.close-button {
+    background-color: transparent;
+    color: @medium-gray;
+    border: none;
+    border-radius: 6px;
+    margin: 6px;
+    padding: 2px 6px;
+}
+
+.close-button:hover {
+    background-color: @critical;
+    color: @base;
+}
+
+.notification-action,
+.notification-default-action {
+    background-color: transparent;
+    border: none;
+    color: @text;
+}
+
+.notification-action {
+    background-color: @charcoal;
+    border-radius: 8px;
+    color: @light-gray;
+    margin: 0 6px 8px 6px;
+    padding: 6px 10px;
+}
+
+.notification-action:hover {
+    background-color: @bright-yellow;
+    color: @base;
+}
+
+/* --- Grouped notifications --- */
+
+.notification-group-headers {
+    color: @medium-gray;
+    font-weight: 600;
+}
+
+.notification-group-icon {
+    color: @feint-yellow;
+}
+
+.notification-group.critical > .notification-group-headers {
+    color: @critical;
+}
+
+/* --- Control centre --- */
+
+.control-center {
+    background-color: @base;
+    border: 1px solid alpha(@overlay, 0.4);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.control-center .notification {
+    background-color: @charcoal;
+    margin: 5px 0;
+}
+
+.widget {
+    background: transparent;
+    margin: 4px 0;
+}
+
+.widget-title {
+    color: @text;
+    font-size: 17px;
+    font-weight: 600;
+    margin: 6px 4px 10px 4px;
+}
+
+.widget-title > button {
+    background-color: @charcoal;
+    border: 1px solid alpha(@overlay, 0.4);
+    border-radius: 8px;
+    color: @light-gray;
+    font-size: 14px;
+    padding: 5px 12px;
+}
+
+.widget-title > button:hover {
+    background-color: @critical;
+    border-color: @critical;
+    color: @base;
+}
+
+.widget-dnd {
+    background-color: @charcoal;
+    border-radius: 10px;
+    color: @light-gray;
+    margin-bottom: 8px;
+    padding: 10px 12px;
+}
+
+.widget-dnd > switch {
+    background-color: @overlay;
+    border: none;
+    border-radius: 12px;
+}
+
+.widget-dnd > switch:checked {
+    background-color: @bright-yellow;
+}
+
+.widget-dnd > switch slider {
+    background-color: @light-gray;
+    border-radius: 12px;
+}
+
+.widget-dnd > switch:checked slider {
+    background-color: @base;
+}
+
+.widget-mpris {
+    background-color: @charcoal;
+    border-radius: 10px;
+    color: @text;
+    padding: 8px;
+}
+
+.widget-mpris-title {
+    color: @text;
+    font-weight: 600;
+}
+
+.widget-mpris-subtitle {
+    color: @medium-gray;
+    font-size: 13px;
+}
+
+.widget-mpris > box > button:hover {
+    background-color: @olive-green;
+    color: @base;
+}
+
+.widget-label {
+    color: @light-gray;
+    margin: 4px;
+}

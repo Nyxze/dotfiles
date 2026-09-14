@@ -1,2 +1,12 @@
+configuration {
+    modes:               "drun,run,window";
+    show-icons:          true;
+    icon-theme:          "Papirus-Dark";
+    drun-display-format: "{name}";
+    display-drun:        "";
+    display-run:         "";
+    display-window:      "";
+    terminal:            "ghostty";
+}
 
-@theme "/usr/share/rofi/themes/fullscreen-preview.rasi"
+@theme "endfield"

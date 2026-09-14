@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Theming dependencies: icon theme, cursor theme, Qt platform theme, idle daemon.
+# hypridle links against hyprutils, so a partial upgrade leaves it unable to
+# start; upgrade the system fully rather than pulling it on its own.
+sudo pacman -Syu --needed papirus-icon-theme capitaine-cursors qt5ct qt6ct hypridle

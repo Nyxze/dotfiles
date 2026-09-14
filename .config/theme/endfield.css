@@ -1,0 +1,20 @@
+/* Endfield palette for every GTK-based surface: waybar, swaync, nwg-bar.
+ * The same palette exists as endfield.conf (Hyprland), endfield.rasi (rofi)
+ * and ghostty/themes/endfield, because none of those parse GTK CSS. */
+
+/* Neutrals, darkest to lightest */
+@define-color base          #171717;
+@define-color charcoal      #313739;
+@define-color overlay       #565656;
+@define-color medium-gray   #7E807C;
+@define-color light-gray    #A0AAA9;
+@define-color text          #DFE3E3;
+
+/* Accents */
+@define-color olive-green   #657136;
+@define-color feint-yellow  #F8F546;
+@define-color bright-yellow #FFFA00;
+
+/* Status */
+@define-color success       #A3B84A;
+@define-color critical      #E95460;
