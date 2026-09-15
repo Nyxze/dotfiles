@@ -185,8 +185,11 @@ block in a plain `Item` and put the `MouseArea` inside that.
 as a chain of unrelated "Type X unavailable" lines up through every singleton.
 
 **Edits to this repository are not live.** Quickshell watches
-`~/.config/quickshell/endfield`. Deploy before testing, or you will be reading
-screenshots of the previous version.
+`~/.config/quickshell/endfield`, which is a copy rather than a symlink. Deploy
+before testing, or you will be reading screenshots of the previous version —
+and mind that the repository's `sync-files` runs the other way, live to repo
+with `--delete`, so an uncopied edit here is one sync away from being erased.
+The repository root's `AGENTS.md` has the whole picture.
 
 ## Testing without taking over the screen
 
