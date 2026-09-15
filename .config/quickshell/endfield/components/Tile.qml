@@ -15,14 +15,21 @@ Rectangle {
     signal toggled
     signal expanded
 
+    readonly property bool navigable: true
+    readonly property bool hasCursor: Cursor.item === tile
+
+    function navActivate() {
+        tile.toggled();
+    }
+
     readonly property color foreground: active ? Theme.text : Theme.lightGray
 
     implicitHeight: 66
     radius: Theme.radius
     color: {
         if (active)
-            return body.containsMouse ? Qt.lighter(Theme.oliveGreen, 1.15) : Theme.oliveGreen;
-        return body.containsMouse ? Theme.overlay : Theme.charcoal;
+            return tile.hasCursor ? Qt.lighter(Theme.oliveGreen, 1.15) : Theme.oliveGreen;
+        return tile.hasCursor ? Theme.overlay : Theme.charcoal;
     }
 
     Behavior on color {
@@ -36,6 +43,7 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
+        onContainsMouseChanged: if (containsMouse) Cursor.item = tile
         onClicked: tile.toggled()
     }
 

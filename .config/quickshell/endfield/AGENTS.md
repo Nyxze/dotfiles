@@ -18,10 +18,11 @@ endfield/
   NetworkService.qml     singleton: NetworkManager, plus everything nmcli and
                          iproute2 have to supply
   BluetoothService.qml   singleton: BlueZ, grouped device lists, audio hand-off
+  Cursor.qml             singleton: the one highlight, shared by mouse and keyboard
   scripts/               what no QML binding exposes — nmcli and pactl, nothing else
   components/            reusable and domain-free — Panel, Tile, SliderRow, ListRow,
                          Section, IconButton, LevelSlider, PasswordField, PageHeader,
-                         ToggleSwitch, PillRow, DetailGrid, LevelRow
+                         ToggleSwitch, PillRow, DetailGrid, LevelRow, KeyCatcher
   widgets/               always-visible pieces of the sidebar head
   pages/                 the swappable detail views
   panels/                composes the above into a surface
@@ -61,6 +62,39 @@ notifications.
 
 Every page also has a keybind in `.config/hypr/keybinds.conf`
 (`SUPER+CTRL+{C,A,M,W,B,D,P}`), and waybar's gear button toggles the panel.
+
+## The cursor
+
+One highlight on screen, written by the mouse and the keyboard alike. An
+interactive component paints itself from `Cursor.item === <its own root>`, never
+from its own `containsMouse`, and claims the cursor when hovered. That is what
+keeps a single row lit at any moment, and what lets a hand leaving the mouse
+carry on from where the pointer was instead of jumping to the top of the list.
+
+A navigable item declares `navigable: true` and a `navActivate()`; optionally
+`navRemove()` when it has something to delete, and `navAdjust(step)` when Left
+and Right should change a value rather than move sideways.
+
+```
+j / ↓      next row          Enter / Space   activate
+k / ↑      previous row      x               delete (forget a network, a device)
+h / ←      adjust, or move within the row    Tab / Shift+Tab   previous/next page
+l / →                                        Escape            back, then close
+```
+
+`Sidebar` walks the item tree to find the stops, because nothing about that tree
+is reactive — there is no binding to hang the list off, so it is rescanned on
+every move and by a 250 ms timer while the panel is open. Two stops belong to
+the same horizontal group when their vertical centres nearly coincide; that is
+read from geometry rather than from the parent's type, so a 2x2 tile grid gives
+two rows of two while two stacked sliders stay two separate stops.
+
+A list that rebuilds underneath the cursor destroys the item it points at — a
+Wi-Fi scan does this every few seconds — so the position is remembered in
+`Cursor.index` and restored when the item goes null.
+
+A text field sets `Cursor.editing`, which stands the key handler down so a `j`
+typed into a passphrase is a letter and not a move.
 
 ## Adding a page
 
@@ -114,6 +148,14 @@ looked fine was really calling `Window.show()` and never changed the page.
 `escape` is worse and better at once: QML rejects it outright with
 `Illegal method name`, so at least it fails loudly. Hence `openPanel`,
 `closePanel`, `openPage`, `dismiss`.
+
+**An `OnDemand` layer already has keyboard focus when it maps.** Hyprland grants
+it on map, so a panel summoned from a keybind responds to Escape without ever
+being clicked — no `Exclusive` prime is needed, and priming would route every
+pointer event on every output to that surface for as long as it lasted. Qt still
+needs an active-focus target inside the surface, which is what `Panel`'s
+`focusTarget` plus a `Qt.callLater` `forceActiveFocus()` provides; reopening does
+not restore one on its own.
 
 **`Hyprland.focusedMonitor` is unusable.** It is never seeded at startup and
 stays null until a focus change happens after Quickshell launches, and

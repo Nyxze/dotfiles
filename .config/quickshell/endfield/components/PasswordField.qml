@@ -43,6 +43,12 @@ Rectangle {
 
         onAccepted: field.accepted(text)
 
+        // The panel's key handler stands down while this has focus, or typing
+        // "j" into a passphrase would walk down a row instead.
+        onActiveFocusChanged: Cursor.editing = activeFocus
+        Component.onDestruction: if (activeFocus)
+            Cursor.editing = false
+
         Keys.onEscapePressed: keyEvent => {
             keyEvent.accepted = true;
             field.cancelled();

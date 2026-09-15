@@ -25,13 +25,20 @@ RowLayout {
 
             readonly property bool active: modelData.key === rail.current
 
+            readonly property bool navigable: true
+            readonly property bool hasCursor: Cursor.item === tab
+
+            function navActivate() {
+                rail.selected(tab.modelData.key);
+            }
+
             Layout.fillWidth: true
             implicitHeight: 34
             radius: 8
             color: {
                 if (tab.active)
                     return Theme.charcoal;
-                return mouse.containsMouse ? Theme.overlay : "transparent";
+                return tab.hasCursor ? Theme.overlay : "transparent";
             }
 
             Behavior on color {
@@ -46,7 +53,7 @@ RowLayout {
                 color: {
                     if (tab.active)
                         return Theme.brightYellow;
-                    return mouse.containsMouse ? Theme.text : Theme.mediumGray;
+                    return tab.hasCursor ? Theme.text : Theme.mediumGray;
                 }
                 font.family: Theme.monoFamily
                 font.pixelSize: 16
@@ -57,6 +64,7 @@ RowLayout {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
+                onContainsMouseChanged: if (containsMouse) Cursor.item = tab
                 onClicked: rail.selected(tab.modelData.key)
             }
         }

@@ -18,6 +18,11 @@ PanelWindow {
     property bool shown: false
     property var resolvedScreen: null
 
+    // The item that should hold Qt's active focus once the surface is up.
+    // Layer-shell hands the surface keyboard focus, but Qt still needs a
+    // target inside it or no Keys handler ever fires.
+    property Item focusTarget: frame
+
     // Height of the visible frame, or -1 to fill the window. A panel anchored
     // top to bottom gets the real available height from the compositor, which
     // is the only way to know what the bar's exclusive zone left over; the
@@ -29,8 +34,22 @@ PanelWindow {
     color: "transparent"
 
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
     WlrLayershell.namespace: surfaceName
+
+    // Hyprland hands an OnDemand layer keyboard focus as soon as it maps, so a
+    // panel summoned from a keybind is already listening. Qt still needs an
+    // active-focus target inside the surface, and reopening does not restore
+    // one on its own.
+    WlrLayershell.keyboardFocus: shown ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+
+    onShownChanged: {
+        if (!shown)
+            return;
+        Qt.callLater(function () {
+            if (panel.shown && panel.focusTarget)
+                panel.focusTarget.forceActiveFocus();
+        });
+    }
 
     // Sit clear of the bar without reserving any space: Normal respects other
     // surfaces' exclusive zones, and a zero zone claims none.

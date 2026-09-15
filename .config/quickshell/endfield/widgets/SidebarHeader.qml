@@ -35,6 +35,15 @@ RowLayout {
     // Both halves wrap their column in an Item: a MouseArea placed straight
     // into a Layout would be sized by it instead of covering its siblings.
     Item {
+        id: clockStop
+
+        readonly property bool navigable: true
+        readonly property bool hasCursor: Cursor.item === clockStop
+
+        function navActivate() {
+            header.pageRequested("calendar");
+        }
+
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignBottom
         implicitHeight: clockBlock.implicitHeight
@@ -57,7 +66,7 @@ RowLayout {
 
             Text {
                 text: clock.date.toLocaleString(header.locale, "dddd d MMMM")
-                color: clockMouse.containsMouse ? Theme.brightYellow : Theme.mediumGray
+                color: clockStop.hasCursor ? Theme.brightYellow : Theme.mediumGray
                 font.family: Theme.fontFamily
                 font.pixelSize: 12
                 font.capitalization: Font.Capitalize
@@ -69,11 +78,21 @@ RowLayout {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
+            onContainsMouseChanged: if (containsMouse) Cursor.item = clockStop
             onClicked: header.pageRequested("calendar")
         }
     }
 
     Item {
+        id: batteryStop
+
+        readonly property bool navigable: true
+        readonly property bool hasCursor: Cursor.item === batteryStop
+
+        function navActivate() {
+            header.pageRequested("power");
+        }
+
         Layout.alignment: Qt.AlignBottom
         implicitWidth: batteryBlock.implicitWidth
         implicitHeight: batteryBlock.implicitHeight
@@ -95,7 +114,7 @@ RowLayout {
                         if (header.charging)
                             return Theme.success;
                         if (!header.battery || header.battery.percentage > 0.15)
-                            return batteryMouse.containsMouse ? Theme.brightYellow : Theme.lightGray;
+                            return batteryStop.hasCursor ? Theme.brightYellow : Theme.lightGray;
                         return Theme.critical;
                     }
                     font.family: Theme.monoFamily
@@ -104,7 +123,7 @@ RowLayout {
 
                 Text {
                     text: header.battery ? Math.round(header.battery.percentage * 100) + "%" : "--"
-                    color: batteryMouse.containsMouse ? Theme.brightYellow : Theme.text
+                    color: batteryStop.hasCursor ? Theme.brightYellow : Theme.text
                     font.family: Theme.fontFamily
                     font.pixelSize: 17
                 }
@@ -130,6 +149,7 @@ RowLayout {
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
+            onContainsMouseChanged: if (containsMouse) Cursor.item = batteryStop
             onClicked: header.pageRequested("power")
         }
     }

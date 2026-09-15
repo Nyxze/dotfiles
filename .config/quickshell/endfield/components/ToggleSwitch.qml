@@ -9,12 +9,19 @@ Rectangle {
 
     signal toggled
 
+    readonly property bool navigable: true
+    readonly property bool hasCursor: Cursor.item === sw
+
+    function navActivate() {
+        sw.toggled();
+    }
+
     implicitWidth: 38
     implicitHeight: 22
     radius: height / 2
     color: checked ? Theme.oliveGreen : Theme.charcoal
     border.width: 1
-    border.color: mouse.containsMouse ? Theme.brightYellow : "transparent"
+    border.color: sw.hasCursor ? Theme.brightYellow : "transparent"
 
     Behavior on color {
         ColorAnimation {
@@ -43,6 +50,7 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
+        onContainsMouseChanged: if (containsMouse) Cursor.item = sw
         onClicked: sw.toggled()
     }
 }

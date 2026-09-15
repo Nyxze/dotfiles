@@ -15,6 +15,19 @@ RowLayout {
     signal moved(real level)
     signal expanded
 
+    // No MouseArea of its own — the row is the cursor stop, but a hover claims
+    // it only through whichever child the pointer actually sits over.
+    readonly property bool navigable: true
+    readonly property bool hasCursor: Cursor.item === row
+
+    function navActivate() {
+        row.iconActivated();
+    }
+
+    function navAdjust(step) {
+        row.moved(Math.max(0, Math.min(1, row.value + step * 0.05)));
+    }
+
     spacing: 10
 
     IconButton {

@@ -20,7 +20,19 @@ Rectangle {
     signal activated
     signal actionActivated
 
-    readonly property bool hovered: mouse.containsMouse
+    readonly property bool navigable: true
+    readonly property bool hasCursor: Cursor.item === item
+
+    function navActivate() {
+        item.activated();
+    }
+
+    function navRemove() {
+        if (item.actionGlyph !== "")
+            item.actionActivated();
+    }
+
+    readonly property bool hovered: hasCursor
     readonly property color foreground: hovered ? Theme.base : (selected ? accent : Theme.lightGray)
 
     implicitHeight: 34
@@ -80,6 +92,7 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
+        onContainsMouseChanged: if (containsMouse) Cursor.item = item
         onClicked: item.activated()
     }
 

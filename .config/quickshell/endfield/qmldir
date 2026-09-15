@@ -1,5 +1,6 @@
 singleton Theme 1.0 Theme.qml
 singleton FocusedScreen 1.0 FocusedScreen.qml
+singleton Cursor 1.0 Cursor.qml
 singleton NotificationService 1.0 NotificationService.qml
 singleton AudioService 1.0 AudioService.qml
 singleton TlpService 1.0 TlpService.qml

@@ -16,6 +16,17 @@ ColumnLayout {
     signal glyphActivated
     signal moved(real value)
 
+    readonly property bool navigable: true
+    readonly property bool hasCursor: Cursor.item === row
+
+    function navActivate() {
+        row.glyphActivated();
+    }
+
+    function navAdjust(step) {
+        row.moved(Math.max(0, Math.min(row.maximum, row.value + step * 0.05 * row.maximum)));
+    }
+
     spacing: 2
 
     RowLayout {
@@ -34,7 +45,7 @@ ColumnLayout {
                 id: glyphText
                 anchors.centerIn: parent
                 text: row.glyph
-                color: row.dimmed ? Theme.overlay : (glyphMouse.containsMouse ? Theme.brightYellow : Theme.lightGray)
+                color: row.dimmed ? Theme.overlay : (row.hasCursor ? Theme.brightYellow : Theme.lightGray)
                 font.family: Theme.monoFamily
                 font.pixelSize: 14
                 horizontalAlignment: Text.AlignHCenter
@@ -45,6 +56,7 @@ ColumnLayout {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
+                onContainsMouseChanged: if (containsMouse) Cursor.item = row
                 onClicked: row.glyphActivated()
             }
         }

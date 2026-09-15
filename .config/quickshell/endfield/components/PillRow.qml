@@ -26,17 +26,24 @@ RowLayout {
 
             readonly property bool active: modelData.key === row.current
 
+            readonly property bool navigable: true
+            readonly property bool hasCursor: Cursor.item === pill
+
+            function navActivate() {
+                row.picked(pill.modelData.key);
+            }
+
             Layout.fillWidth: true
             implicitHeight: 26
             radius: 7
-            color: active ? Theme.charcoal : (mouse.containsMouse ? Theme.oliveGreen : "transparent")
+            color: active ? Theme.charcoal : (pill.hasCursor ? Theme.oliveGreen : "transparent")
             border.width: active ? 0 : 1
             border.color: Theme.charcoal
 
             Text {
                 anchors.centerIn: parent
                 text: pill.modelData.label
-                color: pill.active ? Theme.brightYellow : (mouse.containsMouse ? Theme.base : Theme.lightGray)
+                color: pill.active ? Theme.brightYellow : (pill.hasCursor ? Theme.base : Theme.lightGray)
                 font.family: Theme.fontFamily
                 font.pixelSize: 11
                 font.weight: pill.active ? Font.DemiBold : Font.Normal
@@ -47,6 +54,7 @@ RowLayout {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
+                onContainsMouseChanged: if (containsMouse) Cursor.item = pill
                 onClicked: row.picked(pill.modelData.key)
             }
         }

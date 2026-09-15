@@ -7,15 +7,22 @@ Rectangle {
     property string glyph: ""
     signal activated
 
+    readonly property bool navigable: true
+    readonly property bool hasCursor: Cursor.item === btn
+
+    function navActivate() {
+        btn.activated();
+    }
+
     implicitWidth: 26
     implicitHeight: 26
     radius: 6
-    color: mouse.containsMouse ? Theme.oliveGreen : "transparent"
+    color: btn.hasCursor ? Theme.oliveGreen : "transparent"
 
     Text {
         anchors.centerIn: parent
         text: btn.glyph
-        color: mouse.containsMouse ? Theme.base : Theme.mediumGray
+        color: btn.hasCursor ? Theme.base : Theme.mediumGray
         font.family: Theme.fontFamily
         font.pixelSize: 15
     }
@@ -25,6 +32,7 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
+        onContainsMouseChanged: if (containsMouse) Cursor.item = btn
         onClicked: btn.activated()
     }
 }
