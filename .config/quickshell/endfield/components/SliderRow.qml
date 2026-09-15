@@ -31,6 +31,7 @@ RowLayout {
     spacing: 10
 
     IconButton {
+        cursorTarget: row
         glyph: row.glyph
         onActivated: row.iconActivated()
     }
@@ -52,6 +53,7 @@ RowLayout {
     }
 
     IconButton {
+        cursorTarget: row
         visible: row.expandable
         glyph: "›"
         onActivated: row.expanded()

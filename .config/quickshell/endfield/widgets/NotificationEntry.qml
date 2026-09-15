@@ -18,11 +18,37 @@ Rectangle {
 
     signal dismissed
 
+    readonly property bool navigable: true
+    readonly property bool hasCursor: Cursor.item === entry
+
+    // Enter takes the notification's first action when it offers one, since
+    // that is what the sender wants you to do with it; x always just clears it.
+    function navActivate() {
+        const actions = entry.notification.actions;
+        if (actions.length === 0)
+            return;
+        actions[0].invoke();
+        entry.dismissed();
+    }
+
+    function navRemove() {
+        entry.dismissed();
+    }
+
     implicitHeight: layout.implicitHeight + 20
     radius: Theme.radius
     color: Theme.base
     border.width: 1
-    border.color: critical ? Theme.critical : Qt.alpha(Theme.overlay, 0.4)
+    border.color: {
+        if (entry.hasCursor)
+            return Theme.brightYellow;
+        return critical ? Theme.critical : Qt.alpha(Theme.overlay, 0.4);
+    }
+
+    HoverHandler {
+        onHoveredChanged: if (hovered)
+            Cursor.item = entry
+    }
 
     RowLayout {
         id: layout
@@ -125,6 +151,7 @@ Rectangle {
         }
 
         IconButton {
+            cursorTarget: entry
             Layout.alignment: Qt.AlignTop
             glyph: "×"
             onActivated: entry.dismissed()

@@ -41,6 +41,9 @@ RowLayout {
                 return tab.hasCursor ? Theme.overlay : "transparent";
             }
 
+            border.width: tab.hasCursor ? 1 : 0
+            border.color: Theme.brightYellow
+
             Behavior on color {
                 ColorAnimation {
                     duration: 90

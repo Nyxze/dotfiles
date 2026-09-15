@@ -5,10 +5,16 @@ Rectangle {
     id: btn
 
     property string glyph: ""
+
+    // The stop this button belongs to. A button inside a row that is itself a
+    // cursor stop is not one of its own, and hovering its icon must light the
+    // row rather than steal the cursor from it.
+    property var cursorTarget: btn
+
     signal activated
 
-    readonly property bool navigable: true
-    readonly property bool hasCursor: Cursor.item === btn
+    readonly property bool navigable: cursorTarget === btn
+    readonly property bool hasCursor: Cursor.item === cursorTarget
 
     function navActivate() {
         btn.activated();
@@ -32,7 +38,7 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        onContainsMouseChanged: if (containsMouse) Cursor.item = btn
+        onContainsMouseChanged: if (containsMouse) Cursor.item = btn.cursorTarget
         onClicked: btn.activated()
     }
 }
