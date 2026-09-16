@@ -1,56 +1,266 @@
 @import url("../theme/endfield.css");
 
-/* GTK3 resolves a theme's named colours while parsing that theme, so
- * redefining accent_bg_color here never reaches Adwaita. Every accent has to
- * be restated as a real rule. GTK4 does not have this problem. */
+/* GTK3 resolves a theme's named colours while parsing that theme, and Adwaita
+ * is compiled down to literal hex besides, so redefining a colour here never
+ * reaches it. Every surface and accent has to be restated as a real rule.
+ * GTK4 does not have this problem.
+ *
+ * Corners are square throughout: the 45 degree cut that replaces a radius in
+ * this language needs a clip GTK does not have, and a painted corner triangle
+ * only joins where the ground is flat and known. */
+
+/* --- Surfaces --- */
+
+window,
+dialog,
+.background {
+    background-color: @bg-panel;
+    color: @text-primary;
+}
+
+/* Flat chrome: the bars read as part of the window, the way the bar and the
+ * launcher do, so nothing is raised except what floats or takes input. */
+headerbar,
+.titlebar,
+menubar,
+toolbar,
+.toolbar,
+statusbar,
+notebook > header {
+    background-color: @bg-panel;
+    background-image: none;
+    color: @text-secondary;
+    border-color: @line;
+    box-shadow: none;
+}
+
+headerbar,
+.titlebar {
+    color: @text-primary;
+}
+
+statusbar {
+    color: @text-muted;
+}
+
+.sidebar,
+placessidebar,
+.sidebar list,
+stacksidebar list {
+    background-color: @bg-panel;
+    color: @text-secondary;
+    border-color: @line;
+}
+
+.view,
+iconview,
+treeview.view,
+list,
+columnview,
+textview text,
+scrolledwindow > viewport {
+    background-color: @bg-panel;
+    color: @text-primary;
+}
+
+.frame,
+frame > border,
+paned > separator,
+separator {
+    background-color: @line;
+    border-color: @line;
+}
+
+popover.background,
+popover.background > contents,
+menu,
+.menu,
+.context-menu {
+    background-color: @bg-raised;
+    color: @text-primary;
+    border: 1px solid @line;
+    border-radius: 0;
+}
+
+tooltip,
+tooltip.background {
+    background-color: @bg-raised;
+    color: @text-primary;
+    border: 1px solid @line;
+    border-radius: 0;
+}
+
+/* --- Input --- */
+
+/* Input is a well: it sinks below the window rather than rising above it,
+ * which is what tells it apart from the menus and tooltips. */
+entry,
+spinbutton:not(.vertical) {
+    background-color: @bg-deep;
+    background-image: none;
+    color: @text-primary;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    caret-color: @accent;
+}
+
+entry:focus {
+    box-shadow: inset 0 0 0 2px @accent;
+}
+
+entry placeholder,
+entry image {
+    color: @text-muted;
+}
+
+/* --- Controls --- */
+
+button,
+button.flat,
+button.toggle {
+    background-color: transparent;
+    background-image: none;
+    color: @text-secondary;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+/* Hover raises the surface and answers with a neutral underline; pressing
+ * puts an accent bar on the leading edge. Only a checked control takes the
+ * accent as a fill, so yellow keeps meaning "this is the one that is on". */
+button:hover {
+    background-color: @bg-raised;
+    color: @text-primary;
+    box-shadow: inset 0 -2px 0 @text-muted;
+}
+
+button:active {
+    background-color: @bg-raised;
+    color: @text-primary;
+    box-shadow: inset 4px 0 0 @accent;
+}
+
+button:checked {
+    background-color: @accent;
+    color: @on-accent;
+}
+
+/* Primary takes the accent as a fill, secondary as a hairline. */
+dialog .dialog-action-box button,
+messagedialog .dialog-action-box button {
+    border: 1px solid @accent;
+    color: @text-primary;
+    background-color: @bg-raised;
+}
+
+dialog .dialog-action-box button.suggested-action,
+messagedialog .dialog-action-box button.suggested-action {
+    border-color: @accent;
+    background-color: @accent;
+    color: @on-accent;
+}
+
+button:disabled {
+    color: @text-muted;
+}
+
+headerbar button.titlebutton:hover {
+    background-color: @bg-raised;
+}
+
+/* --- Rows --- */
+
+row:hover,
+.view:hover,
+iconview:hover,
+treeview.view:hover {
+    background-color: @bg-raised;
+    color: @text-primary;
+    box-shadow: inset 0 -2px 0 @text-muted;
+}
+
+/* A menu already sits on the raised surface, so its rows need the step above
+ * it rather than the same value again. */
+menuitem:hover {
+    background-color: @line;
+    color: @text-primary;
+}
+
+/* --- Scrollbars --- */
+
+scrollbar,
+scrollbar trough {
+    background-color: transparent;
+    border: none;
+}
+
+scrollbar slider {
+    background-color: @line;
+    border: none;
+    min-width: 8px;
+    min-height: 8px;
+}
+
+scrollbar slider:hover {
+    background-color: @text-muted;
+}
+
+scrollbar slider:active {
+    background-color: @accent;
+}
+
+/* --- Accents --- */
 
 selection,
 *:selected,
 *:selected:focus {
-    background-color: @bright-yellow;
-    color: @base;
+    background-color: @accent;
+    color: @on-accent;
 }
 
 entry selection,
 textview text selection {
-    background-color: @bright-yellow;
-    color: @base;
+    background-color: @accent;
+    color: @on-accent;
 }
 
 *:link,
 button.link {
-    color: @feint-yellow;
+    color: @info;
 }
 
 check:checked,
 radio:checked {
-    background-color: @bright-yellow;
-    border-color: @bright-yellow;
-    color: @base;
+    background-color: @accent;
+    border-color: @accent;
+    color: @on-accent;
 }
 
 switch:checked {
-    background-color: @bright-yellow;
+    background-color: @accent;
 }
 
 switch:checked slider {
-    background-color: @base;
+    background-color: @on-accent;
 }
 
 progressbar progress,
 levelbar block.filled {
-    background-color: @bright-yellow;
-    border-color: @bright-yellow;
+    background-color: @accent;
+    border-color: @accent;
 }
 
 scale highlight {
-    background-color: @bright-yellow;
+    background-color: @accent;
 }
 
 *:focus-visible {
-    outline-color: @feint-yellow;
+    outline-color: @accent;
 }
 
 spinner {
-    color: @bright-yellow;
+    color: @accent;
 }

@@ -19,7 +19,7 @@ addToPathFront $HOME/.local/scripts
 function zvm_config() {
     ZVM_VI_INSERT_ESCAPE_BINDKEY=jj
     ZVM_VI_HIGHLIGHT_FOREGROUND=#dfe3e3           # Hex value
-    ZVM_VI_HIGHLIGHT_BACKGROUND=#565656           # Hex value
+    ZVM_VI_HIGHLIGHT_BACKGROUND=#1B2733           # Hex value
     ZVM_SYSTEM_CLIPBOARD_ENABLED=true
 }
 

@@ -1,7 +1,14 @@
 /* Islands variant: same modules and same palette as the flat stylesheet, but each
- * module sits in its own charcoal pill instead of floating on the wallpaper.
- * Pills are applied per module rather than per group, so a drawer child slides
- * out as its own pill instead of growing the parent. */
+ * module sits in its own raised plate instead of floating on the wallpaper.
+ * Plates are applied per module rather than per group, so a drawer child slides
+ * out as its own plate instead of growing the parent.
+ *
+ * Corners are square: the 45 degree cut that replaces a radius here needs a clip
+ * GTK does not have, and a painted triangle only joins cleanly over a flat known
+ * ground, which the wallpaper behind these plates is not.
+ *
+ * Hover answers with the border, not with a fill — a yellow fill is reserved for
+ * the active workspace, and nothing else may borrow it. */
 
 @import "../theme/endfield.css";
 
@@ -13,7 +20,7 @@
 
 #waybar {
     background: transparent;
-    color: @light-gray;
+    color: @text-secondary;
 }
 
 #workspaces,
@@ -25,13 +32,12 @@
 #custom-notification,
 #custom-power,
 #tray {
-    background-color: @charcoal;
-    border: 1px solid alpha(@overlay, 0.35);
-    border-radius: 8px;
-    color: @light-gray;
-    margin: 5px 3px;
+    background-color: @bg-raised;
+    border: 1px solid @line;
+    color: @text-secondary;
+    margin: 4px;
     padding: 0 12px;
-    transition: all 0.2s ease;
+    transition: all 0.1s ease;
 }
 
 /* --- Workspaces --- */
@@ -41,29 +47,28 @@
 }
 
 #workspaces button {
-    color: @medium-gray;
+    color: @text-muted;
     background-color: transparent;
     border: none;
-    border-radius: 6px;
     font-size: 16px;
-    padding: 0 10px;
-    margin: 3px 2px;
-    transition: all 0.2s ease;
+    padding: 0 12px;
+    margin: 4px;
+    transition: all 0.1s ease;
 }
 
 #workspaces button.active {
-    color: @base;
-    background-color: @bright-yellow;
+    color: @on-accent;
+    background-color: @accent;
 }
 
 #workspaces button.urgent {
-    color: @base;
-    background-color: @critical;
+    color: @on-accent;
+    background-color: @danger;
 }
 
 #workspaces button:hover {
-    color: @base;
-    background-color: @olive-green;
+    color: @text-primary;
+    background-color: @line;
 }
 
 /* --- Hover --- */
@@ -74,25 +79,24 @@
 #pulseaudio:hover,
 #network:hover,
 #custom-notification:hover {
-    background-color: @olive-green;
-    border-color: @feint-yellow;
-    color: @base;
+    border-color: @accent;
+    color: @text-primary;
 }
 
 #clock {
-    color: @feint-yellow;
+    color: @accent-soft;
 }
 
 #custom-power {
-    color: @medium-gray;
+    color: @text-muted;
     font-size: 18px;
-    padding: 0 14px;
+    padding: 0 16px;
 }
 
 #custom-power:hover {
-    background-color: @critical;
-    border-color: @critical;
-    color: @base;
+    background-color: @danger;
+    border-color: @danger;
+    color: @on-accent;
 }
 
 /* --- Battery states ---
@@ -101,62 +105,62 @@
 
 #battery.charging,
 #battery.plugged {
-    color: @success;
+    color: @info;
 }
 
 #battery.full {
-    color: @light-gray;
+    color: @success;
 }
 
 #battery.discharging {
-    color: @olive-green;
+    color: @text-secondary;
 }
 
 #battery.warning:not(.charging):not(.plugged) {
-    color: @feint-yellow;
+    color: @accent;
 }
 
 #battery.critical:not(.charging):not(.plugged) {
-    color: @base;
-    background-color: @critical;
-    border-color: @critical;
+    color: @on-accent;
+    background-color: @danger;
+    border-color: @danger;
 }
 
 /* --- Audio --- */
 
 #pulseaudio.muted,
 #pulseaudio.source-muted {
-    color: @overlay;
+    color: @text-muted;
 }
 
 #pulseaudio.bluetooth {
-    color: @feint-yellow;
+    color: @info;
 }
 
 /* --- TLP power profile --- */
 
 #custom-tlp.battery {
-    color: @olive-green;
+    color: @text-secondary;
 }
 
 #custom-tlp.AC {
-    color: @feint-yellow;
+    color: @info;
 }
 
 #custom-tlp.manual {
-    color: @bright-yellow;
+    color: @accent;
 }
 
 /* --- Network --- */
 
 #network.disconnected {
-    color: @critical;
+    color: @danger;
 }
 
 /* --- Notifications --- */
 
 #custom-notification.notification {
-    color: @bright-yellow;
+    color: @accent;
 }
 
 /* --- Tray --- */
@@ -172,12 +176,11 @@
 /* --- Tooltips, including the clock calendar --- */
 
 tooltip {
-    background-color: @base;
-    border: 1px solid alpha(@overlay, 0.45);
-    border-radius: 8px;
+    background-color: @bg-panel;
+    border: 1px solid @line;
 }
 
 tooltip label {
-    color: @light-gray;
-    padding: 6px;
+    color: @text-secondary;
+    padding: 8px;
 }

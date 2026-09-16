@@ -1,9 +1,13 @@
-/* Endfield power menu. */
+/* Endfield power menu.
+ *
+ * A modal surface: the scrim is what separates it from the desktop, so the
+ * plate itself needs no shadow. Corners stay square — GTK cannot clip the
+ * 45 degree cut, and painting one over a scrimmed wallpaper would not join. */
 
 @import "../theme/endfield.css";
 
 window {
-    background-color: alpha(@base, 0.75);
+    background-color: alpha(@bg-deep, 0.8);
 }
 
 /* Outer bar container, takes all the window width/height */
@@ -13,11 +17,10 @@ window {
 
 /* Inner bar container, surrounds buttons */
 #inner-box {
-    background-color: @base;
-    border: 1px solid alpha(@overlay, 0.45);
-    border-radius: 12px;
-    margin: 5px;
-    padding: 10px;
+    background-color: @bg-panel;
+    border: 1px solid @line;
+    margin: 4px;
+    padding: 16px;
 }
 
 button, image {
@@ -28,19 +31,18 @@ button, image {
 
 button {
     border: 2px solid transparent;
-    border-radius: 10px;
-    color: @light-gray;
-    margin: 6px;
-    padding: 12px 18px;
-    transition: all 0.15s ease;
+    color: @text-secondary;
+    margin: 8px;
+    padding: 12px 20px;
+    transition: all 0.1s ease;
 }
 
 button:hover {
-    background-color: @charcoal;
-    border-color: @bright-yellow;
-    color: @text;
+    background-color: @bg-raised;
+    border-color: @accent;
+    color: @text-primary;
 }
 
 button:focus {
-    border-color: @feint-yellow;
+    border-color: @accent;
 }

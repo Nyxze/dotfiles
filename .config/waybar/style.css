@@ -1,5 +1,10 @@
 /* Flat variant: no module backgrounds, the bar reads as text over the wallpaper.
- * Active state is carried by the yellow rule above a workspace, never by a fill. */
+ * Active state is carried by the yellow rule above a workspace, never by a fill,
+ * so hover may only raise the surface — never borrow the accent.
+ *
+ * Corners are square, not rounded: the 45 degree cut that replaces a radius in
+ * this language needs a clip GTK does not have, and painting one as a triangle
+ * only works over a flat known ground, which a transparent bar is not. */
 
 @import "../theme/endfield.css";
 
@@ -11,37 +16,35 @@
 
 #waybar {
     background: transparent;
-    color: @light-gray;
+    color: @text-secondary;
     margin: 4px 4px;
 }
 
 /* --- Workspaces --- */
 
 #workspaces button {
-    color: @medium-gray;
+    color: @text-muted;
     background-color: transparent;
     font-size: 18px;
     padding: 0 12px;
     margin: 4px 4px 0 4px;
     border-top: 4px solid transparent;
-    border-radius: 2px;
-    transition: all 0.2s ease;
+    transition: all 0.1s ease;
 }
 
 #workspaces button.active {
-    color: @bright-yellow;
-    border-top-color: @bright-yellow;
+    color: @accent;
+    border-top-color: @accent;
 }
 
 #workspaces button.urgent {
-    color: @critical;
-    border-top-color: @critical;
+    color: @danger;
+    border-top-color: @danger;
 }
 
 #workspaces button:hover {
-    background-color: @olive-green;
-    color: @base;
-    border-top-color: @feint-yellow;
+    background-color: @bg-raised;
+    color: @text-primary;
 }
 
 /* --- Right-hand modules --- */
@@ -55,10 +58,10 @@
 #custom-notification,
 #network,
 #tray {
-    color: @light-gray;
+    color: @text-secondary;
     background-color: transparent;
     padding: 0 10px;
-    transition: all 0.2s ease;
+    transition: all 0.1s ease;
 }
 
 #battery:hover,
@@ -69,28 +72,27 @@
 #custom-power:hover,
 #custom-notification:hover,
 #network:hover {
-    color: @base;
-    background-color: @olive-green;
-    border-radius: 5px;
+    color: @text-primary;
+    background-color: @bg-raised;
 }
 
 #clock {
-    color: @feint-yellow;
+    color: @accent-soft;
 }
 
 #custom-control {
     font-size: 17px;
-    color: @medium-gray;
+    color: @text-muted;
 }
 
 #custom-power {
     font-size: 20px;
-    color: @medium-gray;
+    color: @text-muted;
 }
 
 #custom-power:hover {
-    color: @base;
-    background-color: @critical;
+    color: @on-accent;
+    background-color: @danger;
 }
 
 /* --- Battery states ---
@@ -99,60 +101,60 @@
 
 #battery.charging,
 #battery.plugged {
-    color: @success;
+    color: @info;
 }
 
 #battery.full {
-    color: @light-gray;
+    color: @success;
 }
 
 #battery.discharging {
-    color: @olive-green;
+    color: @text-secondary;
 }
 
 #battery.warning:not(.charging):not(.plugged) {
-    color: @feint-yellow;
+    color: @accent;
 }
 
 #battery.critical:not(.charging):not(.plugged) {
-    color: @critical;
+    color: @danger;
 }
 
 /* --- Audio --- */
 
 #pulseaudio.muted,
 #pulseaudio.source-muted {
-    color: @overlay;
+    color: @text-muted;
 }
 
 #pulseaudio.bluetooth {
-    color: @feint-yellow;
+    color: @info;
 }
 
 /* --- TLP power profile --- */
 
 #custom-tlp.battery {
-    color: @olive-green;
+    color: @text-secondary;
 }
 
 #custom-tlp.AC {
-    color: @feint-yellow;
+    color: @info;
 }
 
 #custom-tlp.manual {
-    color: @bright-yellow;
+    color: @accent;
 }
 
 /* --- Network --- */
 
 #network.disconnected {
-    color: @critical;
+    color: @danger;
 }
 
 /* --- Notifications --- */
 
 #custom-notification.notification {
-    color: @bright-yellow;
+    color: @accent;
 }
 
 /* --- Tray --- */
@@ -163,19 +165,17 @@
 
 #tray > .needs-attention {
     -gtk-icon-effect: highlight;
-    background-color: @critical;
-    border-radius: 5px;
+    background-color: @danger;
 }
 
 /* --- Tooltips, including the clock calendar --- */
 
 tooltip {
-    background-color: @base;
-    border: 1px solid alpha(@overlay, 0.45);
-    border-radius: 8px;
+    background-color: @bg-panel;
+    border: 1px solid @line;
 }
 
 tooltip label {
-    color: @light-gray;
-    padding: 6px;
+    color: @text-secondary;
+    padding: 8px;
 }

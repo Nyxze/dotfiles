@@ -1,20 +1,31 @@
 /* Endfield palette for every GTK-based surface: waybar, swaync, nwg-bar.
- * The same palette exists as endfield.conf (Hyprland), endfield.rasi (rofi)
- * and ghostty/themes/endfield, because none of those parse GTK CSS. */
+ * The same palette exists as endfield.conf (Hyprland), endfield.rasi (rofi),
+ * quickshell's Theme.qml and ghostty/themes/endfield, because none of those
+ * parsers share a syntax.
+ *
+ * Names are semantic, not physical: a theme may remap a value, but what the
+ * token means has to stay put. */
 
-/* Neutrals, darkest to lightest */
-@define-color base          #171717;
-@define-color charcoal      #313739;
-@define-color overlay       #565656;
-@define-color medium-gray   #7E807C;
-@define-color light-gray    #A0AAA9;
-@define-color text          #DFE3E3;
+/* Surfaces, deepest first */
+@define-color bg-deep        #0B1118;
+@define-color bg-panel       #111A23;
+@define-color bg-raised      #1B2733;
+@define-color line           #3A4A59;
 
-/* Accents */
-@define-color olive-green   #657136;
-@define-color feint-yellow  #F8F546;
-@define-color bright-yellow #FFFA00;
+/* Text, brightest first. text-muted is the metadata and serial register. */
+@define-color text-primary   #E8EDF1;
+@define-color text-secondary #AAB7C2;
+@define-color text-muted     #8A99A6;
+
+/* accent fills and marks; accent-soft is the same hue as a foreground */
+@define-color accent         #FFD400;
+@define-color accent-soft    #FFE14D;
 
 /* Status */
-@define-color success       #A3B84A;
-@define-color critical      #E95460;
+@define-color info           #4B9BFF;
+@define-color success        #8BD32E;
+@define-color danger         #FF6B45;
+
+/* Anything sitting on an accent, success or danger fill. White fails on
+ * danger at 2.4:1, so the inverted foreground is always this. */
+@define-color on-accent      #0B1118;

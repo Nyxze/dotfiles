@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 9 9">
+<!-- diagonal, for contained plates. Rasterised to hatch.png at 9x9; the PNG is what GTK, QML
+     and rofi actually load. Regenerate with:
+     rsvg-convert -w 9 -h 9 hatch.svg -o hatch.png -->
+  <!-- Lines of x+y = 0, 4.5, 9, 13.5, 18. That spacing is what tiles seamlessly
+       in 9 units and puts the perpendicular pitch at 4.5/sqrt(2) = 3.18px.
+       Each is drawn past the edges and clipped by the viewBox. -->
+  <g opacity="0.196" stroke="#E8EDF1" stroke-width="1">
+    <path d="M-1 1 L1 -1"/>
+    <path d="M-1 5.5 L5.5 -1"/>
+    <path d="M-1 10 L10 -1"/>
+    <path d="M3.5 10 L10 3.5"/>
+    <path d="M8 10 L10 8"/>
+  </g>
+</svg>

@@ -1,8 +1,12 @@
 @import "../theme/endfield.rasi"
 
+/* Corners are square: rasi has no clip and no gradient, so the 45 degree cut
+ * this language uses instead of a radius cannot be drawn here at all. Rounding
+ * would be the one surface still speaking the old dialect. */
+
 * {
     background-color: transparent;
-    text-color:       @light-gray;
+    text-color:       @text-secondary;
     font:             "HarmonyOS Sans 12";
     margin:           0;
     padding:          0;
@@ -10,10 +14,10 @@
 }
 
 window {
-    background-color: @base;
+    background-color: @bg-panel;
     border:           2px;
-    border-color:     @bright-yellow;
-    border-radius:    10px;
+    border-color:     @accent;
+    border-radius:    0;
     location:         center;
     width:            34%;
     height:           56%;
@@ -25,28 +29,30 @@ mainbox {
     spacing:  12px;
 }
 
+/* The query is a well, not a plate: it sinks below the window the way every
+ * other input in this language does. */
 inputbar {
-    background-color: @charcoal;
-    border-radius:    8px;
-    padding:          10px 14px;
-    spacing:          10px;
+    background-color: @bg-deep;
+    border-radius:    0;
+    padding:          12px 16px;
+    spacing:          12px;
     children:         [ prompt, entry ];
 }
 
 prompt {
-    text-color: @bright-yellow;
+    text-color: @accent;
 }
 
 entry {
     placeholder:       "";
-    placeholder-color: @overlay;
-    text-color:        @fg;
+    placeholder-color: @text-muted;
+    text-color:        @text-primary;
 }
 
 message {
-    background-color: @charcoal;
-    border-radius:    8px;
-    padding:          8px 14px;
+    background-color: @bg-raised;
+    border-radius:    0;
+    padding:          8px 16px;
 }
 
 listview {
@@ -58,35 +64,52 @@ listview {
 }
 
 element {
-    border-radius: 8px;
-    padding:       7px 12px;
+    border-radius: 0;
+    padding:       8px 12px;
     spacing:       12px;
 }
 
 element normal.normal {
-    text-color: @light-gray;
+    text-color: @text-secondary;
 }
 
 element alternate.normal {
-    text-color: @light-gray;
+    text-color: @text-secondary;
 }
 
+/* The banner, as far as rasi reaches. rofi has one background-image slot, so
+ * this is the trailing bands or the hatch and not both; the bands are the
+ * shape, the hatch is only the material.
+ *
+ * Drawn as an image rather than a gradient. rasi takes colour stops but not
+ * positions, and adding transparent stops to push the bands rightward barely
+ * moves them — its placement is not the even distribution it looks like.
+ *
+ * The mode is "width" and not "both". In rofi "both" means contain: it fits
+ * the image inside the row and leaves whatever is left over showing plain
+ * accent, and it reaches that fit by squeezing one axis harder than the other,
+ * which turns the diagonals into a staircase. "width" scales uniformly until
+ * the image spans the row and crops the overflow.
+ *
+ * Regenerate with theme/rofi-tail.py if the proportion changes. */
 element selected.normal {
-    background-color: @bright-yellow;
-    text-color:       @base;
+    background-color: @accent;
+    text-color:       @on-accent;
+    background-image: url("/home/nyxze/.config/theme/rofi-tail.png", width);
 }
 
 element urgent.normal {
-    text-color: @critical;
+    text-color: @danger;
 }
 
+/* Already running, as opposed to merely selected. */
 element active.normal {
-    text-color: @feint-yellow;
+    text-color: @info;
 }
 
 element selected.active {
-    background-color: @olive-green;
-    text-color:       @base;
+    background-color: @info;
+    text-color:       @on-accent;
 }
 
 element-icon {

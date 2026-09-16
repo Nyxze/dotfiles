@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 9 9">
+<!-- orthogonal, for large grounds. Rasterised to grid.png at 9x9; the PNG is what GTK, QML
+     and rofi actually load. Regenerate with:
+     rsvg-convert -w 9 -h 9 grid.svg -o grid.png -->
+  <!-- Opacity on the group, not the shapes: the group composites once, so the
+       line crossings do not come out twice as strong as the lines. -->
+  <g opacity="0.0157" fill="#E8EDF1">
+    <rect x="0" y="0" width="9" height="1"/>
+    <rect x="0" y="4.5" width="9" height="1"/>
+    <rect x="0" y="0" width="1" height="9"/>
+    <rect x="4.5" y="0" width="1" height="9"/>
+  </g>
+</svg>

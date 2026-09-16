@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10">
+<!-- halftone screen, for the greeter's ground. Rasterised to dots.png at 10x10;
+     the PNG is what every engine actually loads. Regenerate with:
+     rsvg-convert -w 10 -h 10 dots.svg -o dots.png -->
+  <!-- Two dots on the tile's diagonal rather than one in its corner: a halftone
+       screen is a square grid turned 45 degrees, and the stagger is what turns
+       it. Pitch is 10 units orthogonally, so 7.07 along the screen's own axis.
+       Opacity on the group, so the tile composites once. -->
+  <g opacity="0.16" fill="#E8EDF1">
+    <circle cx="2.5" cy="2.5" r="1.5"/>
+    <circle cx="7.5" cy="7.5" r="1.5"/>
+  </g>
+</svg>

@@ -1,21 +1,28 @@
-background = #171717
-foreground = #dfe3e3
-cursor-color = #fffa00
-selection-background = #565656
-selection-foreground = #dfe3e3
-palette = 0= #313739 
-palette = 1= #E06C75 
-palette = 2= #dcd942
-palette = 3= #F8F546 
-palette = 4= #61AFEF 
-palette = 5= #C678DD 
-palette = 6= #56B6C2 
-palette = 7= #A0AAA9 
-palette = 8= #7E807C 
-palette = 9= #E06C75 
-palette = 10 = #657136
-palette = 11 = #F8F546
-palette = 12 = #61AFEF
-palette = 13 = #C678DD
-palette = 14 = #56B6C2
-palette = 15 = #F8F546
+# Endfield palette for ghostty.
+#
+# ANSI needs eight hues; the desktop palette defines four. Magenta and cyan are
+# therefore derived to sit on the same lightness and chroma band as the blue,
+# so a colourised diff or ls does not break register with the rest of the desk.
+
+background = #0B1118
+foreground = #E8EDF1
+cursor-color = #FFD400
+selection-background = #1B2733
+selection-foreground = #E8EDF1
+
+palette = 0=#1B2733
+palette = 1=#FF6B45
+palette = 2=#8BD32E
+palette = 3=#FFD400
+palette = 4=#4B9BFF
+palette = 5=#C083ED
+palette = 6=#45D1D1
+palette = 7=#AAB7C2
+palette = 8=#3A4A59
+palette = 9=#FF8D6E
+palette = 10=#A8E35A
+palette = 11=#FFE14D
+palette = 12=#7CB8FF
+palette = 13=#D3A6F5
+palette = 14=#6FDEDE
+palette = 15=#E8EDF1

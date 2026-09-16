@@ -1,19 +1,25 @@
-/* Endfield palette for rofi. */
+/* Endfield palette for rofi.
+ *
+ * Every name here has to stay clear of rofi's own property names: a global
+ * block sets properties as well as variables, so a variable called `border`
+ * or `padding` would silently draw one. */
 
 * {
-    base:          #171717;
-    charcoal:      #313739;
-    overlay:       #565656;
-    medium-gray:   #7E807C;
-    light-gray:    #A0AAA9;
-    /* Not named "text": rofi would read text-color as its own property
-     * rather than as a variable. */
-    fg:            #DFE3E3;
+    bg-deep:        #0B1118;
+    bg-panel:       #111A23;
+    bg-raised:      #1B2733;
+    line:           #3A4A59;
 
-    olive-green:   #657136;
-    feint-yellow:  #F8F546;
-    bright-yellow: #FFFA00;
+    text-primary:   #E8EDF1;
+    text-secondary: #AAB7C2;
+    text-muted:     #8A99A6;
 
-    success:       #A3B84A;
-    critical:      #E95460;
+    accent:         #FFD400;
+    accent-soft:    #FFE14D;
+
+    info:           #4B9BFF;
+    success:        #8BD32E;
+    danger:         #FF6B45;
+
+    on-accent:      #0B1118;
 }
