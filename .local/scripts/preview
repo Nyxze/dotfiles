@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# Render something on a throwaway off-screen output and screenshot it, so
+# testing never takes over a monitor that is in use.
+#
+#   preview -o shot.png -- nautilus --new-window ~/stuff
+#   preview -c org.gnome.Nautilus -o shot.png -- nautilus --new-window ~
+#   preview -o panel.png -- qs -c endfield ipc call sidebar toggle
+#
+# Without -c the command is run with the off-screen output focused and whatever
+# lands there is captured. With -c the named window is hunted down and moved
+# there first, because focus alone does not decide where a window opens.
+set -euo pipefail
+
+CLASS=""; OUT="$PWD/preview.png"; WAIT=4; MODE="1920x1080@60"
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -c|--class) CLASS="$2"; shift 2 ;;
+        -o|--out)   OUT="$2";   shift 2 ;;
+        -w|--wait)  WAIT="$2";  shift 2 ;;
+        -m|--mode)  MODE="$2";  shift 2 ;;
+        --) shift; break ;;
+        *) echo "preview: unknown option $1" >&2; exit 2 ;;
+    esac
+done
+[ $# -gt 0 ] || { echo "preview: nothing to run" >&2; exit 2; }
+
+# A lock screen covers every output, so captures show it instead of the thing
+# under test and synthetic keys land in its password field.
+if pgrep -x hyprlock >/dev/null; then
+    echo "preview: hyprlock is running, refusing" >&2; exit 1
+fi
+
+mon() { hyprctl monitors -j | python3 -c "
+import sys, json
+print(next((m['$2'] for m in json.load(sys.stdin) if m['name'] == '$1'), ''))"; }
+
+hyprctl output create headless >/dev/null
+sleep 1
+HEAD=$(hyprctl monitors -j | python3 -c "
+import sys, json
+print([m['name'] for m in json.load(sys.stdin) if m['name'].startswith('HEADLESS')][-1])")
+
+# Removing the output strands whichever workspace sat on it, and that
+# workspace's binds go dead until a reload reattaches it. Always both, even on
+# failure, or the desktop is left broken.
+cleanup() {
+    # The command outlives the capture otherwise, and the next run hunts the
+    # stale window by class and shoots that one instead of the fresh instance.
+    [ -n "${CMD:-}" ] && kill -- -"$CMD" 2>/dev/null
+    hyprctl output remove "$HEAD" >/dev/null 2>&1 || true
+    sleep 0.5
+    hyprctl reload >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+# A fresh headless output defaults to scale 2, so it is half the logical size
+# and captures at 2x. Set the mode explicitly or every measurement is doubled.
+hyprctl keyword monitor "$HEAD,$MODE,3520x0,1" >/dev/null
+sleep 1
+WS=$(hyprctl monitors -j | python3 -c "
+import sys, json
+print([m['activeWorkspace']['id'] for m in json.load(sys.stdin) if m['name'] == '$HEAD'][0])")
+hyprctl dispatch focusmonitor "$HEAD" >/dev/null
+
+# Job control gives the command its own process group, so cleanup can take
+# down a wrapper and whatever it spawned in one signal.
+set -m
+"$@" >/dev/null 2>&1 &
+CMD=$!
+set +m
+sleep "$WAIT"
+
+if [ -n "$CLASS" ]; then
+    for _ in 1 2 3; do
+        hyprctl dispatch focusmonitor "$HEAD" >/dev/null
+        hyprctl dispatch movetoworkspacesilent "$WS,class:$CLASS" >/dev/null 2>&1 || true
+        sleep 1.5
+        LANDED=$(hyprctl clients -j | python3 -c "
+import sys, json
+print(([c['workspace']['id'] for c in json.load(sys.stdin)
+        if c['class'] == '$CLASS'] or [0])[0])")
+        [ "$LANDED" = "$WS" ] && break
+    done
+    if [ "${LANDED:-0}" != "$WS" ]; then
+        echo "preview: $CLASS never landed on $HEAD (it is on workspace ${LANDED:-none})" >&2
+        exit 1
+    fi
+fi
+
+mkdir -p "$(dirname "$OUT")"
+grim -o "$HEAD" "$OUT"
+echo "$OUT"
