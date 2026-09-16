@@ -1,0 +1,10 @@
+[SddmGreeterTheme]
+Name=endfield
+Description=Endfield interface language
+License=MIT
+Type=sddm-theme
+Version=1.0
+MainScript=Main.qml
+Theme-Id=endfield
+Theme-API=2.0
+QtVersion=6
