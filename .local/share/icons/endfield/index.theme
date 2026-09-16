@@ -1,0 +1,29 @@
+[Icon Theme]
+Name=endfield
+Comment=Endfield overrides layered on Papirus-Dark
+Inherits=Papirus-Dark,hicolor
+Example=folder
+
+Directories=places/16,places/22,places/24,places/scalable
+
+[places/16]
+Context=Places
+Type=Fixed
+Size=16
+
+[places/22]
+Context=Places
+Type=Fixed
+Size=22
+
+[places/24]
+Context=Places
+Type=Fixed
+Size=24
+
+[places/scalable]
+Context=Places
+Type=Scalable
+MinSize=28
+MaxSize=512
+Size=64
