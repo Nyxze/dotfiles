@@ -10,7 +10,35 @@ sudo pacman -Syu --needed papirus-icon-theme capitaine-cursors qt5ct qt6ct hypri
 # offers to copy.
 sudo pacman -S --needed libpulse networkmanager iw wl-clipboard
 
+# The greeter's ground is generated rather than shipped as artwork: librsvg
+# rasterises the textures and the terrain still, and qsb — which comes with
+# qt6-shadertools and does not land on PATH — compiles the terrain shaders.
+# Without them scripts/install-system.sh cannot build the theme at all.
+sudo pacman -S --needed librsvg qt6-shadertools
+
 # This session's shell owns org.freedesktop.Notifications; a second daemon would
 # race it for the name, and swaync comes back through D-Bus activation unless
 # the unit itself is masked.
 systemctl --user mask swaync 2>/dev/null || true
+
+# The file manager is Nautilus rather than Thunar because GTK4 resolves the
+# libadwaita colour names at runtime: it takes the palette from
+# .config/gtk-4.0/gtk.css as-is, where GTK3's Adwaita is compiled down to
+# literal hex and every surface would have to be restated by hand.
+# open-any-terminal puts ghostty in the context menu; Nautilus has no
+# equivalent of Thunar's custom actions.
+yay -S --needed nautilus papirus-folders nautilus-open-any-terminal
+gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal ghostty
+gsettings set com.github.stunkymonkey.nautilus-open-any-terminal new-tab true
+
+# Papirus ships blue folders. Grey keeps yellow as the only accent in the
+# palette, the same rule the bar follows. This writes into the system theme, so
+# it has to be re-run after every papirus-icon-theme upgrade.
+sudo papirus-folders -C grey --theme Papirus-Dark
+
+# GTK3 has no theme named Adwaita-dark: the name is unresolvable, so GTK3 falls
+# back to light Adwaita and drops the dark variant with it. The dark one is the
+# built-in Adwaita plus the prefer-dark flag, which settings.ini already sets.
+gsettings set org.gnome.desktop.interface gtk-theme Adwaita
+gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
