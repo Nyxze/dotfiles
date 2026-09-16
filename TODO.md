@@ -64,3 +64,24 @@ scripts/rice
 - Decide whether the prefix wraps the existing scripts or replaces them.
 - Nothing here is urgent; renaming touches the palette files, waybar, hypr
   keybinds and the Quickshell config directory at once.
+
+---
+
+## Hyprland workspace context menu
+2026-09-15
+
+Hyrland worksapce context menu (right click / shortcut)
+
+Notes: no compositor-side menu exists — Hyprland has no popup primitive, so
+this is a Quickshell surface bound to a keybind, and to waybar's
+`#workspaces button` right-click for the pointer route. waybar can only run a
+command on `on-click-right`, so both routes end at
+`qs -c endfield ipc call <target> toggle`.
+
+Open: whether it anchors at the pointer or at the workspace button. A layer
+shell surface can be positioned by margins, but nothing reports the pointer
+position to a panel — `hyprctl cursorpos` would have to be read at open time.
+
+Reuses: `Panel` (layer-shell, Escape, focused screen), `ListRow` for the
+entries, `Cursor` for keyboard navigation. Actions worth having are the ones
+`hypr/keybinds.conf` already binds — move window here, rename, switch.
