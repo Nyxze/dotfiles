@@ -1,7 +1,13 @@
 #!/bin/bash
-# Machine -> repository, for capturing what an application wrote on its own.
-# ./deploy runs the other way and is what hand edits should go through, since
-# the repository is the source of truth.
+# Repository -> machine. The mirror of sync-files, which runs machine -> repo.
+#
+# The repository is the source of truth: edit here, deploy, test. sync-files is
+# for capturing what an application wrote on its own, not for hand edits.
+#
+#   ./deploy                 every tracked app, plus scripts and icons
+#   ./deploy hypr waybar     just these
+#   ./deploy scripts         just ~/.local/scripts
+#   ./deploy icons           just the endfield icon theme
 
 # Both directions delete, so each refuses to run while the other side holds
 # something it would destroy.
@@ -71,14 +77,14 @@ guard() {
     lost=$(pending "$src" "$dst")
     [ -n "$lost" ] || return 0
 
-    echo "✗ $label: the repository holds changes the machine does not."
+    echo "✗ $label: the machine holds changes the repository does not."
     echo "$lost" | sed 's/^/    /'
-    echo "  Deploying them first: ./deploy $label,"
+    echo "  Capturing them first: ./sync-files $label,"
     echo "  or pass --force to discard them."
     return 1
 }
 
-sync_config() {
+deploy_config() {
     local repo_config="$1"
     local home_config="$HOME/.config"
     local apps=("${@:2}")
@@ -91,10 +97,10 @@ sync_config() {
     fi
 
     for app in "${apps[@]}"; do
-        local source="$home_config/$app"
-        local dest="$repo_config/$app"
+        local source="$repo_config/$app"
+        local dest="$home_config/$app"
 
-        if [ ! -d "$dest" ]; then
+        if [ ! -d "$source" ]; then
             echo "✗ $app: Not tracked in repo"
             continue
         fi
@@ -104,54 +110,34 @@ sync_config() {
             continue
         fi
 
-        if [ ! -d "$source" ]; then
-            echo "✗ $app: Source directory not found: $source"
-            continue
-        fi
-
         [ "$FORCE" = 1 ] || guard "$app" "$source" "$dest" || { FAILED=1; continue; }
-        echo "Syncing $app..."
+        echo "Deploying $app..."
+        mkdir -p "$dest"
         rsync -av --delete "${DOCS[@]}" "$source/" "$dest/"
-        echo "✓ $app synced"
+        echo "✓ $app deployed"
     done
 }
 
-sync_scripts() {
+deploy_scripts() {
     local repo_scripts="$1"
     local home_scripts="$HOME/.local/scripts"
 
-    [ "$FORCE" = 1 ] || guard "scripts" "$home_scripts" "$repo_scripts" || { FAILED=1; return; }
-    echo "Syncing scripts..."
-    rsync -av --delete "${DOCS[@]}" "$home_scripts/" "$repo_scripts/"
-    echo "✓ scripts synced"
+    [ "$FORCE" = 1 ] || guard "scripts" "$repo_scripts" "$home_scripts" || { FAILED=1; return; }
+    echo "Deploying scripts..."
+    mkdir -p "$home_scripts"
+    rsync -av --delete "${DOCS[@]}" "$repo_scripts/" "$home_scripts/"
+    echo "✓ scripts deployed"
 }
 
-# Only the theme this repository owns. The rest of ~/.local/share/icons is
-# whatever applications dropped there.
-sync_icons() {
+deploy_icons() {
     local repo_icons="$1"
     local home_icons="$HOME/.local/share/icons/endfield"
 
-    [ "$FORCE" = 1 ] || guard "icons" "$home_icons" "$repo_icons" || { FAILED=1; return; }
-    echo "Syncing icons..."
-    rsync -av --delete "${DOCS[@]}" "$home_icons/" "$repo_icons/"
-    echo "✓ icons synced"
-}
-
-sync_files() {
-    local repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-    if [ "$1" == "scripts" ]; then
-        sync_scripts "$repo_root/.local/scripts"
-    elif [ "$1" == "icons" ]; then
-        sync_icons "$repo_root/.local/share/icons/endfield"
-    elif [ $# -gt 0 ]; then
-        sync_config "$repo_root/.config" "$@"
-    else
-        sync_config "$repo_root/.config"
-        sync_scripts "$repo_root/.local/scripts"
-        sync_icons "$repo_root/.local/share/icons/endfield"
-    fi
+    [ "$FORCE" = 1 ] || guard "icons" "$repo_icons" "$home_icons" || { FAILED=1; return; }
+    echo "Deploying icons..."
+    mkdir -p "$home_icons"
+    rsync -av --delete "${DOCS[@]}" "$repo_icons/" "$home_icons/"
+    echo "✓ icons deployed"
 }
 
 FORCE=0
@@ -161,5 +147,18 @@ for a in "$@"; do
     [ "$a" == "--force" ] && FORCE=1 || args+=("$a")
 done
 
-sync_files "${args[@]}"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ "${args[0]-}" == "scripts" ]; then
+    deploy_scripts "$repo_root/.local/scripts"
+elif [ "${args[0]-}" == "icons" ]; then
+    deploy_icons "$repo_root/.local/share/icons/endfield"
+elif [ ${#args[@]} -gt 0 ]; then
+    deploy_config "$repo_root/.config" "${args[@]}"
+else
+    deploy_config "$repo_root/.config"
+    deploy_scripts "$repo_root/.local/scripts"
+    deploy_icons "$repo_root/.local/share/icons/endfield"
+fi
+
 exit $FAILED
