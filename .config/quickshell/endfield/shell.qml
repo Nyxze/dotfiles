@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Io
+import "examples"
 import "panels"
 
 // Entry point. Mounts each panel and exposes it over IPC; panels own their own
@@ -9,9 +10,27 @@ ShellRoot {
         id: sidebar
     }
 
+    Lock {
+        id: lockScreen
+    }
+
     Toasts {
         // Keep toasts clear of the sidebar while it is open.
         sideOffset: sidebar.shown ? sidebar.implicitWidth + 10 : 0
+    }
+
+    // Disposable: a stage for NavRow while its shape is being settled. Delete
+    // this block, the handler below it and the examples import to drop it.
+    NavRowDemo {
+        id: navDemo
+    }
+
+    IpcHandler {
+        target: "navdemo"
+
+        function toggle(): void {
+            navDemo.toggle();
+        }
     }
 
     IpcHandler {
@@ -34,6 +53,16 @@ ShellRoot {
         function page(name: string): void {
             sidebar.openPanel();
             sidebar.page = name;
+        }
+    }
+
+    IpcHandler {
+        target: "lock"
+
+        // hypridle and the keybind both land here. Locking is idempotent:
+        // several listeners firing at once must not stack two surfaces.
+        function lock(): void {
+            lockScreen.lock();
         }
     }
 
