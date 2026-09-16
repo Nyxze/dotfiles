@@ -7,7 +7,7 @@ import QtQuick.Layouts
 
 // One notification, rendered the same way whether it is a live toast or a row
 // in the history.
-Rectangle {
+ChamferedRect {
     id: entry
 
     required property var notification
@@ -35,14 +35,15 @@ Rectangle {
         entry.dismissed();
     }
 
-    implicitHeight: layout.implicitHeight + 20
-    radius: Theme.radius
-    color: Theme.base
-    border.width: 1
-    border.color: {
+    implicitHeight: layout.implicitHeight + Theme.space(6)
+    topLeft: true
+    bottomRight: true
+    color: Theme.bgRaised
+    borderWidth: entry.hasCursor || entry.critical ? Theme.borderEmphasis : Theme.border
+    borderColor: {
         if (entry.hasCursor)
-            return Theme.brightYellow;
-        return critical ? Theme.critical : Qt.alpha(Theme.overlay, 0.4);
+            return Theme.accent;
+        return critical ? Theme.danger : Theme.line;
     }
 
     HoverHandler {
@@ -56,14 +57,14 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: 10
-        spacing: 10
+        anchors.margins: Theme.space(3)
+        spacing: Theme.space(3)
 
         Image {
             visible: entry.iconSource !== ""
             source: entry.iconSource
-            Layout.preferredWidth: 34
-            Layout.preferredHeight: 34
+            Layout.preferredWidth: Theme.space(8)
+            Layout.preferredHeight: Theme.space(8)
             Layout.alignment: Qt.AlignTop
             fillMode: Image.PreserveAspectFit
             sourceSize.width: 68
@@ -72,27 +73,24 @@ Rectangle {
 
         ColumnLayout {
             Layout.fillWidth: true
-            spacing: 3
+            spacing: Theme.space(1)
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 6
+                spacing: Theme.space(2)
 
                 Text {
                     Layout.fillWidth: true
                     text: entry.notification.summary
-                    color: Theme.text
+                    color: Theme.textPrimary
                     elide: Text.ElideRight
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 14
-                    font.weight: Font.DemiBold
+                    font: Theme.h3
                 }
 
                 Text {
                     text: entry.notification.appName
-                    color: Theme.mediumGray
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    color: Theme.textMuted
+                    font: Theme.micro
                 }
             }
 
@@ -100,20 +98,21 @@ Rectangle {
                 Layout.fillWidth: true
                 visible: text !== ""
                 text: entry.notification.body
-                color: Theme.lightGray
+                color: Theme.textSecondary
                 wrapMode: Text.WordWrap
                 maximumLineCount: 4
                 elide: Text.ElideRight
                 textFormat: Text.StyledText
-                font.family: Theme.fontFamily
-                font.pixelSize: 12
+                font: Theme.body
+                lineHeight: Theme.bodyLineHeight
+                lineHeightMode: Text.FixedHeight
             }
 
             Flow {
                 Layout.fillWidth: true
-                Layout.topMargin: 4
+                Layout.topMargin: Theme.space(1)
                 visible: entry.notification.actions.length > 0
-                spacing: 6
+                spacing: Theme.space(2)
 
                 Repeater {
                     model: entry.notification.actions
@@ -121,18 +120,21 @@ Rectangle {
                     Rectangle {
                         required property var modelData
 
-                        width: actionLabel.implicitWidth + 20
-                        height: 26
-                        radius: 7
-                        color: actionMouse.containsMouse ? Theme.brightYellow : Theme.charcoal
+                        // Secondary: a dark plate inside an accent hairline.
+                        // The accent fill is what a primary action takes, and
+                        // a notification's own buttons are never that.
+                        width: actionLabel.implicitWidth + Theme.space(5)
+                        height: Theme.space(7)
+                        color: actionMouse.containsMouse ? Theme.accent : Theme.bgDeep
+                        border.width: actionMouse.containsMouse ? 0 : Theme.border
+                        border.color: Theme.accent
 
                         Text {
                             id: actionLabel
                             anchors.centerIn: parent
                             text: parent.modelData.text
-                            color: actionMouse.containsMouse ? Theme.base : Theme.lightGray
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 12
+                            color: actionMouse.containsMouse ? Theme.onAccent : Theme.textSecondary
+                            font: Theme.label
                         }
 
                         MouseArea {

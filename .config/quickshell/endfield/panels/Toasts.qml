@@ -42,7 +42,7 @@ PanelWindow {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        spacing: 8
+        spacing: Theme.space(2)
 
         Repeater {
             model: NotificationService.popups

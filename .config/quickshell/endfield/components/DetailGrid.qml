@@ -12,8 +12,8 @@ GridLayout {
     property var entries: []
 
     columns: 2
-    columnSpacing: 18
-    rowSpacing: 6
+    columnSpacing: Theme.space(5)
+    rowSpacing: Theme.space(2)
 
     Repeater {
         model: grid.entries
@@ -26,15 +26,12 @@ GridLayout {
             readonly property bool copyable: !!entry.modelData.copy
 
             Layout.fillWidth: true
-            spacing: 8
+            spacing: Theme.space(2)
 
             Text {
                 text: entry.modelData.label
-                color: Theme.mediumGray
-                font.family: Theme.fontFamily
-                font.pixelSize: 11
-                font.capitalization: Font.AllUppercase
-                font.letterSpacing: 0.6
+                color: Theme.textMuted
+                font: Theme.micro
             }
 
             Text {
@@ -46,10 +43,8 @@ GridLayout {
                 horizontalAlignment: Text.AlignRight
                 elide: Text.ElideRight
                 text: copied ? "copied" : entry.modelData.value
-                color: entry.copyable && mouse.containsMouse ? Theme.brightYellow : Theme.text
-                font.family: Theme.fontFamily
-                font.pixelSize: 11
-                font.weight: Font.DemiBold
+                color: entry.copyable && mouse.containsMouse ? Theme.accent : Theme.textPrimary
+                font: Theme.bodySmall
 
                 Timer {
                     id: resetTimer

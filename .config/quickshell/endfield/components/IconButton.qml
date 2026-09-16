@@ -20,17 +20,19 @@ Rectangle {
         btn.activated();
     }
 
-    implicitWidth: 26
-    implicitHeight: 26
-    radius: 6
-    color: btn.hasCursor ? Theme.oliveGreen : "transparent"
+    implicitWidth: Theme.space(7)
+    implicitHeight: Theme.space(7)
+    // No selection to carry, so the cursor takes the secondary treatment: a
+    // raised plate inside an accent hairline, never the fill.
+    color: btn.hasCursor ? Theme.bgRaised : "transparent"
+    border.width: btn.hasCursor ? Theme.border : 0
+    border.color: Theme.accent
 
     Text {
         anchors.centerIn: parent
         text: btn.glyph
-        color: btn.hasCursor ? Theme.base : Theme.mediumGray
-        font.family: Theme.fontFamily
-        font.pixelSize: 15
+        color: btn.hasCursor ? Theme.textPrimary : Theme.textMuted
+        font: Theme.glyphSmall
     }
 
     MouseArea {

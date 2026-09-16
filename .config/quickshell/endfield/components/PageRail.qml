@@ -13,12 +13,12 @@ RowLayout {
 
     signal selected(string key)
 
-    spacing: 2
+    spacing: Theme.space(1)
 
     Repeater {
         model: rail.pages
 
-        Rectangle {
+        ChamferedRect {
             id: tab
 
             required property var modelData
@@ -33,20 +33,23 @@ RowLayout {
             }
 
             Layout.fillWidth: true
-            implicitHeight: 34
-            radius: 8
+            implicitHeight: Theme.space(9)
+            // The measured device: the active tab cuts its two top corners.
+            topLeft: true
+            topRight: true
+            chamfer: 4
             color: {
                 if (tab.active)
-                    return Theme.charcoal;
-                return tab.hasCursor ? Theme.overlay : "transparent";
+                    return Theme.bgRaised;
+                return tab.hasCursor ? Theme.line : "transparent";
             }
 
-            border.width: tab.hasCursor ? 1 : 0
-            border.color: Theme.brightYellow
+            borderWidth: tab.hasCursor ? Theme.borderEmphasis : 0
+            borderColor: Theme.accent
 
             Behavior on color {
                 ColorAnimation {
-                    duration: 90
+                    duration: Theme.durHover
                 }
             }
 
@@ -55,11 +58,10 @@ RowLayout {
                 text: tab.modelData.glyph
                 color: {
                     if (tab.active)
-                        return Theme.brightYellow;
-                    return tab.hasCursor ? Theme.text : Theme.mediumGray;
+                        return Theme.accent;
+                    return tab.hasCursor ? Theme.textPrimary : Theme.textMuted;
                 }
-                font.family: Theme.monoFamily
-                font.pixelSize: 16
+                font: Theme.glyphSmall
             }
 
             MouseArea {

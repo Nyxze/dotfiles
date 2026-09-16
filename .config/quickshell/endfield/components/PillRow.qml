@@ -3,7 +3,8 @@ import QtQuick
 import QtQuick.Layouts
 
 // A segmented choice: every option on screen at once with the current one
-// filled, for sets small enough that a list would be more work to read.
+// marked, for sets small enough that a list would be more work to read. The
+// chosen segment takes the accent as a fill; the cursor answers on the border.
 RowLayout {
     id: row
 
@@ -13,7 +14,7 @@ RowLayout {
 
     signal picked(string key)
 
-    spacing: 6
+    spacing: Theme.space(2)
     opacity: enabled ? 1 : 0.4
 
     Repeater {
@@ -34,19 +35,32 @@ RowLayout {
             }
 
             Layout.fillWidth: true
-            implicitHeight: 26
-            radius: 7
-            color: active ? Theme.charcoal : (pill.hasCursor ? Theme.oliveGreen : "transparent")
-            border.width: active ? 0 : 1
-            border.color: Theme.charcoal
+            implicitHeight: Theme.space(7)
+            color: pill.active ? Theme.accent : "transparent"
+            border.width: pill.hasCursor ? Theme.borderEmphasis : Theme.border
+            border.color: {
+                if (pill.hasCursor)
+                    return pill.active ? Theme.onAccent : Theme.accent;
+                return Theme.line;
+            }
+
+            clip: true
+
+            Texture {
+                anchors.fill: parent
+                visible: pill.active
+                kind: "hatch-dark"
+            }
 
             Text {
                 anchors.centerIn: parent
                 text: pill.modelData.label
-                color: pill.active ? Theme.brightYellow : (pill.hasCursor ? Theme.base : Theme.lightGray)
-                font.family: Theme.fontFamily
-                font.pixelSize: 11
-                font.weight: pill.active ? Font.DemiBold : Font.Normal
+                color: {
+                    if (pill.active)
+                        return Theme.onAccent;
+                    return pill.hasCursor ? Theme.textPrimary : Theme.textSecondary;
+                }
+                font: Theme.label
             }
 
             MouseArea {

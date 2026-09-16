@@ -3,7 +3,11 @@ import QtQuick
 
 // Quick-settings tile. Clicking the body toggles the thing it stands for; an
 // expandable tile also carries a chevron that opens its detail page instead.
-Rectangle {
+//
+// A tile is a toggle, not a choice among several, so its on state takes the
+// accent rail rather than the fill — four tiles all filled would be most of a
+// panel gone yellow. The cursor answers on the border.
+ChamferedRect {
     id: tile
 
     property string glyph: ""
@@ -22,20 +26,32 @@ Rectangle {
         tile.toggled();
     }
 
-    readonly property color foreground: active ? Theme.text : Theme.lightGray
+    readonly property color foreground: active ? Theme.textPrimary : Theme.textSecondary
 
-    implicitHeight: 66
-    radius: Theme.radius
-    color: {
-        if (active)
-            return tile.hasCursor ? Qt.lighter(Theme.oliveGreen, 1.15) : Theme.oliveGreen;
-        return tile.hasCursor ? Theme.overlay : Theme.charcoal;
-    }
+    implicitHeight: 64
+    // Opposite corners cut, not all four: a plate reads as machined rather than
+    // as an octagon.
+    topLeft: true
+    bottomRight: true
+    color: Theme.bgRaised
+    borderColor: hasCursor ? Theme.accent : Theme.line
+    borderWidth: hasCursor ? Theme.borderEmphasis : Theme.border
 
     Behavior on color {
         ColorAnimation {
-            duration: 90
+            duration: Theme.durHover
         }
+    }
+
+    // The standing state, at the width the dock marks its active item with.
+    Rectangle {
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.topMargin: Theme.chamfer
+        visible: tile.active
+        width: Theme.space(1)
+        color: Theme.accent
     }
 
     MouseArea {
@@ -50,26 +66,23 @@ Rectangle {
     Text {
         anchors.left: parent.left
         anchors.top: parent.top
-        anchors.leftMargin: 12
-        anchors.topMargin: 10
+        anchors.leftMargin: Theme.space(3)
+        anchors.topMargin: Theme.space(2)
         text: tile.glyph
-        color: tile.active ? Theme.brightYellow : Theme.mediumGray
-        font.family: Theme.monoFamily
-        font.pixelSize: 17
+        color: tile.active ? Theme.accent : Theme.textMuted
+        font: Theme.glyphMedium
     }
 
     Text {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: sub.top
-        anchors.leftMargin: 12
-        anchors.rightMargin: 12
+        anchors.leftMargin: Theme.space(3)
+        anchors.rightMargin: Theme.space(3)
         text: tile.label
         elide: Text.ElideRight
         color: tile.foreground
-        font.family: Theme.fontFamily
-        font.pixelSize: 13
-        font.weight: Font.DemiBold
+        font: Theme.label
     }
 
     Text {
@@ -77,33 +90,30 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        anchors.leftMargin: 12
-        anchors.rightMargin: 12
-        anchors.bottomMargin: 9
+        anchors.leftMargin: Theme.space(3)
+        anchors.rightMargin: Theme.space(3)
+        anchors.bottomMargin: Theme.space(2)
         text: tile.sublabel
         elide: Text.ElideRight
-        color: tile.active ? Qt.alpha(Theme.text, 0.75) : Theme.mediumGray
-        font.family: Theme.fontFamily
-        font.pixelSize: 11
+        color: Theme.textMuted
+        font: Theme.bodySmall
     }
 
     Rectangle {
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.rightMargin: 6
-        anchors.topMargin: 6
+        anchors.rightMargin: Theme.space(1)
+        anchors.topMargin: Theme.space(1)
         visible: tile.expandable
-        width: 24
-        height: 24
-        radius: 6
+        width: Theme.space(6)
+        height: Theme.space(6)
         color: chevron.containsMouse ? Qt.alpha(tile.foreground, 0.2) : "transparent"
 
         Text {
             anchors.centerIn: parent
             text: "›"
             color: tile.foreground
-            font.family: Theme.fontFamily
-            font.pixelSize: 16
+            font: Theme.h2
         }
 
         MouseArea {

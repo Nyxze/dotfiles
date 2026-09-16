@@ -25,7 +25,7 @@ RowLayout {
         return hours > 0 ? `${hours} h ${minutes} min` : `${minutes} min`;
     }
 
-    spacing: 10
+    spacing: Theme.space(3)
 
     SystemClock {
         id: clock
@@ -58,18 +58,14 @@ RowLayout {
 
             Text {
                 text: clock.date.toLocaleString(header.locale, "HH:mm")
-                color: Theme.text
-                font.family: Theme.fontFamily
-                font.pixelSize: 30
-                font.weight: Font.Light
+                color: Theme.textPrimary
+                font: Theme.numeric
             }
 
             Text {
                 text: clock.date.toLocaleString(header.locale, "dddd d MMMM")
-                color: clockStop.hasCursor ? Theme.brightYellow : Theme.mediumGray
-                font.family: Theme.fontFamily
-                font.pixelSize: 12
-                font.capitalization: Font.Capitalize
+                color: clockStop.hasCursor ? Theme.accent : Theme.textMuted
+                font: Theme.label
             }
         }
 
@@ -106,7 +102,7 @@ RowLayout {
 
             RowLayout {
                 Layout.alignment: Qt.AlignRight
-                spacing: 6
+                spacing: Theme.space(2)
 
                 Text {
                     text: header.charging ? "󰂄" : "󰁹"
@@ -114,18 +110,16 @@ RowLayout {
                         if (header.charging)
                             return Theme.success;
                         if (!header.battery || header.battery.percentage > 0.15)
-                            return batteryStop.hasCursor ? Theme.brightYellow : Theme.lightGray;
-                        return Theme.critical;
+                            return batteryStop.hasCursor ? Theme.accent : Theme.textSecondary;
+                        return Theme.danger;
                     }
-                    font.family: Theme.monoFamily
-                    font.pixelSize: 17
+                    font: Theme.glyphSmall
                 }
 
                 Text {
                     text: header.battery ? Math.round(header.battery.percentage * 100) + "%" : "--"
-                    color: batteryStop.hasCursor ? Theme.brightYellow : Theme.text
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 17
+                    color: batteryStop.hasCursor ? Theme.accent : Theme.textPrimary
+                    font: Theme.h3
                 }
             }
 
@@ -138,9 +132,8 @@ RowLayout {
                 text: remaining === ""
                     ? (header.charging ? "On AC" : "")
                     : (header.charging ? remaining + " to full" : remaining + " left")
-                color: Theme.mediumGray
-                font.family: Theme.fontFamily
-                font.pixelSize: 12
+                color: Theme.textMuted
+                font: Theme.micro
             }
         }
 

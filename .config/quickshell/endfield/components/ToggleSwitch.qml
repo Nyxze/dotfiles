@@ -2,6 +2,11 @@ import ".."
 import QtQuick
 
 // The on/off for whatever a page is about — the radio, the adapter, the sink.
+//
+// The one rounded thing in the language, and deliberately so: the concept
+// boards bevel every plate and keep the switch a pill, because the travel of a
+// knob along a track is what reads as a switch at all. A bevelled switch reads
+// as a very small button.
 Rectangle {
     id: sw
 
@@ -16,30 +21,36 @@ Rectangle {
         sw.toggled();
     }
 
-    implicitWidth: 38
-    implicitHeight: 22
+    implicitWidth: Theme.space(10)
+    implicitHeight: Theme.space(5)
     radius: height / 2
-    color: checked ? Theme.oliveGreen : Theme.charcoal
-    border.width: 1
-    border.color: sw.hasCursor ? Theme.brightYellow : "transparent"
+    color: checked ? Theme.accent : Theme.bgRaised
+    border.width: sw.hasCursor ? Theme.borderEmphasis : Theme.border
+    border.color: sw.hasCursor ? Theme.accent : Theme.line
 
     Behavior on color {
         ColorAnimation {
-            duration: 120
+            duration: Theme.durHover
         }
     }
 
+    // Off, the knob is a ring on the dark track; on, it is solid against the
+    // accent. The shape carries the state as well as the position does.
     Rectangle {
-        x: sw.checked ? sw.width - width - 3 : 3
+        id: knob
+
+        x: sw.checked ? sw.width - width - 2 : 2
         anchors.verticalCenter: parent.verticalCenter
-        width: 16
-        height: 16
-        radius: 8
-        color: sw.checked ? Theme.brightYellow : Theme.mediumGray
+        width: Theme.space(4)
+        height: Theme.space(4)
+        radius: height / 2
+        color: sw.checked ? Theme.onAccent : Theme.bgDeep
+        border.width: sw.checked ? 0 : 2
+        border.color: Theme.accent
 
         Behavior on x {
             NumberAnimation {
-                duration: 120
+                duration: Theme.durHover
                 easing.type: Easing.OutCubic
             }
         }

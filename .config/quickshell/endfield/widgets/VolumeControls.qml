@@ -11,7 +11,7 @@ ColumnLayout {
 
     signal pageRequested(string page)
 
-    spacing: 6
+    spacing: Theme.space(2)
 
     SliderRow {
         Layout.fillWidth: true
@@ -42,9 +42,9 @@ ColumnLayout {
     // Live input level, so a dead microphone reads differently from a quiet one.
     Item {
         Layout.fillWidth: true
-        Layout.leftMargin: 36
-        Layout.rightMargin: 46
-        implicitHeight: 4
+        Layout.leftMargin: Theme.space(9)
+        Layout.rightMargin: Theme.space(12)
+        implicitHeight: Theme.space(1)
 
         PwNodePeakMonitor {
             id: meter
@@ -54,18 +54,16 @@ ColumnLayout {
 
         Rectangle {
             anchors.fill: parent
-            radius: 2
-            color: Theme.charcoal
+            color: Theme.bgDeep
 
             Rectangle {
                 width: parent.width * Math.min(1, meter.peak * 2)
                 height: parent.height
-                radius: parent.radius
-                color: meter.peak > 0.45 ? Theme.critical : Theme.success
+                color: meter.peak > 0.45 ? Theme.danger : Theme.success
 
                 Behavior on width {
                     NumberAnimation {
-                        duration: 60
+                        duration: Theme.durPress
                     }
                 }
             }

@@ -27,27 +27,26 @@ ColumnLayout {
         row.moved(Math.max(0, Math.min(row.maximum, row.value + step * 0.05 * row.maximum)));
     }
 
-    spacing: 2
+    spacing: Theme.space(1)
 
     RowLayout {
         Layout.fillWidth: true
-        spacing: 8
+        spacing: Theme.space(2)
 
         // Wrapped in an Item: a MouseArea placed straight into a Layout is
         // sized by it instead of covering the glyph.
         Item {
             id: glyphArea
 
-            Layout.preferredWidth: 20
+            Layout.preferredWidth: Theme.space(5)
             implicitHeight: glyphText.implicitHeight
 
             Text {
                 id: glyphText
                 anchors.centerIn: parent
                 text: row.glyph
-                color: row.dimmed ? Theme.overlay : (row.hasCursor ? Theme.brightYellow : Theme.lightGray)
-                font.family: Theme.monoFamily
-                font.pixelSize: 14
+                color: row.dimmed ? Theme.line : (row.hasCursor ? Theme.accent : Theme.textSecondary)
+                font: Theme.glyphSmall
                 horizontalAlignment: Text.AlignHCenter
             }
 
@@ -65,24 +64,22 @@ ColumnLayout {
             Layout.fillWidth: true
             text: row.label
             elide: Text.ElideRight
-            color: Theme.lightGray
-            font.family: Theme.fontFamily
-            font.pixelSize: 12
+            color: Theme.textSecondary
+            font: Theme.body
         }
 
         Text {
-            Layout.minimumWidth: 36
+            Layout.minimumWidth: Theme.space(9)
             horizontalAlignment: Text.AlignRight
             text: Math.round(row.value * 100) + "%"
-            color: Theme.mediumGray
-            font.family: Theme.fontFamily
-            font.pixelSize: 11
+            color: Theme.textMuted
+            font: Theme.bodySmall
         }
     }
 
     LevelSlider {
         Layout.fillWidth: true
-        Layout.leftMargin: 28
+        Layout.leftMargin: Theme.space(7)
         value: row.value / row.maximum
         dimmed: row.dimmed
         onMoved: level => row.moved(level * row.maximum)

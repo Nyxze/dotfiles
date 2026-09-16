@@ -3,8 +3,8 @@ import Quickshell
 import Quickshell.Wayland
 import QtQuick
 
-// Shared chrome for every popup panel: layer-shell placement, the rounded
-// frame, Escape to close, and opening on whichever screen has focus.
+// Shared chrome for every popup panel: layer-shell placement, the cut frame,
+// Escape to close, and opening on whichever screen has focus.
 // Children are placed inside the padded frame.
 PanelWindow {
     id: panel
@@ -87,7 +87,7 @@ PanelWindow {
         item: frame
     }
 
-    Rectangle {
+    ChamferedRect {
         id: frame
 
         anchors.left: parent.left
@@ -97,13 +97,25 @@ PanelWindow {
             ? panel.height
             : Math.min(panel.contentHeight, panel.height)
 
-        radius: Theme.radius
-        color: Theme.base
-        border.width: 1
-        border.color: Theme.overlay
+        // Opposite corners cut, like every other plate. A Shape does not clip
+        // its children, so the grid below runs into the two cut corners — at
+        // 1% amplitude it is under the threshold of visibility there, which is
+        // the only reason this works without a masking shader.
+        topLeft: true
+        bottomRight: true
+        color: Theme.bgPanel
+        borderColor: Theme.line
+        borderWidth: Theme.border
 
         focus: true
         Keys.onEscapePressed: panel.dismiss()
+
+        // Grid, not hatch: a ground this large would turn the stronger
+        // diagonal into a filter over the whole panel rather than a material.
+        Texture {
+            anchors.fill: parent
+            kind: "grid"
+        }
 
         Item {
             id: body

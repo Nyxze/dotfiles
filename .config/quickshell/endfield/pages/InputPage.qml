@@ -7,7 +7,7 @@ ColumnLayout {
     readonly property bool muted: AudioService.mutedOf(AudioService.source)
     readonly property real volume: AudioService.volumeOf(AudioService.source)
 
-    spacing: 16
+    spacing: Theme.space(4)
 
     PageHeader {
         Layout.fillWidth: true
@@ -30,9 +30,8 @@ ColumnLayout {
             Layout.fillWidth: true
             visible: AudioService.sources.length === 0
             text: "No input device"
-            color: Theme.overlay
-            font.family: Theme.fontFamily
-            font.pixelSize: 12
+            color: Theme.line
+            font: Theme.body
         }
 
         Repeater {

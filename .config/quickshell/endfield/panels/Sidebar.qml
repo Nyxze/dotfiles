@@ -260,7 +260,7 @@ Panel {
             id: stack
 
             anchors.fill: parent
-            spacing: 16
+            spacing: Theme.space(4)
 
             SidebarHeader {
                 Layout.fillWidth: true
@@ -279,9 +279,9 @@ Panel {
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.topMargin: 2
-                implicitHeight: 1
-                color: Qt.alpha(Theme.overlay, 0.4)
+                Layout.topMargin: Theme.space(1)
+                implicitHeight: Theme.border
+                color: Theme.line
             }
 
             PageRail {
@@ -293,17 +293,13 @@ Panel {
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 6
+                spacing: Theme.space(2)
 
                 Text {
                     Layout.fillWidth: true
                     text: sidebar.currentPage.title
-                    color: Theme.mediumGray
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 11
-                    font.capitalization: Font.AllUppercase
-                    font.weight: Font.DemiBold
-                    font.letterSpacing: 0.8
+                    color: Theme.textMuted
+                    font: Theme.label
                 }
 
                 IconButton {

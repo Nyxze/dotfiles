@@ -11,22 +11,42 @@ ColumnLayout {
 
     property string title: ""
 
-    spacing: 6
+    spacing: Theme.space(2)
 
-    Text {
+    RowLayout {
+        Layout.fillWidth: true
         visible: section.title !== ""
-        text: section.title
-        color: Theme.mediumGray
-        font.family: Theme.fontFamily
-        font.pixelSize: 11
-        font.capitalization: Font.AllUppercase
-        font.weight: Font.DemiBold
-        font.letterSpacing: 0.8
+        spacing: Theme.space(2)
+
+        // A chamfered Shape this small doesn't rasterize reliably (confirmed
+        // by screenshot — it silently draws nothing), so the badge stays a
+        // plain square rather than fight a QtQuick Shapes minimum-size quirk.
+        Rectangle {
+            Layout.alignment: Qt.AlignVCenter
+            Layout.preferredWidth: Theme.space(2)
+            Layout.preferredHeight: Theme.space(2)
+            color: Theme.textMuted
+        }
+
+        Text {
+            text: section.title
+            color: Theme.textMuted
+            font: Theme.label
+        }
+
+        // The long thin rule: a label alone read as a floating caption, this
+        // ties it to the row of content it introduces.
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
+            implicitHeight: Theme.border
+            color: Theme.line
+        }
     }
 
     ColumnLayout {
         id: body
         Layout.fillWidth: true
-        spacing: 6
+        spacing: Theme.space(2)
     }
 }

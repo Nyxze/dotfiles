@@ -10,31 +10,29 @@ Item {
     property bool dimmed: false
     signal moved(real value)
 
-    implicitHeight: 18
+    implicitHeight: Theme.space(5)
 
+    // The trough is a well, cut into the panel rather than laid on it.
     Rectangle {
         id: trough
         anchors.verticalCenter: parent.verticalCenter
         width: parent.width
-        height: 6
-        radius: 3
-        color: Theme.base
+        height: Theme.space(1)
+        color: Theme.bgDeep
 
         Rectangle {
             width: Math.max(0, Math.min(1, slider.value)) * parent.width
             height: parent.height
-            radius: parent.radius
-            color: slider.dimmed ? Theme.overlay : Theme.brightYellow
+            color: slider.dimmed ? Theme.line : Theme.accent
         }
     }
 
     Rectangle {
         x: Math.max(0, Math.min(1, slider.value)) * (parent.width - width)
         anchors.verticalCenter: parent.verticalCenter
-        width: 14
-        height: 14
-        radius: 7
-        color: mouse.pressed ? Theme.brightYellow : Theme.lightGray
+        width: Theme.space(3)
+        height: Theme.space(3)
+        color: mouse.pressed ? Theme.accent : Theme.textSecondary
     }
 
     MouseArea {

@@ -4,7 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 
 ColumnLayout {
-    spacing: 16
+    spacing: Theme.space(4)
 
     // Scanning drains the battery, so it only runs while this page is shown.
     Component.onCompleted: BluetoothService.setDiscovering(true)
@@ -116,8 +116,7 @@ ColumnLayout {
         visible: BluetoothService.enabled && BluetoothService.connected.length === 0
             && BluetoothService.paired.length === 0 && BluetoothService.discovered.length === 0
         text: "No device"
-        color: Theme.overlay
-        font.family: Theme.fontFamily
-        font.pixelSize: 12
+        color: Theme.line
+        font: Theme.body
     }
 }

@@ -30,20 +30,17 @@ ColumnLayout {
         viewMonth = today.getMonth();
     }
 
-    spacing: 10
+    spacing: Theme.space(3)
 
     RowLayout {
         Layout.fillWidth: true
-        spacing: 8
+        spacing: Theme.space(2)
 
         Text {
             Layout.fillWidth: true
             text: cal.viewDate.toLocaleString(cal.locale, "MMMM yyyy")
-            color: Theme.text
-            font.family: Theme.fontFamily
-            font.pixelSize: 16
-            font.capitalization: Font.Capitalize
-            font.weight: Font.DemiBold
+            color: Theme.textPrimary
+            font: Theme.h2
         }
 
         IconButton {
@@ -65,8 +62,8 @@ ColumnLayout {
     GridLayout {
         Layout.fillWidth: true
         columns: 7
-        columnSpacing: 2
-        rowSpacing: 2
+        columnSpacing: Theme.space(1)
+        rowSpacing: Theme.space(1)
 
         Repeater {
             model: 7
@@ -77,11 +74,8 @@ ColumnLayout {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 text: cal.locale.standaloneDayName((index + 1) % 7, Locale.ShortFormat)
-                color: Theme.oliveGreen
-                font.family: Theme.fontFamily
-                font.pixelSize: 11
-                font.capitalization: Font.AllUppercase
-                font.weight: Font.DemiBold
+                color: Theme.textMuted
+                font: Theme.label
             }
         }
 
@@ -99,24 +93,21 @@ ColumnLayout {
                     && cal.viewYear === cal.today.getFullYear()
 
                 Layout.fillWidth: true
-                implicitHeight: 34
+                implicitHeight: Theme.space(9)
 
                 Rectangle {
                     anchors.centerIn: parent
-                    width: 28
-                    height: 28
-                    radius: 9
-                    color: parent.isToday ? Theme.brightYellow : "transparent"
+                    width: Theme.space(7)
+                    height: Theme.space(7)
+                    color: parent.isToday ? Theme.accent : "transparent"
                 }
 
                 Text {
                     anchors.centerIn: parent
                     visible: parent.inMonth
                     text: parent.day
-                    color: parent.isToday ? Theme.base : Theme.lightGray
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 13
-                    font.weight: parent.isToday ? Font.Bold : Font.Normal
+                    color: parent.isToday ? Theme.onAccent : Theme.textSecondary
+                    font: parent.isToday ? Theme.h3 : Theme.body
                 }
             }
         }

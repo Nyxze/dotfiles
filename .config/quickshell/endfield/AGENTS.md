@@ -184,44 +184,54 @@ block in a plain `Item` and put the `MouseArea` inside that.
 `Quickshell.Io` fails to load with `Timer is not a type`, and the error surfaces
 as a chain of unrelated "Type X unavailable" lines up through every singleton.
 
+**A `Shape` derives its implicit size from its path's bounding box.** Give
+`ChamferedRect` a `borderWidth` and the stroke widens that box, so a plate
+sitting in a layout grows by the stroke width every pass — implicit size feeds
+the layout, the layout feeds the path — until it fills whatever contains it.
+The symptom is a tile that swallows the panel. `ChamferedRect` wraps its Shape
+in a plain `Item` for exactly this reason; anything else that reaches for
+`QtQuick.Shapes` directly has to do the same.
+
 **Edits to this repository are not live.** Quickshell watches
-`~/.config/quickshell/endfield`, which is a copy rather than a symlink. Deploy
-before testing, or you will be reading screenshots of the previous version —
-and mind that the repository's `sync-files` runs the other way, live to repo
-with `--delete`, so an uncopied edit here is one sync away from being erased.
-The repository root's `AGENTS.md` has the whole picture.
+`~/.config/quickshell/endfield`, a copy rather than a symlink, so nothing here
+reaches it until `./deploy quickshell` runs. Deploy before testing, or you will
+be reading screenshots of the previous version.
 
 ## Testing without taking over the screen
 
-Hyprland can create an off-screen output to render into:
+`preview` does this, and encodes every trap below:
 
 ```bash
-hyprctl output create headless                    # appears as HEADLESS-n
-hyprctl keyword monitor HEADLESS-1,1920x1080@60,3520x0,1   # match a real screen
-hyprctl keyword workspace 6,monitor:HEADLESS-1,default:true
-hyprctl dispatch focusmonitor HEADLESS-1          # panels open on the focused screen
-qs -c endfield ipc call sidebar toggle
-grim -o HEADLESS-1 /tmp/shot.png
-hyprctl output remove HEADLESS-1
+preview -o /tmp/shot.png -- qs -c endfield ipc call sidebar toggle
+preview -c org.gnome.Nautilus -o /tmp/shot.png -- nautilus --new-window ~
 ```
 
-Two traps when reading the result:
+It refuses to run under a lock screen, sets the output mode explicitly, focuses
+the output before the command, verifies with `-c` that the window actually
+landed there, and removes the output and reloads on the way out even when the
+command fails.
+
+Doing it by hand is what the script exists to avoid, but the traps are worth
+knowing, because they all cost time before it existed:
 
 - A fresh headless output defaults to 1920x1080 at scale 2, so it is 960x540
-  logical and captures at 2x — panels get clipped and every measurement is
-  doubled. Set its mode explicitly, as above, before judging a layout.
+  logical and captures at 2x. Set its mode explicitly or every measurement is
+  doubled and panels come back clipped.
+- The output is named after the ones already there, so a second one is
+  `HEADLESS-2`. Resolve the name instead of hardcoding it.
+- **Focus decides where a panel opens, not where a window opens.** A launched
+  application lands wherever its workspace rules put it, so it has to be moved
+  and the move has to be verified. Skipping that is how a panel ends up on a
+  monitor someone is using.
+- **Run `hyprctl reload` after removing the output**, every time. Removing it
+  strands whichever workspace was on it and that workspace's `SUPER+n` bind
+  goes dead until the reload reattaches it.
+- Check the screen is not locked before capturing or injecting keys
+  (`pgrep -x hyprlock`). A lock screen covers every output, so captures show it
+  instead of the panel and synthetic keystrokes land in its password field.
 - `hyprctl layers` lists panels under `surfaceName`. A panel that does not set
   one appears as `quickshell`, which makes it look absent if you grep for the
   name you expected.
-- **Run `hyprctl reload` after removing the headless output**, every time.
-  Removing it strands whichever workspace was on it (`monitor: '?'` in
-  `hyprctl workspaces -j`) and that workspace's `SUPER+n` bind goes dead. The
-  reload reattaches it. Never point a workspace rule at the output either —
-  `focusmonitor` alone is enough, Hyprland gives a new output a workspace by
-  itself.
-- The output is named after the ones already there, so a second one is
-  `HEADLESS-2`. Resolve the name instead of hardcoding it, or the mode you set
-  lands on nothing and the capture comes back at scale 2.
 
 Errors go to the log, not to stdout, once daemonised:
 
@@ -230,15 +240,36 @@ qs -c endfield                 # foreground: parse errors appear immediately
 strings /run/user/1000/quickshell/by-id/*/log.qslog | tail
 ```
 
-## Palette
+## Tokens
 
-`Theme.qml` is one of five copies of the endfield palette, alongside
-`.config/theme/endfield.{css,conf,rasi}` and `ghostty/themes/endfield` — none of
-those parsers share a syntax. A colour changed here must be changed in all of
-them.
+`Theme.qml` is one of seven copies of the endfield palette, alongside
+`.config/theme/endfield.{css,conf,rasi}`, `ghostty/themes/endfield` and
+`qt{5,6}ct/colors/endfield.conf` — none of those parsers share a syntax. A
+colour changed here must be changed in all of them. `.config/theme/DESIGN.md`
+holds the language itself: what each token means, the type scale, the spacing
+unit, and which surface takes which texture.
 
-Never hardcode a colour in a component. If `Theme` is missing a token, add it
-there.
+Never hardcode a colour, a font size or a margin in a component. Colours come
+from the semantic tokens; type comes from a font role assigned whole
+(`font: Theme.body`), so a size and its weight cannot drift apart; every margin
+and gap is `Theme.space(n)`, which takes the step count on a 4px grid rather
+than the pixel value. If `Theme` is missing something, add it there.
+
+Two rules the components hold to and a new one must not break:
+
+- **Three shapes, one accent, no trading.** A fill means *chosen among
+  several* (`ListRow.selected`, `PillRow.active`, `NavRow.selected`). A 4px
+  rail means *switched on*, independently (`Tile.active`). A 2px border means
+  *the cursor is here*, and inverts to `Theme.onAccent` over a filled row.
+  A tile is a toggle, not a choice — that is why it takes the rail and not the
+  fill.
+- **Nothing is rounded, except the switch.** A plate cuts opposite corners
+  through `ChamferedRect`; everything else is square. `ToggleSwitch` is the one
+  pill, because a bevelled switch reads as a very small button. `Theme` has no
+  radius token to reach for — that `height / 2` is deliberate and local.
+- **Hover is not a state here.** The shell has one highlight, `Cursor`, and it
+  means focus. GTK's hover underline and press bar have no counterpart in this
+  tree on purpose.
 
 ## Glyphs
 

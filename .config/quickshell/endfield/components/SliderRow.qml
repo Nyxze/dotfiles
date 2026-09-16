@@ -28,7 +28,7 @@ RowLayout {
         row.moved(Math.max(0, Math.min(1, row.value + step * 0.05)));
     }
 
-    spacing: 10
+    spacing: Theme.space(3)
 
     IconButton {
         cursorTarget: row
@@ -44,12 +44,11 @@ RowLayout {
     }
 
     Text {
-        Layout.minimumWidth: 36
+        Layout.minimumWidth: Theme.space(9)
         horizontalAlignment: Text.AlignRight
         text: Math.round(row.value * 100) + "%"
-        color: row.dimmed ? Theme.overlay : Theme.lightGray
-        font.family: Theme.fontFamily
-        font.pixelSize: 13
+        color: row.dimmed ? Theme.line : Theme.textSecondary
+        font: Theme.body
     }
 
     IconButton {

@@ -14,28 +14,25 @@ RowLayout {
     property string subtitle: ""
     property bool dimmed: false
 
-    spacing: 12
+    spacing: Theme.space(3)
 
     Text {
         Layout.alignment: Qt.AlignVCenter
         text: header.glyph
-        color: header.dimmed ? Theme.overlay : Theme.brightYellow
-        font.family: Theme.monoFamily
-        font.pixelSize: 24
+        color: header.dimmed ? Theme.line : Theme.accent
+        font: Theme.glyphLarge
     }
 
     ColumnLayout {
         Layout.fillWidth: true
-        spacing: 1
+        spacing: Theme.space(1)
 
         Text {
             Layout.fillWidth: true
             text: header.title
             elide: Text.ElideRight
-            color: Theme.text
-            font.family: Theme.fontFamily
-            font.pixelSize: 14
-            font.weight: Font.DemiBold
+            color: Theme.textPrimary
+            font: Theme.h3
         }
 
         Text {
@@ -43,18 +40,14 @@ RowLayout {
             visible: header.subtitle !== ""
             text: header.subtitle
             elide: Text.ElideRight
-            color: Theme.mediumGray
-            font.family: Theme.fontFamily
-            font.pixelSize: 10
-            font.capitalization: Font.AllUppercase
-            font.weight: Font.DemiBold
-            font.letterSpacing: 0.8
+            color: Theme.textMuted
+            font: Theme.micro
         }
     }
 
     RowLayout {
         id: trailing
         Layout.alignment: Qt.AlignVCenter
-        spacing: 6
+        spacing: Theme.space(2)
     }
 }

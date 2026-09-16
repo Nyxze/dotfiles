@@ -7,7 +7,7 @@ ColumnLayout {
     readonly property bool muted: AudioService.mutedOf(AudioService.sink)
     readonly property real volume: AudioService.volumeOf(AudioService.sink)
 
-    spacing: 16
+    spacing: Theme.space(4)
 
     // Port availability polling costs a pactl call every 5s; only worth it
     // while this page is actually on screen.
@@ -35,9 +35,8 @@ ColumnLayout {
             Layout.fillWidth: true
             visible: AudioService.sinks.length === 0
             text: "No output device"
-            color: Theme.overlay
-            font.family: Theme.fontFamily
-            font.pixelSize: 12
+            color: Theme.line
+            font: Theme.body
         }
 
         Repeater {

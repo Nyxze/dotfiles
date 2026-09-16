@@ -19,27 +19,25 @@ Rectangle {
         input.forceActiveFocus();
     }
 
-    implicitHeight: 34
-    radius: 7
-    color: Theme.base
-    border.width: 1
-    border.color: input.activeFocus ? Theme.brightYellow : Theme.overlay
+    implicitHeight: Theme.space(9)
+    color: Theme.bgDeep
+    border.width: input.activeFocus ? Theme.borderEmphasis : Theme.border
+    border.color: input.activeFocus ? Theme.accent : Theme.line
 
     TextInput {
         id: input
 
         anchors.left: parent.left
         anchors.right: submit.left
-        anchors.leftMargin: 10
-        anchors.rightMargin: 8
+        anchors.leftMargin: Theme.space(3)
+        anchors.rightMargin: Theme.space(2)
         anchors.verticalCenter: parent.verticalCenter
         clip: true
         echoMode: TextInput.Password
-        color: Theme.text
-        selectionColor: Theme.oliveGreen
-        selectedTextColor: Theme.text
-        font.family: Theme.fontFamily
-        font.pixelSize: 13
+        color: Theme.textPrimary
+        selectionColor: Theme.accent
+        selectedTextColor: Theme.onAccent
+        font: Theme.body
 
         onAccepted: field.accepted(text)
 
@@ -58,9 +56,8 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             visible: input.text === ""
             text: field.placeholder
-            color: Theme.overlay
-            font.family: Theme.fontFamily
-            font.pixelSize: 13
+            color: Theme.textMuted
+            font: Theme.body
         }
     }
 
@@ -68,7 +65,7 @@ Rectangle {
         id: submit
 
         anchors.right: parent.right
-        anchors.rightMargin: 4
+        anchors.rightMargin: Theme.space(1)
         anchors.verticalCenter: parent.verticalCenter
         glyph: "󰌑"
         onActivated: field.accepted(input.text)

@@ -2,16 +2,17 @@ import ".."
 import QtQuick
 
 // One selectable entry in a detail page: a device, a session action, a paired
-// headset. Selected rows keep a filled background so the current one reads at
-// a glance without an extra marker.
-Rectangle {
+// headset. The chosen one takes the banner — hatched accent body, long
+// diagonal, stepped bands — and the cursor answers on the border of a plain
+// plate, inverting once it lands on the chosen row.
+Item {
     id: item
 
     property string glyph: ""
     property string label: ""
     property string trailing: ""
     property bool selected: false
-    property color accent: Theme.brightYellow
+    property color accent: Theme.accent
 
     // Optional destructive shortcut on the right — forget a network, unpair a
     // device. Empty means the row has no second action.
@@ -32,59 +33,66 @@ Rectangle {
             item.actionActivated();
     }
 
-    readonly property bool hovered: hasCursor
-    readonly property color foreground: hovered ? Theme.base : (selected ? accent : Theme.lightGray)
+    readonly property color foreground: {
+        if (selected)
+            return Theme.onAccent;
+        return hasCursor ? Theme.textPrimary : Theme.textSecondary;
+    }
 
-    implicitHeight: 34
-    radius: 7
-    color: hovered ? Theme.oliveGreen : (selected ? Theme.charcoal : "transparent")
+    implicitHeight: 36
 
-    // Background alone reads as "selected" too weakly against charcoal tiles,
-    // so the current entry also carries an accent edge.
-    Rectangle {
-        anchors.left: parent.left
-        anchors.verticalCenter: parent.verticalCenter
-        visible: item.selected && !item.hovered
-        width: 3
-        height: parent.height - 14
-        radius: 2
+    BannerPlate {
+        id: banner
+
+        anchors.fill: parent
+        visible: item.selected
         color: item.accent
+    }
+
+    ChamferedRect {
+        anchors.fill: parent
+        visible: !item.selected
+        bottomRight: true
+        chamfer: 4
+        color: "transparent"
+        borderWidth: item.hasCursor ? Theme.borderEmphasis : 0
+        borderColor: Theme.accent
     }
 
     Text {
         id: icon
         anchors.left: parent.left
-        anchors.leftMargin: 10
+        anchors.leftMargin: Theme.space(3)
         anchors.verticalCenter: parent.verticalCenter
         visible: item.glyph !== ""
         text: item.glyph
         color: item.foreground
-        font.family: Theme.monoFamily
-        font.pixelSize: 14
+        font: Theme.glyphSmall
     }
 
     Text {
         anchors.left: icon.visible ? icon.right : parent.left
-        anchors.leftMargin: 10
+        anchors.leftMargin: Theme.space(3)
         anchors.right: trail.left
-        anchors.rightMargin: 8
+        anchors.rightMargin: Theme.space(2)
         anchors.verticalCenter: parent.verticalCenter
         text: item.label
         elide: Text.ElideRight
-        color: item.hovered ? Theme.base : (item.selected ? Theme.text : Theme.lightGray)
-        font.family: Theme.fontFamily
-        font.pixelSize: 13
+        color: item.foreground
+        font: Theme.body
     }
 
     Text {
         id: trail
+
         anchors.right: action.visible ? action.left : parent.right
-        anchors.rightMargin: action.visible ? 4 : 10
+        // Clear the tail, or the readout ends up under the bands.
+        anchors.rightMargin: (item.selected ? banner.clearance : 0)
+            + (action.visible ? Theme.space(1) : Theme.space(3))
         anchors.verticalCenter: parent.verticalCenter
         text: item.trailing
-        color: item.hovered ? Theme.base : Theme.mediumGray
-        font.family: Theme.fontFamily
-        font.pixelSize: 11
+        color: item.selected ? Qt.alpha(Theme.onAccent, 0.72) : Theme.textMuted
+        font: Theme.bodySmall
     }
 
     MouseArea {
@@ -101,20 +109,18 @@ Rectangle {
         id: action
 
         anchors.right: parent.right
-        anchors.rightMargin: 4
+        anchors.rightMargin: (item.selected ? banner.clearance : 0) + Theme.space(1)
         anchors.verticalCenter: parent.verticalCenter
-        visible: item.actionGlyph !== "" && (item.hovered || actionMouse.containsMouse)
-        width: 26
-        height: 26
-        radius: 6
-        color: actionMouse.containsMouse ? Theme.critical : "transparent"
+        visible: item.actionGlyph !== "" && (item.hasCursor || actionMouse.containsMouse)
+        width: Theme.space(7)
+        height: Theme.space(7)
+        color: actionMouse.containsMouse ? Theme.danger : "transparent"
 
         Text {
             anchors.centerIn: parent
             text: item.actionGlyph
-            color: actionMouse.containsMouse ? Theme.text : Theme.base
-            font.family: Theme.fontFamily
-            font.pixelSize: 14
+            color: item.selected && !actionMouse.containsMouse ? Theme.onAccent : Theme.textPrimary
+            font: Theme.glyphSmall
         }
 
         MouseArea {

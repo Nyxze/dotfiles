@@ -46,7 +46,7 @@ ColumnLayout {
         return here ? "Saved" : "Available";
     }
 
-    spacing: 16
+    spacing: Theme.space(4)
 
     // Scanning and the detail probes both cost power, so both run only while
     // this page is on screen.
@@ -178,18 +178,16 @@ ColumnLayout {
             Layout.fillWidth: true
             visible: !NetworkService.wifiEnabled
             text: "Wi-Fi is off"
-            color: Theme.overlay
-            font.family: Theme.fontFamily
-            font.pixelSize: 12
+            color: Theme.line
+            font: Theme.body
         }
 
         Text {
             Layout.fillWidth: true
             visible: NetworkService.wifiEnabled && NetworkService.networks.length === 0
             text: "Scanning…"
-            color: Theme.overlay
-            font.family: Theme.fontFamily
-            font.pixelSize: 12
+            color: Theme.line
+            font: Theme.body
         }
 
         Repeater {
@@ -204,7 +202,7 @@ ColumnLayout {
                 readonly property bool prompting: page.prompting === modelData
 
                 Layout.fillWidth: true
-                spacing: 4
+                spacing: Theme.space(1)
 
                 Connections {
                     target: entry.modelData
@@ -218,15 +216,11 @@ ColumnLayout {
 
                 Text {
                     Layout.fillWidth: true
-                    Layout.topMargin: 4
+                    Layout.topMargin: Theme.space(1)
                     text: page.groupTitle(entry.index)
                     visible: text !== ""
-                    color: Theme.mediumGray
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 11
-                    font.capitalization: Font.AllUppercase
-                    font.weight: Font.DemiBold
-                    font.letterSpacing: 0.8
+                    color: Theme.textMuted
+                    font: Theme.label
                 }
 
                 ListRow {
@@ -242,8 +236,8 @@ ColumnLayout {
 
                 PasswordField {
                     Layout.fillWidth: true
-                    Layout.leftMargin: 10
-                    Layout.rightMargin: 10
+                    Layout.leftMargin: Theme.space(3)
+                    Layout.rightMargin: Theme.space(3)
                     visible: entry.prompting
                     placeholder: "Passphrase for " + entry.modelData.name
 
@@ -263,13 +257,12 @@ ColumnLayout {
 
                 Text {
                     Layout.fillWidth: true
-                    Layout.leftMargin: 10
+                    Layout.leftMargin: Theme.space(3)
                     visible: page.failure !== "" && entry.modelData.state === ConnectionState.Disconnected
                         && (entry.prompting || entry.modelData.known)
                     text: page.failure
-                    color: Theme.critical
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    color: Theme.danger
+                    font: Theme.bodySmall
                 }
             }
         }

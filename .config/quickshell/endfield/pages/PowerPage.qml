@@ -53,7 +53,7 @@ ColumnLayout {
         }
     ]
 
-    spacing: 16
+    spacing: Theme.space(4)
 
     Process {
         id: runner
