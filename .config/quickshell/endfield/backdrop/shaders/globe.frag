@@ -49,7 +49,7 @@ const float PARALLELS = 12.0;
 
 // How the ripple travels: radians of arc per second, and how long it lasts.
 const float RIPPLE_SPEED = 0.11;
-const float RIPPLE_LIFE = 5.0;
+const float RIPPLE_LIFE = 2.5;
 
 float hash(vec3 p) {
     p = fract(p * 0.3183099 + vec3(0.71, 0.113, 0.419));

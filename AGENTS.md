@@ -87,6 +87,7 @@ skips it and an edit made there is lost on the next install.
 | Hyprland        | `hyprctl reload`                                      |
 | waybar          | `~/.config/hypr/scripts/refresh.sh` (kills and relaunches waybar and rofi) |
 | Quickshell      | it watches its own directory; restart `qs` for a clean slate |
+| Backdrop shaders | `./scripts/build-shaders.sh` first — QML loads the compiled `.qsb`, so an edited `.frag` alone changes nothing and says nothing |
 | GTK / Qt themes | log out — `nwg-look` and `qt5ct`/`qt6ct` write on exit |
 | SDDM greeter    | `preview -c sddm-greeter-qt6 -o shot.png -- sddm-greeter-qt6 --test-mode --theme system/sddm/themes/endfield` — the `-c` is not optional, the greeter opens full-screen wherever it likes and focus alone will not move it. The real one only restarts with the session |
 | Nautilus        | `nautilus -q` first — it is D-Bus activated, so a plain relaunch reuses the running process and its old CSS |
@@ -106,6 +107,7 @@ system/             root-owned configuration, mirroring / rather than ~
 scripts/rice        packages and system state a fresh machine needs
 scripts/install.sh  copies prompts/ out to the providers
 scripts/install-system.sh  copies system/ out, under sudo
+scripts/build-shaders.sh   compiles the backdrop's GLSL into the .qsb Qt6 reads
 TODO.md             parked tasks — see the convention in its header
 ```
 

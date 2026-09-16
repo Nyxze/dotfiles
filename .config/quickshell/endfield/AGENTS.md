@@ -21,12 +21,22 @@ endfield/
   Cursor.qml             singleton: the one highlight, shared by mouse and keyboard
   scripts/               what no QML binding exposes — nmcli and pactl, nothing else
   components/            reusable and domain-free — Panel, Tile, SliderRow, ListRow,
-                         Section, IconButton, LevelSlider, PasswordField, PageHeader,
-                         ToggleSwitch, PillRow, DetailGrid, LevelRow, KeyCatcher
+                         Section, IconButton, LevelSlider, PasswordField, LoginWell,
+                         PageHeader, ToggleSwitch, PillRow, DetailGrid, LevelRow,
+                         KeyCatcher, ChamferedRect, BannerPlate, Texture
+  backdrop/              the orbit scene and its shaders, mounted by the lock
+                         screen and staged into the greeter
   widgets/               always-visible pieces of the sidebar head
   pages/                 the swappable detail views
-  panels/                composes the above into a surface
+  panels/                composes the above into a surface — the sidebar, the
+                         toasts, and the lock screen
 ```
+
+The backdrop is GLSL, and QML loads the compiled `.qsb` rather than the source.
+`../../../scripts/build-shaders.sh` is what puts an edited shader in front of
+the engine; nothing warns when it has not been run, the old binary just keeps
+rendering. The greeter then copies those artefacts rather than compiling its
+own, so both surfaces run the same build.
 
 The split that matters: `components/` must stay ignorant of what it displays. A
 component that mentions a month, a volume level or a battery belongs in

@@ -12,7 +12,6 @@ SHELL_DIR="$ROOT/.config/quickshell/endfield"
 PALETTE="$ROOT/.config/theme"
 THEME="$ROOT/system/sddm/themes/endfield"
 DEST=/usr/share/sddm/themes/endfield
-QSB=/usr/lib/qt6/bin/qsb
 
 # Components that are already pure QtQuick and carry no Quickshell import, so
 # they cross over untouched.
@@ -53,13 +52,11 @@ stage() {
     # falls back to when the shaders do not load.
     install -Dm644 "$PALETTE/greeter.png" "$THEME/ground.png"
 
-    # Qt6 dropped inline GLSL, so the shaders go through qsb into a .qsb before
-    # QML will load them. This is the one artefact here that needs a compiler
-    # rather than a rasteriser, and qsb is not on PATH.
-    if [ ! -x "$QSB" ]; then
-        echo "✗ $QSB is missing — install qt6-shadertools." >&2
-        exit 1
-    fi
+    # The shaders are compiled where the shell reads them, then travel as
+    # artefacts: the greeter compiling its own copy is how the two surfaces end
+    # up running different builds of the same source.
+    "$ROOT/scripts/build-shaders.sh" >/dev/null
+
     for name in "${BACKDROP[@]}"; do
         install -Dm644 "$SHELL_DIR/backdrop/$name.qml" "$THEME/backdrop/$name.qml"
     done
@@ -69,8 +66,8 @@ stage() {
         for stage in vert frag; do
             install -Dm644 "$SHELL_DIR/backdrop/shaders/$shader.$stage" \
                 "$THEME/backdrop/shaders/$shader.$stage"
-            "$QSB" --qt6 -o "$THEME/backdrop/shaders/$shader.$stage.qsb" \
-                "$SHELL_DIR/backdrop/shaders/$shader.$stage" >/dev/null
+            install -Dm644 "$SHELL_DIR/backdrop/shaders/$shader.$stage.qsb" \
+                "$THEME/backdrop/shaders/$shader.$stage.qsb"
         done
     done
 
