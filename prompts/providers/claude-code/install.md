@@ -1,29 +1,20 @@
-# Claude Code Installation
+# Claude Code
 
-## 1. Copy to ~/.config/coding-agents
-
-```bash
-rsync -av --delete <dotfiles>/prompts/ ~/.config/coding-agents/
-```
-
-## 2. Symlink into Claude Code
+`scripts/install.sh` copies straight from `prompts/`. There is no symlink and no
+intermediate directory.
 
 ```bash
-rm -rf ~/.claude/skills && ln -sf ~/.config/coding-agents/skills ~/.claude/skills
-rm -rf ~/.claude/agents && ln -sf ~/.config/coding-agents/agents ~/.claude/agents
+./scripts/install.sh claude-code
 ```
 
-## Updating
+| Source            | Destination         |
+| ----------------- | ------------------- |
+| `prompts/skills/` | `~/.claude/skills/` |
+| `prompts/agents/` | `~/.claude/agents/` |
 
-Re-run the rsync after modifying sources — symlinks do not need to be recreated.
+A skill is a directory holding a `SKILL.md`, and the directory name has to match
+the `name` in that file's front matter.
 
-```bash
-rsync -av --delete <dotfiles>/prompts/ ~/.config/coding-agents/
-```
-
-## Verify
-
-```bash
-ls -la ~/.claude/skills/
-ls -la ~/.claude/agents/
-```
+skill-creator writes new skills into `~/.claude/skills` rather than here, so the
+copy refuses while that directory holds something `prompts/` does not.
+`./prompts/capture.sh claude-code` brings it back first; `--force` discards it.
