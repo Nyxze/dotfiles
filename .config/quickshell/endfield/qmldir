@@ -6,3 +6,4 @@ singleton AudioService 1.0 AudioService.qml
 singleton TlpService 1.0 TlpService.qml
 singleton BluetoothService 1.0 BluetoothService.qml
 singleton NetworkService 1.0 NetworkService.qml
+singleton ClipboardService 1.0 ClipboardService.qml
