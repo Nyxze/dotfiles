@@ -21,6 +21,11 @@ Panel {
             glyph: "󰂚"
         },
         {
+            key: "clipboard",
+            title: "Clipboard",
+            glyph: "󰅍"
+        },
+        {
             key: "output",
             title: "Output",
             glyph: "󰕾"
@@ -329,6 +334,8 @@ Panel {
 
                     sourceComponent: {
                         switch (sidebar.page) {
+                        case "clipboard":
+                            return clipboardPage;
                         case "output":
                             return outputPage;
                         case "input":
@@ -363,6 +370,14 @@ Panel {
         id: notificationsPage
 
         NotificationsPage {}
+    }
+
+    Component {
+        id: clipboardPage
+
+        ClipboardPage {
+            onPicked: sidebar.closePanel()
+        }
     }
 
     Component {
