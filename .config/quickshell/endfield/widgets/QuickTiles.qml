@@ -63,7 +63,7 @@ GridLayout {
         sublabel: {
             if (NotificationService.doNotDisturb)
                 return "Toasts muted";
-            const count = NotificationService.history.values.length;
+            const count = NotificationService.historyIds.length;
             return count === 0 ? "Nothing waiting" : count + " waiting";
         }
         active: NotificationService.doNotDisturb

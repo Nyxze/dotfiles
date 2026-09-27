@@ -201,6 +201,11 @@ Item {
         onTriggered: root.land()
     }
 
+    Starfield {
+        anchors.fill: parent
+        disc: root.disc
+    }
+
     Globe {
         id: globe
 

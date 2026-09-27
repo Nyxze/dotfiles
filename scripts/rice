@@ -6,9 +6,9 @@ sudo pacman -Syu --needed papirus-icon-theme capitaine-cursors qt5ct qt6ct hypri
 
 # The Quickshell panels shell out for what no QML binding exposes: pactl for the
 # port availability that decides whether an output is really usable, nmcli and iw
-# for the Wi-Fi band and DNS provider, wl-copy for the addresses the details grid
-# offers to copy.
-sudo pacman -S --needed libpulse networkmanager iw wl-clipboard
+# for the Wi-Fi band and DNS provider, and cliphist for searchable text, image
+# and file clipboard history.
+sudo pacman -S --needed libpulse networkmanager iw wl-clipboard cliphist xdg-utils
 
 # The greeter's ground is generated rather than shipped as artwork: librsvg
 # rasterises the textures and the terrain still, and qsb — which comes with

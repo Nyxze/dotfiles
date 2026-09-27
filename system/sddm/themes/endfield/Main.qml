@@ -93,7 +93,7 @@ Item {
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: Qt.formatTime(clock.now, "HH:mm")
+                text: Qt.formatTime(clock.now, "h:mm AP")
                 color: Theme.textPrimary
                 font: Theme.clock
             }

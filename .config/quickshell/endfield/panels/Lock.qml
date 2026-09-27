@@ -39,7 +39,6 @@ Scope {
         if (session.locked)
             return;
         root.message = "";
-        clock.now = new Date();
         session.locked = true;
     }
 
@@ -132,7 +131,7 @@ Scope {
 
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: Qt.formatTime(clock.now, "HH:mm")
+                        text: clock.date.toLocaleString(Qt.locale(), "h:mm AP")
                         color: Theme.textPrimary
                         font: Theme.clock
                     }
@@ -212,16 +211,8 @@ Scope {
         }
     }
 
-    QtObject {
+    SystemClock {
         id: clock
-
-        property date now: new Date()
-    }
-
-    Timer {
-        interval: 1000
-        running: session.locked
-        repeat: true
-        onTriggered: clock.now = new Date()
+        precision: SystemClock.Minutes
     }
 }

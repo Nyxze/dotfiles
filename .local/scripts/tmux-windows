@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Window switcher, in place of choose-tree: the windows of every session, drawn
+# as a tree under the session they belong to, with their index at the right.
+#
+# The session is the root of its branch rather than a column repeated on every
+# row, and the connector is the indentation — the shape `tree` uses, which is
+# the shape anyone reading this already knows.
+#
+# Sessions themselves are not listed here — tmux-sessions is that list, and a
+# picker holding two kinds of thing makes you read before you can choose.
+set -uo pipefail
+
+current=$(tmux display-message -p '#{session_name}:#{window_index}' 2>/dev/null)
+
+rows() {
+    local wins i session index name next mark branch group=""
+    # Collected first: whether a row ends its branch depends on the row after it.
+    mapfile -t wins < <(tmux list-windows -a -F '#{session_name}	#{window_index}	#{window_name}')
+
+    for i in "${!wins[@]}"; do
+        IFS=$'\t' read -r session index name <<<"${wins[$i]}"
+        [ -n "$session" ] || continue
+
+        if [ "$session" != "$group" ]; then
+            printf 'sep:\t\t\t%s\t\n' "$session"
+            group="$session"
+        fi
+
+        next=$(cut -f1 <<<"${wins[$((i + 1))]:-}")
+        branch="├─"
+        [ "$next" = "$session" ] || branch="└─"
+
+        # ASCII, not a checkmark: an ambiguous-width character in a padded
+        # column moves the column that follows it, and which width a terminal
+        # gives one is a font question nobody here can answer.
+        mark=" "
+        [ "$session:$index" = "$current" ] && mark=">"
+
+        printf 'window:%s:%s\t%s\t%s\t%s\t%s\n' "$session" "$index" "$mark" "$branch" "$name" "$index"
+    done
+
+    # Its key rides in the label rather than in the tail column. The tail is
+    # right-aligned by counting characters, and fzf does not give a box-drawing
+    # connector and an icon the same width — so the one row whose glyph is not
+    # a connector would land its tail a column off every other row.
+    printf 'action:new\t \t󰐕\tNew window · C-n\t\n'
+}
+
+# The first row is a session, so the cursor starts on the branch below it.
+mapfile -t out < <(rows | tmux-picker 'Filter windows…' ctrl-n 2)
+
+key="${out[1]:-}"
+pick="${out[2]:-}"
+
+[ "$key" = "ctrl-n" ] && { tmux new-window; exit 0; }
+
+case "$pick" in
+    window:*) tmux switch-client -t "${pick#window:}" ;;
+    action:new) tmux new-window ;;
+esac

@@ -12,9 +12,16 @@ ChamferedRect {
 
     required property var notification
 
-    readonly property bool critical: notification.urgency === NotificationUrgency.Critical
-    readonly property string iconSource: notification.image
-        || (notification.appIcon ? Quickshell.iconPath(notification.appIcon, true) : "")
+    readonly property bool hasNotification: notification !== null
+    readonly property int actionCount: hasNotification ? notification.actions.length : 0
+    readonly property bool critical: hasNotification
+        && notification.urgency === NotificationUrgency.Critical
+    readonly property string iconSource: {
+        if (!hasNotification)
+            return "";
+        return notification.image
+            || (notification.appIcon ? Quickshell.iconPath(notification.appIcon, true) : "");
+    }
 
     signal dismissed
 
@@ -24,11 +31,17 @@ ChamferedRect {
     // Enter takes the notification's first action when it offers one, since
     // that is what the sender wants you to do with it; x always just clears it.
     function navActivate() {
-        const actions = entry.notification.actions;
-        if (actions.length === 0)
+        const action = entry.actionAt(0);
+        if (!action)
             return;
-        actions[0].invoke();
+        action.invoke();
         entry.dismissed();
+    }
+
+    function actionAt(index) {
+        if (!entry.hasNotification || index < 0 || index >= entry.notification.actions.length)
+            return null;
+        return entry.notification.actions[index];
     }
 
     function navRemove() {
@@ -36,6 +49,7 @@ ChamferedRect {
     }
 
     implicitHeight: layout.implicitHeight + Theme.space(6)
+    visible: hasNotification
     topLeft: true
     bottomRight: true
     color: Theme.bgRaised
@@ -81,14 +95,14 @@ ChamferedRect {
 
                 Text {
                     Layout.fillWidth: true
-                    text: entry.notification.summary
+                    text: entry.hasNotification ? entry.notification.summary : ""
                     color: Theme.textPrimary
                     elide: Text.ElideRight
                     font: Theme.h3
                 }
 
                 Text {
-                    text: entry.notification.appName
+                    text: entry.hasNotification ? entry.notification.appName : ""
                     color: Theme.textMuted
                     font: Theme.micro
                 }
@@ -97,7 +111,7 @@ ChamferedRect {
             Text {
                 Layout.fillWidth: true
                 visible: text !== ""
-                text: entry.notification.body
+                text: entry.hasNotification ? entry.notification.body : ""
                 color: Theme.textSecondary
                 wrapMode: Text.WordWrap
                 maximumLineCount: 4
@@ -111,14 +125,16 @@ ChamferedRect {
             Flow {
                 Layout.fillWidth: true
                 Layout.topMargin: Theme.space(1)
-                visible: entry.notification.actions.length > 0
+                visible: entry.actionCount > 0
                 spacing: Theme.space(2)
 
                 Repeater {
-                    model: entry.notification.actions
+                    model: entry.actionCount
 
                     Rectangle {
-                        required property var modelData
+                        required property int index
+
+                        readonly property var action: entry.actionAt(index)
 
                         // Secondary: a dark plate inside an accent hairline.
                         // The accent fill is what a primary action takes, and
@@ -132,7 +148,7 @@ ChamferedRect {
                         Text {
                             id: actionLabel
                             anchors.centerIn: parent
-                            text: parent.modelData.text
+                            text: parent.action ? parent.action.text : ""
                             color: actionMouse.containsMouse ? Theme.onAccent : Theme.textSecondary
                             font: Theme.label
                         }
@@ -143,7 +159,9 @@ ChamferedRect {
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
                             onClicked: {
-                                parent.modelData.invoke();
+                                if (!parent.action)
+                                    return;
+                                parent.action.invoke();
                                 entry.dismissed();
                             }
                         }
@@ -156,7 +174,8 @@ ChamferedRect {
             cursorTarget: entry
             Layout.alignment: Qt.AlignTop
             glyph: "×"
-            onActivated: entry.dismissed()
+            onActivated: if (entry.hasNotification)
+                entry.dismissed()
         }
     }
 }

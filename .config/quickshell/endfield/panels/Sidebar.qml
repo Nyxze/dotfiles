@@ -46,6 +46,11 @@ Panel {
             glyph: "󰂯"
         },
         {
+            key: "displays",
+            title: "Displays",
+            glyph: "󰍺"
+        },
+        {
             key: "calendar",
             title: "Calendar",
             glyph: "󰃭"
@@ -309,7 +314,7 @@ Panel {
 
                 IconButton {
                     visible: sidebar.page === "notifications"
-                        && NotificationService.history.values.length > 0
+                        && NotificationService.historyIds.length > 0
                     glyph: "󰩹"
                     onActivated: NotificationService.clearHistory()
                 }
@@ -344,6 +349,8 @@ Panel {
                             return networkPage;
                         case "bluetooth":
                             return bluetoothPage;
+                        case "displays":
+                            return displaysPage;
                         case "calendar":
                             return calendarPage;
                         case "power":
@@ -402,6 +409,12 @@ Panel {
         id: bluetoothPage
 
         BluetoothPage {}
+    }
+
+    Component {
+        id: displaysPage
+
+        DisplaysPage {}
     }
 
     Component {

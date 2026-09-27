@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# The menu look, once, for every tmux popup that presents a list.
+#
+#   printf '%s\t%s\t%s\t%s\t%s\n' payload mark glyph label tail | tmux-picker 'Ghost text' [expect-keys]
+#
+# Callers emit what a row means — its payload, a tick, a glyph, a label and the
+# tail that sits at the right edge — and nothing about how it is drawn. Padding,
+# colours and borders belong here, so the session list, the window list and the
+# cheat sheet cannot drift apart.
+#
+# Out come fzf's three lines: the query, the key that ended the picker (empty
+# for Enter) and the payload of the chosen row.
+set -uo pipefail
+
+GHOST="${1:-}"
+# fzf refuses an empty --expect, and a caller with no action keys still wants
+# three lines out. ctrl-q stands in: it closes the picker with nothing chosen,
+# which is what every caller does with a key it does not know.
+EXPECT="${2:-ctrl-q}"
+# Where the cursor starts. A caller whose first row is a group header passes 2.
+START="${3:-1}"
+
+BG_PANEL="#111A23"
+LINE="#3A4A59"
+TEXT_PRIMARY="#E8EDF1"
+TEXT_SECONDARY="#AAB7C2"
+TEXT_MUTED="#8A99A6"
+ACCENT="#FFD400"
+ON_ACCENT="#0B1118"
+
+# The line fzf draws a row on is narrower than the popup: two columns go to the
+# list border and two more to the gutter it keeps for the pointer. Padding past
+# that gets the row ellipsised at the right edge, which eats the tail.
+#
+# Every glyph also comes from the same private-use block and is two columns wide
+# where printf counts it as one, so the padding gives that column back once.
+# The size has to come off the terminal itself: this runs with its stdout in a
+# pipe, where tput answers with terminfo's default 80 rather than the popup's
+# real width, and every row would then be padded past the edge and ellipsised.
+cols=$({ stty size </dev/tty 2>/dev/null || echo '0 64'; } | awk '{print $2}')
+width=$(( cols - 6 ))
+
+# tmux counts both the glyphs and the tick as one column each — checked with
+# cursor_x — and it is tmux's grid, not the font's idea of the glyph, that
+# decides where the tail lands inside a popup. So the padding counts
+# codepoints, with no correction for how wide anything looks.
+format() {
+    local payload mark glyph label tail
+    while IFS=$'\t' read -r payload mark glyph label tail; do
+        [ -n "$payload" ] || continue
+        printf '%s\t%-*s%s\n' "$payload" \
+            $(( width - ${#tail} )) "$mark $glyph $label" "$tail"
+    done
+}
+
+# Two modes, the way vi has them. Typing filters; Escape stops the input from
+# taking characters, and hjkl-style keys move instead. A key bound outright
+# would shadow typing it, so each one asks fzf which mode it is in and either
+# moves or puts the character back where it was going.
+SEARCH='  '
+NORMAL='▌ '
+normal() { printf '[[ $FZF_INPUT_STATE = disabled ]] && echo %s || echo put' "$1"; }
+
+format | fzf \
+    --delimiter=$'\t' \
+    --with-nth=2 \
+    --print-query \
+    --expect="$EXPECT" \
+    --no-sort \
+    --bind="load:pos($START)" \
+    --bind="esc:transform:[[ \$FZF_INPUT_STATE = enabled ]] && echo 'disable-search+change-prompt($NORMAL)' || echo abort" \
+    --bind="i:transform:[[ \$FZF_INPUT_STATE = disabled ]] && echo 'enable-search+change-prompt($SEARCH)' || echo put" \
+    --bind="/:transform:[[ \$FZF_INPUT_STATE = disabled ]] && echo 'enable-search+change-prompt($SEARCH)' || echo put" \
+    --bind="j:transform:$(normal down)" \
+    --bind="k:transform:$(normal up)" \
+    --bind="g:transform:$(normal first)" \
+    --bind="G:transform:$(normal last)" \
+    --bind="q:transform:$(normal abort)" \
+    --bind='ctrl-j:down,ctrl-k:up,ctrl-d:half-page-down,ctrl-u:half-page-up' \
+    --layout=reverse \
+    --no-scrollbar \
+    --highlight-line \
+    --info=hidden \
+    --pointer='' \
+    --prompt="$SEARCH" \
+    --ghost="$GHOST" \
+    --input-border=sharp \
+    --list-border=sharp \
+    --margin=0 \
+    --padding=0 \
+    --color="bg:$BG_PANEL,fg:$TEXT_SECONDARY,bg+:$ACCENT,fg+:$ON_ACCENT" \
+    --color="hl:$ACCENT,hl+:$ON_ACCENT,border:$LINE,prompt:$ACCENT" \
+    --color="query:$TEXT_PRIMARY,ghost:$TEXT_MUTED,gutter:$BG_PANEL,info:$TEXT_MUTED" \
+    | cut -f1

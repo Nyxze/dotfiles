@@ -7,7 +7,9 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="kiwi"
+# The prompt lives in this repository rather than in oh-my-zsh's theme
+# directory, which is not tracked here. Loaded after oh-my-zsh, below.
+ZSH_THEME=""
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -72,6 +74,7 @@ ZSH_THEME="kiwi"
 plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
+source ~/.config/zsh/endfield.zsh-theme
 
 # User configuration
 

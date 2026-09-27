@@ -6,8 +6,8 @@ import QtQuick.Layouts
 ColumnLayout {
     id: page
 
-    // trackedNotifications is insertion-ordered; a feed reads newest first.
-    readonly property var entries: NotificationService.history.values.slice().reverse()
+    // Notifications are insertion-ordered; a feed reads newest first.
+    readonly property var entries: NotificationService.historyIds.slice().reverse()
 
     spacing: Theme.space(2)
 
@@ -24,10 +24,10 @@ ColumnLayout {
         model: page.entries
 
         NotificationEntry {
-            required property var modelData
+            required property int modelData
 
             Layout.fillWidth: true
-            notification: modelData
+            notification: NotificationService.notificationFor(modelData)
             onDismissed: NotificationService.dismiss(modelData)
         }
     }

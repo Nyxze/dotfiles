@@ -46,16 +46,29 @@ print([m['name'] for m in json.load(sys.stdin) if m['name'].startswith('HEADLESS
 cleanup() {
     # The command outlives the capture otherwise, and the next run hunts the
     # stale window by class and shoots that one instead of the fresh instance.
-    [ -n "${CMD:-}" ] && kill -- -"$CMD" 2>/dev/null
-    hyprctl output remove "$HEAD" >/dev/null 2>&1 || true
+    if [ -n "${CMD:-}" ]; then
+        kill -- -"$CMD" 2>/dev/null || true
+    fi
+    for _ in 1 2 3; do
+        hyprctl output remove "$HEAD" >/dev/null 2>&1 || true
+        hyprctl monitors all -j | python3 -c "
+import sys, json
+raise SystemExit(not any(m['name'] == '$HEAD' for m in json.load(sys.stdin)))" || break
+        sleep 0.2
+    done
     sleep 0.5
     hyprctl reload >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 
 # A fresh headless output defaults to scale 2, so it is half the logical size
-# and captures at 2x. Set the mode explicitly or every measurement is doubled.
-hyprctl keyword monitor "$HEAD,$MODE,3520x0,1" >/dev/null
+# and captures at 2x. Place it after the rightmost logical edge rather than at
+# a fixed coordinate, which overlaps as soon as the physical layout changes.
+POS=$(hyprctl monitors -j | python3 -c "
+import sys, json
+monitors = [m for m in json.load(sys.stdin) if m['name'] != '$HEAD']
+print(max((m['x'] + m['width'] / m['scale'] for m in monitors), default=0))")
+hyprctl keyword monitor "$HEAD,$MODE,${POS%.*}x0,1" >/dev/null
 sleep 1
 WS=$(hyprctl monitors -j | python3 -c "
 import sys, json

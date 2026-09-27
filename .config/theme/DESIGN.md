@@ -156,6 +156,14 @@ and it reads as a very small button.
 | light | `text-primary` | `text-primary` | `bg-deep` | `text-primary` |
 | for | large grounds | contained plates | plates filled with the accent | halftone fields, never a flat ground |
 
+**The terminal takes none of them, and that is settled.** Every one was tried
+there, along with contours, registration marks and a tube's scanline and
+grain. Each either vanished at the amplitude a material wants or got in the
+way at the amplitude that made it visible. It is the one surface whose content
+is itself a grid of glyphs and which someone reads for hours, so a texture
+behind it has no correct amplitude, only a least bad one. It wears the
+palette, the cell height and the padding instead.
+
 `hatch-dark` exists because a light hatch over yellow has nothing to darken.
 Same geometry, the deepest surface instead of the lightest.
 
@@ -297,6 +305,17 @@ The answer is a mask: the body is drawn a second time as a white silhouette and
 handed to a `MultiEffect` as `maskSource`, which follows the real edge. That is
 first-party Qt6 and needs no shader of our own, so it is the technique to reach
 for wherever a material has to stop on a diagonal or a cut.
+
+**Ghostty is linear on both paths, and it costs a whole afternoon twice.** A
+background image laid at the 1.6% alpha a material wants comes back four to
+five times stronger, and the darker the surface the worse the gap: over
+`bg-deep` the grid measured 85% peak-to-peak where it was authored for 2%.
+`background-image-opacity` scales the same blend, so compensating means a magic
+alpha tuned to one blend and one surface; flattening the tile onto its own
+ground is the only honest fix. A `custom-shader` has the identical problem one
+layer up — `iChannel0` arrives linear and the result is re-encoded, so an
+amount added there lands nowhere near where it was aimed. A shader that means
+its constants converts to sRGB, works, and converts back.
 
 **A QML shader has to be precompiled.** Qt6 dropped inline GLSL, so a shader
 goes through `qsb` into a `.qsb` before QML will load it, and `qsb` ships with

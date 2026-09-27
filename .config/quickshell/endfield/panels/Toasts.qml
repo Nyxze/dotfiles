@@ -14,7 +14,7 @@ PanelWindow {
     // Shifted aside while the sidebar is open so the two do not stack up.
     property int sideOffset: 0
 
-    visible: NotificationService.popups.length > 0
+    visible: NotificationService.popupIds.length > 0
 
     anchors {
         top: true
@@ -45,14 +45,14 @@ PanelWindow {
         spacing: Theme.space(2)
 
         Repeater {
-            model: NotificationService.popups
+            model: NotificationService.popupIds
 
             NotificationEntry {
                 id: toast
 
-                required property var modelData
+                required property int modelData
 
-                notification: modelData
+                notification: NotificationService.notificationFor(modelData)
                 Layout.fillWidth: true
 
                 onDismissed: NotificationService.dismiss(modelData)
@@ -60,11 +60,13 @@ PanelWindow {
                 // A zero or negative expireTimeout means "until dismissed";
                 // critical notifications are held regardless.
                 readonly property int dwell: {
-                    if (modelData.urgency === NotificationUrgency.Critical)
+                    if (!notification)
                         return 0;
-                    if (modelData.expireTimeout > 0)
-                        return modelData.expireTimeout;
-                    return modelData.urgency === NotificationUrgency.Low ? 4000 : 7000;
+                    if (notification.urgency === NotificationUrgency.Critical)
+                        return 0;
+                    if (notification.expireTimeout > 0)
+                        return notification.expireTimeout;
+                    return notification.urgency === NotificationUrgency.Low ? 4000 : 7000;
                 }
 
                 Timer {

@@ -10,6 +10,12 @@ ShellRoot {
         id: sidebar
     }
 
+    WorkspaceOverview {
+        id: workspaceOverview
+    }
+
+    GroupBars {}
+
     Lock {
         id: lockScreen
     }
@@ -53,6 +59,26 @@ ShellRoot {
         function page(name: string): void {
             sidebar.openPanel();
             sidebar.page = name;
+        }
+    }
+
+    IpcHandler {
+        target: "overview"
+
+        function next(): void {
+            workspaceOverview.step(1);
+        }
+
+        function previous(): void {
+            workspaceOverview.step(-1);
+        }
+
+        function accept(): void {
+            workspaceOverview.accept();
+        }
+
+        function cancel(): void {
+            workspaceOverview.dismiss();
         }
     }
 

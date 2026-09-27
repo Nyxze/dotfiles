@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# The cheat sheet, as a list rather than a wall of text: the bindings are
+# searchable, and they are drawn by the same picker as everything else.
+#
+# Nothing is executed on Enter. Half of these keys only mean something in the
+# pane underneath, and a popup cannot open a second popup over itself, so a
+# palette here would work for some rows and quietly fail for the rest.
+set -uo pipefail
+
+group() {
+    printf 'sep:\t \t \t%s\t\n' "$1"
+}
+
+entry() {
+    printf 'key:%s\t \t%s\t%s\t%s\n' "$1" "$2" "$3" "$1"
+}
+
+rows() {
+    group "NAVIGATION"
+    entry "M-h / M-l" "󰁔" "Previous / next window"
+    entry "M-Tab / C-j" "󰁔" "Last window"
+    entry "C-k" "󰁔" "Last pane"
+    entry "s" "󰆍" "Sessions and hosts"
+    entry "w" "󰖯" "Windows"
+
+    group "WINDOWS AND PANES"
+    entry "c" "󰐕" "New window"
+    entry "n" "󰐕" "New window in a directory"
+    entry "," "󰑕" "Rename window"
+    entry "&" "󰅖" "Kill window"
+    entry "x" "󰅖" "Kill pane"
+    entry "z" "󰊓" "Zoom pane"
+
+    group "COPY MODE"
+    entry "v" "󰆏" "Enter copy mode, then begin the selection"
+    entry "V" "󰆏" "Select the current line"
+    entry "C-v" "󰆏" "Toggle rectangle selection"
+    entry "M-w" "󰆏" "Select the current word"
+    entry "v %" "󰆏" "Select through the matching bracket"
+    entry "y" "󰆏" "Copy the selection"
+
+    group "IN A PICKER"
+    entry "j / k" "󰁔" "Move, once Escape has stopped the filtering"
+    entry "g / G" "󰁔" "First / last"
+    entry "C-d / C-u" "󰁔" "Half a page"
+    entry "i or /" "󰍉" "Filter again"
+    entry "esc" "󰅖" "Leave the filter, then leave the picker"
+
+    group "OTHER"
+    entry "e" "󰷈" "Open nvim here"
+    entry "r" "󰑐" "Reload the config"
+    entry "?" "󰋗" "This sheet"
+}
+
+rows | tmux-picker 'Search the bindings…' '' 2 >/dev/null

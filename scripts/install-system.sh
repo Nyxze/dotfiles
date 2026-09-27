@@ -23,7 +23,7 @@ TEXTURES=(hatch hatch-dark)
 # The orbit backdrop travels as a directory rather than as a list of parts: its
 # components, its shaders and its baked clouds only mean anything together, and
 # the greeter and the shell's lock screen mount the same one.
-BACKDROP=(Orbit Globe PointCloud Trail)
+BACKDROP=(Orbit Globe Starfield PointCloud Trail)
 BACKDROP_SHADERS=(globe cloud)
 
 stage() {
