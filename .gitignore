@@ -17,3 +17,7 @@ system/sddm/themes/endfield/ground.png
 
 # Emitted by .config/theme/greeter.py; the script is the source, not this.
 .config/theme/greeter.svg
+
+# Local Codex policy and generated Python bytecode.
+.codex/
+__pycache__/
