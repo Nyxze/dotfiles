@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+directory_rows() {
+    local root="$1" hidden="$2" path label
+    local -a depth=( -maxdepth 4 )
+    local -a hidden_prune=()
+
+    [ "$root" = "$HOME" ] || depth=()
+    [ "$hidden" = 1 ] || hidden_prune=( -o -name '.*' )
+    label="~"
+    [ "$root" != "$HOME" ] && label="."
+    printf 'directory:%s\t \t󰉋\t%s\tcurrent folder\n' "$root" "$label"
+    while IFS= read -r path; do
+        label="${path#"$root"/}"
+        [ "$root" = "$HOME" ] && label="~${path#"$HOME"}"
+        printf 'directory:%s\t \t󰉋\t%s\t\n' "$path" "$label"
+    done < <(find "$root" -mindepth 1 "${depth[@]}" \
+        \( -name .git -o -name node_modules -o -name __pycache__ "${hidden_prune[@]}" \) -prune -o \
+        -type d -print | sort)
+}
+
+path="$HOME"
+hidden=1
+
+while :; do
+    display="~${path#"$HOME"}"
+    [ "$path" = "$HOME" ] && display="~"
+    state="hidden:off"
+    [ "$hidden" = 1 ] && state="hidden:on"
+
+    mapfile -t out < <(directory_rows "$path" "$hidden" | tmux-picker \
+        'Alt+→ scope · Alt+← back · Alt+h hidden' \
+        'alt-right,alt-left,alt-h' 1 "$display [$state] › " exact)
+
+    key="${out[1]:-}"
+    selected="${out[2]:-}"
+    selected="${selected#directory:}"
+
+    case "$key" in
+        alt-right) [ -n "$selected" ] && path="$selected" ;;
+        alt-left) [ "$path" = "$HOME" ] || path=$(dirname "$path") ;;
+        alt-h) hidden=$((1 - hidden)) ;;
+        *) [ -n "$selected" ] && break || exit 0 ;;
+    esac
+done
+
+if [ "$selected" = "$HOME" ]; then
+    selected_name="home"
+else
+    selected_name=$(basename "$selected" | tr ':,. ' '____')
+fi
+
+switch() {
+    if [ -z "${TMUX:-}" ]; then
+        tmux attach-session -t "$selected_name"
+    else
+        tmux switch-client -t "$selected_name"
+    fi
+}
+
+if tmux has-session -t="$selected_name" 2>/dev/null; then
+    switch
+    exit 0
+fi
+
+tmux new-session -ds "$selected_name" -c "$selected"
+tmux send-keys -t "$selected_name" "run-tmux" C-m
+switch

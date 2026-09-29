@@ -9,20 +9,25 @@ Item {
     id: item
 
     property string glyph: ""
+    property url previewSource: ""
     property string label: ""
     property string trailing: ""
     property bool selected: false
     property color accent: Theme.accent
-
     // Optional destructive shortcut on the right — forget a network, unpair a
     // device. Empty means the row has no second action.
     property string actionGlyph: ""
-
-    signal activated
-    signal actionActivated
-
     readonly property bool navigable: true
     readonly property bool hasCursor: Cursor.item === item
+    readonly property color foreground: {
+        if (selected)
+            return Theme.onAccent;
+
+        return hasCursor ? Theme.textPrimary : Theme.textSecondary;
+    }
+
+    signal activated()
+    signal actionActivated()
 
     function navActivate() {
         item.activated();
@@ -31,12 +36,7 @@ Item {
     function navRemove() {
         if (item.actionGlyph !== "")
             item.actionActivated();
-    }
 
-    readonly property color foreground: {
-        if (selected)
-            return Theme.onAccent;
-        return hasCursor ? Theme.textPrimary : Theme.textSecondary;
     }
 
     implicitHeight: 36
@@ -59,19 +59,41 @@ Item {
         borderColor: Theme.accent
     }
 
-    Text {
-        id: icon
+    Item {
+        id: leading
+
         anchors.left: parent.left
         anchors.leftMargin: Theme.space(3)
         anchors.verticalCenter: parent.verticalCenter
-        visible: item.glyph !== ""
-        text: item.glyph
-        color: item.foreground
-        font: Theme.glyphSmall
+        width: imagePreview.visible ? Theme.space(7) : icon.implicitWidth
+        height: Theme.space(7)
+
+        Image {
+            id: imagePreview
+
+            anchors.fill: parent
+            visible: status === Image.Ready
+            source: item.previewSource
+            sourceSize.width: 72
+            sourceSize.height: 72
+            asynchronous: true
+            fillMode: Image.PreserveAspectCrop
+        }
+
+        Text {
+            id: icon
+
+            anchors.centerIn: parent
+            visible: item.glyph !== "" && !imagePreview.visible
+            text: item.glyph
+            color: item.foreground
+            font: Theme.glyphSmall
+        }
+
     }
 
     Text {
-        anchors.left: icon.visible ? icon.right : parent.left
+        anchors.left: leading.visible ? leading.right : parent.left
         anchors.leftMargin: Theme.space(3)
         anchors.right: trail.left
         anchors.rightMargin: Theme.space(2)
@@ -87,8 +109,7 @@ Item {
 
         anchors.right: action.visible ? action.left : parent.right
         // Clear the tail, or the readout ends up under the bands.
-        anchors.rightMargin: (item.selected ? banner.clearance : 0)
-            + (action.visible ? Theme.space(1) : Theme.space(3))
+        anchors.rightMargin: (item.selected ? banner.clearance : 0) + (action.visible ? Theme.space(1) : Theme.space(3))
         anchors.verticalCenter: parent.verticalCenter
         text: item.trailing
         color: item.selected ? Qt.alpha(Theme.onAccent, 0.72) : Theme.textMuted
@@ -97,10 +118,15 @@ Item {
 
     MouseArea {
         id: mouse
+
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        onContainsMouseChanged: if (containsMouse) Cursor.item = item
+        onContainsMouseChanged: {
+            if (containsMouse) {
+                Cursor.item = item;
+            }
+        }
         onClicked: item.activated()
     }
 
@@ -125,10 +151,13 @@ Item {
 
         MouseArea {
             id: actionMouse
+
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: item.actionActivated()
         }
+
     }
+
 }

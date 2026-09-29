@@ -6,8 +6,8 @@ pragma Singleton
 Singleton {
     id: root
 
-    readonly property int pageSize: 100
-    readonly property int maximumEntries: 200
+    readonly property int pageSize: 10
+    readonly property int maximumEntries: 10
     property var entries: []
     property var history: []
     property bool active: false

@@ -37,16 +37,35 @@ ColumnLayout {
     }
 
     function label(entry) {
-        if (entry.preview && entry.preview.trim() !== "")
-            return entry.preview;
+        const preview = String(entry.preview || "").replace(/\s+/g, " ").trim();
+        if (preview !== "")
+            return preview.length > 96 ? preview.slice(0, 95) + "…" : preview;
 
         if (entry.kind === "image")
-            return "Image from clipboard";
+            return imageLabel(entry);
 
         if (entry.kind === "files")
             return "Files from clipboard";
 
         return "Binary clipboard data";
+    }
+
+    function imageLabel(entry) {
+        const width = Number(entry.imageWidth);
+        const height = Number(entry.imageHeight);
+        const dimensions = width > 0 && height > 0 ? width + " × " + height : "Image";
+        return dimensions + " · " + byteSize(entry.byteSize);
+    }
+
+    function byteSize(value) {
+        const bytes = Number(value) || 0;
+        if (bytes < 1024)
+            return bytes + " B";
+
+        if (bytes < 1024 * 1024)
+            return (bytes / 1024).toFixed(1) + " KB";
+
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
     }
 
     spacing: Theme.space(4)
@@ -128,6 +147,7 @@ ColumnLayout {
 
                     Layout.fillWidth: true
                     glyph: page.glyph(modelData)
+                    previewSource: modelData.thumbnailPath || ""
                     label: page.label(modelData)
                     trailing: (modelData.pinned ? "PINNED · " : "") + page.kindLabel(modelData)
                     actionGlyph: "󰆴"

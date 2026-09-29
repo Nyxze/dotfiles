@@ -56,7 +56,7 @@ rows() {
         [ -n "$name" ] || continue
         mark=" "
         [ "$name" = "$current" ] && mark=">"
-        printf 'session:%s\t%s\t󰆍\t%s\t%s\n' "$name" "$mark" "$name" "$windows"
+        printf 'session:%s\t%s\t󰆍\t%s\t%s · C-x\n' "$name" "$mark" "$name" "$windows"
     done < <(tmux list-sessions -F '#{session_name}	#{session_windows}w' 2>/dev/null)
 
     # A host already holding a session is that session, not a second way in.
@@ -70,7 +70,7 @@ rows() {
     printf 'action:scan\t \t󰛳\tScan the network…\tC-r\n'
 }
 
-mapfile -t out < <(rows | tmux-picker 'Filter or create…' ctrl-n,ctrl-r)
+mapfile -t out < <(rows | tmux-picker 'Filter or create…' ctrl-n,ctrl-r,ctrl-x)
 
 query="${out[0]:-}"
 key="${out[1]:-}"
@@ -80,6 +80,7 @@ pick="${out[2]:-}"
 case "$key" in
     ctrl-n) open_session "${query:-$(basename "$PWD")}"; exit 0 ;;
     ctrl-r) tmux-ssh; exit 0 ;;
+    ctrl-x) [[ "$pick" = session:* ]] && tmux kill-session -t "${pick#session:}"; exit 0 ;;
 esac
 
 case "$pick" in

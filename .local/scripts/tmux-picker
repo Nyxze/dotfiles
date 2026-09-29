@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The menu look, once, for every tmux popup that presents a list.
 #
-#   printf '%s\t%s\t%s\t%s\t%s\n' payload mark glyph label tail | tmux-picker 'Ghost text' [expect-keys]
+#   printf '%s\t%s\t%s\t%s\t%s\n' payload mark glyph label tail | tmux-picker 'Ghost text' [expect-keys] [start] [prompt]
 #
 # Callers emit what a row means — its payload, a tick, a glyph, a label and the
 # tail that sits at the right edge — and nothing about how it is drawn. Padding,
@@ -19,6 +19,10 @@ GHOST="${1:-}"
 EXPECT="${2:-ctrl-q}"
 # Where the cursor starts. A caller whose first row is a group header passes 2.
 START="${3:-1}"
+SEARCH="${4:-  }"
+MATCH="${5:-}"
+MATCH_ARGS=()
+[ "$MATCH" = "exact" ] && MATCH_ARGS=( --exact )
 
 BG_PANEL="#111A23"
 LINE="#3A4A59"
@@ -57,8 +61,7 @@ format() {
 # taking characters, and hjkl-style keys move instead. A key bound outright
 # would shadow typing it, so each one asks fzf which mode it is in and either
 # moves or puts the character back where it was going.
-SEARCH='  '
-NORMAL='▌ '
+NORMAL='  Tab or i: filter'
 normal() { printf '[[ $FZF_INPUT_STATE = disabled ]] && echo %s || echo put' "$1"; }
 
 format | fzf \
@@ -67,8 +70,11 @@ format | fzf \
     --print-query \
     --expect="$EXPECT" \
     --no-sort \
+    --scheme=path \
+    "${MATCH_ARGS[@]}" \
     --bind="load:pos($START)" \
     --bind="esc:transform:[[ \$FZF_INPUT_STATE = enabled ]] && echo 'disable-search+change-prompt($NORMAL)' || echo abort" \
+    --bind="tab:transform:[[ \$FZF_INPUT_STATE = disabled ]] && echo 'enable-search+change-prompt($SEARCH)' || echo 'disable-search+change-prompt($NORMAL)'" \
     --bind="i:transform:[[ \$FZF_INPUT_STATE = disabled ]] && echo 'enable-search+change-prompt($SEARCH)' || echo put" \
     --bind="/:transform:[[ \$FZF_INPUT_STATE = disabled ]] && echo 'enable-search+change-prompt($SEARCH)' || echo put" \
     --bind="j:transform:$(normal down)" \
