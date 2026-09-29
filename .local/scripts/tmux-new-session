@@ -30,8 +30,8 @@ while :; do
     [ "$hidden" = 1 ] && state="hidden:on"
 
     mapfile -t out < <(directory_rows "$path" "$hidden" | tmux-picker \
-        'Alt+→ scope · Alt+← back · Alt+h hidden' \
-        'alt-right,alt-left,alt-h' 1 "$display [$state] › " exact)
+        '' 'alt-right,alt-left,alt-h' 1 "$display [$state] › " exact \
+        'Alt+→ scope · Alt+← back · Alt+h hidden')
 
     key="${out[1]:-}"
     selected="${out[2]:-}"

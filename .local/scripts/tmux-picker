@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The menu look, once, for every tmux popup that presents a list.
 #
-#   printf '%s\t%s\t%s\t%s\t%s\n' payload mark glyph label tail | tmux-picker 'Ghost text' [expect-keys] [start] [prompt]
+#   printf '%s\t%s\t%s\t%s\t%s\n' payload mark glyph label tail | tmux-picker 'Ghost text' [expect-keys] [start] [prompt] [match] [footer]
 #
 # Callers emit what a row means — its payload, a tick, a glyph, a label and the
 # tail that sits at the right edge — and nothing about how it is drawn. Padding,
@@ -23,6 +23,9 @@ SEARCH="${4:-  }"
 MATCH="${5:-}"
 MATCH_ARGS=()
 [ "$MATCH" = "exact" ] && MATCH_ARGS=( --exact )
+FOOTER="${6:-}"
+FOOTER_ARGS=()
+[ -n "$FOOTER" ] && FOOTER_ARGS=( --footer="$FOOTER" --footer-border=sharp )
 
 BG_PANEL="#111A23"
 LINE="#3A4A59"
@@ -72,6 +75,7 @@ format | fzf \
     --no-sort \
     --scheme=path \
     "${MATCH_ARGS[@]}" \
+    "${FOOTER_ARGS[@]}" \
     --bind="load:pos($START)" \
     --bind="esc:transform:[[ \$FZF_INPUT_STATE = enabled ]] && echo 'disable-search+change-prompt($NORMAL)' || echo abort" \
     --bind="tab:transform:[[ \$FZF_INPUT_STATE = disabled ]] && echo 'enable-search+change-prompt($SEARCH)' || echo 'disable-search+change-prompt($NORMAL)'" \

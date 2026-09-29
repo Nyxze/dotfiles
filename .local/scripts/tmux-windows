@@ -22,7 +22,7 @@ rows() {
         [ -n "$session" ] || continue
 
         if [ "$session" != "$group" ]; then
-            printf 'session:%s\t \t󰆍\t%s\tC-x kill\n' "$session" "$session"
+            printf 'session:%s\t \t󰆍\t%s\t\n' "$session" "$session"
             group="$session"
         fi
 
@@ -39,15 +39,11 @@ rows() {
         printf 'window:%s:%s\t%s\t%s\t%s\t%s\n' "$session" "$index" "$mark" "$branch" "$name" "$index"
     done
 
-    # Its key rides in the label rather than in the tail column. The tail is
-    # right-aligned by counting characters, and fzf does not give a box-drawing
-    # connector and an icon the same width — so the one row whose glyph is not
-    # a connector would land its tail a column off every other row.
-    printf 'action:new\t \t󰆍\tNew session\tC-n\n'
 }
 
 # The first row is a session, so the cursor starts on the branch below it.
-mapfile -t out < <(rows | tmux-picker 'Filter sessions and windows…' ctrl-n,ctrl-x 2)
+mapfile -t out < <(rows | tmux-picker 'Filter sessions and windows…' ctrl-n,ctrl-x 2 '' '' \
+    'Ctrl-n new session · Ctrl-x kill session')
 
 key="${out[1]:-}"
 pick="${out[2]:-}"
@@ -66,5 +62,4 @@ esac
 case "$pick" in
     session:*) tmux switch-client -t "${pick#session:}" ;;
     window:*) tmux switch-client -t "${pick#window:}" ;;
-    action:new) tmux-new-session ;;
 esac

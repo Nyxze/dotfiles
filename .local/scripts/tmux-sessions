@@ -56,7 +56,7 @@ rows() {
         [ -n "$name" ] || continue
         mark=" "
         [ "$name" = "$current" ] && mark=">"
-        printf 'session:%s\t%s\t󰆍\t%s\t%s · C-x\n' "$name" "$mark" "$name" "$windows"
+        printf 'session:%s\t%s\t󰆍\t%s\t%s\n' "$name" "$mark" "$name" "$windows"
     done < <(tmux list-sessions -F '#{session_name}	#{session_windows}w' 2>/dev/null)
 
     # A host already holding a session is that session, not a second way in.
@@ -66,11 +66,11 @@ rows() {
         printf 'host:%s\t \t󰒋\t%s\tssh\n' "$host" "$host"
     done < <(hosts)
 
-    printf 'action:new\t \t󰐕\tNew session\tC-n\n'
     printf 'action:scan\t \t󰛳\tScan the network…\tC-r\n'
 }
 
-mapfile -t out < <(rows | tmux-picker 'Filter or create…' ctrl-n,ctrl-r,ctrl-x)
+mapfile -t out < <(rows | tmux-picker 'Filter or create…' ctrl-n,ctrl-r,ctrl-x 1 '' '' \
+    'Ctrl-n new session · Ctrl-r scan network · Ctrl-x kill session')
 
 query="${out[0]:-}"
 key="${out[1]:-}"
@@ -86,7 +86,6 @@ esac
 case "$pick" in
     session:*) switch "${pick#session:}" ;;
     host:*) open_host "${pick#host:}" ;;
-    action:new) open_session "${query:-$(basename "$PWD")}" ;;
     action:scan) tmux-ssh ;;
     # Nothing picked: the query matched no row, which is the create case.
     *) [ -n "$query" ] && open_session "${query// /_}" ;;
