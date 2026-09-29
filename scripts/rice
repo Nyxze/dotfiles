@@ -24,7 +24,11 @@ sudo pacman -S --needed librsvg qt6-shadertools
 # the unit itself is masked.
 systemctl --user mask swaync 2>/dev/null || true
 
-# The file manager is Nautilus rather than Thunar because GTK4 resolves the
+# Yazi covers terminal-side browsing and file inspection; its config is tracked
+# under .config/yazi and uses the same Endfield palette as the rest of the desktop.
+sudo pacman -S --needed yazi
+
+# The graphical file manager is Nautilus rather than Thunar because GTK4 resolves the
 # libadwaita colour names at runtime: it takes the palette from
 # .config/gtk-4.0/gtk.css as-is, where GTK3's Adwaita is compiled down to
 # literal hex and every surface would have to be restated by hand.
