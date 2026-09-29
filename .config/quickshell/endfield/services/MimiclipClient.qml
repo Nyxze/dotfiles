@@ -5,7 +5,7 @@ import Quickshell.Io
 QtObject {
     id: client
 
-    readonly property int protocolVersion: 1
+    readonly property int protocolVersion: 2
     readonly property string runtimeDirectory: Quickshell.env("XDG_RUNTIME_DIR")
     readonly property string socketPath: {
         const override = Quickshell.env("MIMICLIP_SOCKET");
