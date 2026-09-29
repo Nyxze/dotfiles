@@ -8,7 +8,7 @@ QtObject {
     readonly property int protocolVersion: 2
     readonly property string runtimeDirectory: Quickshell.env("XDG_RUNTIME_DIR")
     readonly property string socketPath: {
-        const override = Quickshell.env("MIMICLIP_SOCKET");
+        const override = Quickshell.env("MIMICLIP_SOCKET") || "";
         return override !== "" ? override : runtimeDirectory + "/mimiclip.sock";
     }
     property bool commandReady: false
@@ -265,7 +265,7 @@ QtObject {
     commandSocket: Socket {
         path: client.socketPath
         connected: false
-        onConnectionStateChanged: client.handleCommandConnection(connected)
+        onConnectedChanged: client.handleCommandConnection(connected)
         onError: (errorCode) => {
             client.transportError("Cannot connect to mimiclip");
             if (client.queued.length > 0)
@@ -285,7 +285,7 @@ QtObject {
     watchSocket: Socket {
         path: client.socketPath
         connected: false
-        onConnectionStateChanged: client.handleWatchConnection(connected)
+        onConnectedChanged: client.handleWatchConnection(connected)
         onError: (errorCode) => {
             client.transportError("Cannot connect to mimiclip");
             client.scheduleWatchReconnect();
