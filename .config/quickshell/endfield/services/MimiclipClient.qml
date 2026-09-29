@@ -51,6 +51,12 @@ QtObject {
         watchSocket.connected = false;
     }
 
+    function start() {
+        ensureCommandConnected();
+        if (!watchSocket.connected)
+            watchSocket.connected = true;
+    }
+
     function flushQueue() {
         if (!commandReady) {
             ensureCommandConnected();
@@ -278,7 +284,7 @@ QtObject {
 
     watchSocket: Socket {
         path: client.socketPath
-        connected: true
+        connected: false
         onConnectionStateChanged: client.handleWatchConnection(connected)
         onError: (errorCode) => {
             client.transportError("Cannot connect to mimiclip");
@@ -307,5 +313,7 @@ QtObject {
 
         }
     }
+
+    Component.onCompleted: client.start()
 
 }
