@@ -131,7 +131,7 @@ taking over the screen. Read it before touching anything under that directory.
 
 `endfield` is defined in several syntaxes that share nothing:
 `.config/theme/endfield.{css,conf,lua,rasi}`, `.config/ghostty/themes/endfield`,
-the Qt color schemes, and `Theme.qml` in the Quickshell config. A colour changed
+`.config/yazi/theme.toml`, the Qt color schemes, and `Theme.qml` in the Quickshell config. A colour changed
 in one has to be changed in all of them. Hyprland uses the Lua palette;
 Hyprlock still uses the Hyprlang `.conf` palette.
 
