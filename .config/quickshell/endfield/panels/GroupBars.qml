@@ -49,8 +49,8 @@ Scope {
             }
 
             margins {
-                left: group && monitor ? group.x - monitor.x : 0
-                top: group && monitor ? group.y - monitor.y - bar.implicitHeight : 0
+                left: group && targetScreen ? group.x - targetScreen.x : 0
+                top: group && targetScreen ? group.y - targetScreen.y - bar.implicitHeight : 0
             }
 
             WlrLayershell.layer: WlrLayer.Overlay
