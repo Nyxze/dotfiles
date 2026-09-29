@@ -94,6 +94,11 @@ QtObject {
         socket.flush();
     }
 
+    function reportTransportError() {
+        if (!commandReady && !watchReady)
+            transportError("Cannot connect to mimiclip");
+    }
+
     function ensureCommandConnected() {
         if (commandSocket.connected || commandRetry.running)
             return ;
@@ -271,7 +276,8 @@ QtObject {
         connected: false
         onConnectedChanged: client.handleCommandConnection(connected)
         onError: (errorCode) => {
-            client.transportError("Cannot connect to mimiclip");
+            console.warn("mimiclip command socket error; commandReady=" + client.commandReady + ", watchReady=" + client.watchReady);
+            client.reportTransportError();
             if (client.queued.length > 0)
                 client.scheduleCommandReconnect();
 
@@ -291,7 +297,8 @@ QtObject {
         connected: false
         onConnectedChanged: client.handleWatchConnection(connected)
         onError: (errorCode) => {
-            client.transportError("Cannot connect to mimiclip");
+            console.warn("mimiclip watch socket error; commandReady=" + client.commandReady + ", watchReady=" + client.watchReady);
+            client.reportTransportError();
             client.scheduleWatchReconnect();
         }
 
