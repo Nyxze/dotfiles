@@ -1,4 +1,5 @@
 #!/bin/bash
+source "$(dirname "${BASH_SOURCE[0]}")/lua-ipc.sh"
 
 # --- Configuration ---
 # 1. Internal Monitor ID: This ID should be constant (e.g., eDP-1 for a laptop screen).
@@ -43,13 +44,13 @@ echo "WORKSPACE : $WORKSPACES"
 for ws_id in $WORKSPACES; do
     # Command: move a specific workspace to the target monitor
     echo "Moving workspace $ws_id... to $TARGET_MONITOR"
-    hyprctl dispatch moveworkspacetomonitor "$ws_id" "$TARGET_MONITOR"
+    hypr_lua dispatch "hl.dsp.workspace.move({ workspace = $ws_id, monitor = $(lua_quote "$TARGET_MONITOR") })"
 done
 
 # --- 4. Conditionally Disable the Internal Monitor ---
 if [ "$DISABLE_FLAG" == "disable" ] || [ "$DISABLE_FLAG" == "d" ]; then
     echo "Disabling internal monitor ($INTERNAL_MONITOR)..."
-    hyprctl keyword monitor "$INTERNAL_MONITOR", disable
+    hypr_lua eval "hl.monitor({ output = $(lua_quote "$INTERNAL_MONITOR"), disabled = true })"
 fi
 
 exit 0

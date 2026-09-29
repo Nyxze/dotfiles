@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+source "$(dirname "${BASH_SOURCE[0]}")/lua-ipc.sh"
 
 clients=$(hyprctl clients -j)
 workspace=$(hyprctl activeworkspace -j | jq -r '.id')
@@ -25,14 +26,14 @@ group_size() {
 }
 
 focus() {
-    hyprctl dispatch focuswindow "address:$1" >/dev/null
+    hypr_lua dispatch "hl.dsp.focus({ window = $(lua_quote "address:$1") })"
 }
 
 move_into_group() {
     local address=$1 target=$2 direction
     direction=$(direction_to "$address" "$target")
     focus "$address"
-    hyprctl dispatch moveintogroup "$direction" >/dev/null
+    hypr_lua dispatch "hl.dsp.window.move({ into_group = $(lua_quote "$direction") })"
 
     hyprctl clients -j | jq -e --arg address "$address" --arg target "$target" \
         '.[] | select(.address == $address) | .grouped | index($target)' >/dev/null
@@ -73,17 +74,17 @@ dissolve_groups() {
         [ "$size" -gt 0 ] || continue
         focus "$address"
         if [ "$size" -eq 1 ]; then
-            hyprctl dispatch togglegroup >/dev/null
+            hypr_lua dispatch 'hl.dsp.group.toggle()'
         else
-            hyprctl dispatch moveoutofgroup >/dev/null
+            hypr_lua dispatch 'hl.dsp.window.move({ out_of_group = true })'
         fi
     done
 }
 
 active_group_size=$(group_size "$active")
 if [ "$active_group_size" -eq "${#windows[@]}" ]; then
-    hyprctl dispatch moveoutofgroup >/dev/null
-    hyprctl dispatch layoutmsg "movetoroot active" >/dev/null
+    hypr_lua dispatch 'hl.dsp.window.move({ out_of_group = true })'
+    hypr_lua dispatch 'hl.dsp.layout("movetoroot active")'
 
     clients=$(hyprctl clients -j)
     active_x=$(jq -r --arg address "$active" '.[] | select(.address == $address) | .at[0]' <<<"$clients")
@@ -92,10 +93,10 @@ if [ "$active_group_size" -eq "${#windows[@]}" ]; then
         <<<"$clients")
 
     if [ "$active_x" -gt "$support_x" ]; then
-        hyprctl dispatch layoutmsg swapsplit >/dev/null
+        hypr_lua dispatch 'hl.dsp.layout("swapsplit")'
     fi
 
-    hyprctl dispatch layoutmsg "splitratio 1.3 exact" >/dev/null
+    hypr_lua dispatch 'hl.dsp.layout("splitratio 1.3 exact")'
     exit 0
 fi
 
@@ -108,7 +109,7 @@ for address in "${windows[@]}"; do
     break
 done
 focus "$seed"
-hyprctl dispatch togglegroup >/dev/null
+hypr_lua dispatch 'hl.dsp.group.toggle()'
 
 for address in "${windows[@]}"; do
     [ "$address" = "$seed" ] && continue

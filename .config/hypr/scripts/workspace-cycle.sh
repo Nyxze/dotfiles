@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
+source "$(dirname "${BASH_SOURCE[0]}")/lua-ipc.sh"
 
 target=${1:?workspace is required}
 current=$(hyprctl activeworkspace -j | jq -r '.name')
 
 if [ "$current" != "$target" ]; then
-    hyprctl dispatch workspace "$target" >/dev/null
+    hypr_lua dispatch "hl.dsp.focus({ workspace = $(lua_quote "$target") })"
     exit 0
 fi
 
@@ -24,4 +25,4 @@ for i in "${!windows[@]}"; do
     break
 done
 
-hyprctl dispatch focuswindow "address:$next" >/dev/null
+hypr_lua dispatch "hl.dsp.focus({ window = $(lua_quote "address:$next") })"

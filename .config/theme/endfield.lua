@@ -1,0 +1,17 @@
+return {
+    bgDeep = "0B1118",
+    bgPanel = "111A23",
+    bgRaised = "1B2733",
+    line = "3A4A59",
+    textPrimary = "E8EDF1",
+    textSecondary = "AAB7C2",
+    textMuted = "8A99A6",
+    accent = "FFD400",
+    accentSoft = "FFE14D",
+    info = "4B9BFF",
+    success = "8BD32E",
+    danger = "FF6B45",
+    borderActive = "rgba(FFD400CC)",
+    borderInactive = "rgba(3A4A5988)",
+    lockAccent = "rgba(FFD400E6)",
+}

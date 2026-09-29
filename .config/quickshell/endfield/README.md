@@ -48,11 +48,7 @@ qs -c endfield ipc call sidebar page bluetooth
 
 ## Running
 
-Started with the session from `.config/hypr/init.conf`:
-
-```
-exec-once = uwsm app -- qs -c endfield
-```
+Started with the session from `.config/hypr/init.lua`.
 
 Manually:
 

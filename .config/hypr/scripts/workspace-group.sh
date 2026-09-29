@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+source "$(dirname "${BASH_SOURCE[0]}")/lua-ipc.sh"
 
 clients=$(hyprctl clients -j)
 active=$(hyprctl activewindow -j | jq -r '.address // empty')
@@ -14,12 +15,12 @@ group_size=$(jq -r --arg address "$active" \
     <<<"$clients")
 
 if [ "$group_size" -gt 1 ]; then
-    hyprctl dispatch moveoutofgroup >/dev/null
+    hypr_lua dispatch 'hl.dsp.window.move({ out_of_group = true })'
     exit 0
 fi
 
 if [ "$group_size" -eq 1 ]; then
-    hyprctl dispatch togglegroup >/dev/null
+    hypr_lua dispatch 'hl.dsp.group.toggle()'
     exit 0
 fi
 
@@ -50,7 +51,7 @@ target=$(jq -r --arg address "$active" --argjson workspace "$workspace" \
     ' <<<"$clients")
 
 if [ -z "$target" ]; then
-    hyprctl dispatch togglegroup >/dev/null
+    hypr_lua dispatch 'hl.dsp.group.toggle()'
     exit 0
 fi
 
@@ -69,4 +70,4 @@ else
     [ "$dy" -lt 0 ] && direction=u || direction=d
 fi
 
-hyprctl dispatch moveintogroup "$direction" >/dev/null
+hypr_lua dispatch "hl.dsp.window.move({ into_group = $(lua_quote "$direction") })"

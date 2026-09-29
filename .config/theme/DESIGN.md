@@ -20,7 +20,8 @@ a syntax:
 | File | Reads |
 | ---- | ----- |
 | `endfield.css` | waybar, swaync, nwg-bar, gtk3, gtk4 |
-| `endfield.conf` | Hyprland, hyprlock |
+| `endfield.conf` | hyprlock |
+| `endfield.lua` | Hyprland |
 | `endfield.rasi` | rofi |
 | `quickshell/endfield/Theme.qml` | the quickshell shell |
 | `ghostty/themes/endfield` | the terminal |

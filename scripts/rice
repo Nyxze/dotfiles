@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# The Lua config requires Hyprland 0.56.2+; ext/workspaces requires Waybar 0.15+.
+sudo pacman -Syu --needed hyprland waybar
+
 # Theming dependencies: icon theme, cursor theme, Qt platform theme, idle daemon.
 # hypridle links against hyprutils, so a partial upgrade leaves it unable to
 # start; upgrade the system fully rather than pulling it on its own.

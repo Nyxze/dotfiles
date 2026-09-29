@@ -10,6 +10,7 @@
 # lands there is captured. With -c the named window is hunted down and moved
 # there first, because focus alone does not decide where a window opens.
 set -euo pipefail
+source "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts/lua-ipc.sh"
 
 CLASS=""; OUT="$PWD/preview.png"; WAIT=4; MODE="1920x1080@60"
 while [ $# -gt 0 ]; do
@@ -29,10 +30,6 @@ done
 if pgrep -x hyprlock >/dev/null; then
     echo "preview: hyprlock is running, refusing" >&2; exit 1
 fi
-
-mon() { hyprctl monitors -j | python3 -c "
-import sys, json
-print(next((m['$2'] for m in json.load(sys.stdin) if m['name'] == '$1'), ''))"; }
 
 hyprctl output create headless >/dev/null
 sleep 1
@@ -68,12 +65,12 @@ POS=$(hyprctl monitors -j | python3 -c "
 import sys, json
 monitors = [m for m in json.load(sys.stdin) if m['name'] != '$HEAD']
 print(max((m['x'] + m['width'] / m['scale'] for m in monitors), default=0))")
-hyprctl keyword monitor "$HEAD,$MODE,${POS%.*}x0,1" >/dev/null
+hypr_lua eval "hl.monitor({ output = $(lua_quote "$HEAD"), disabled = false, mode = $(lua_quote "$MODE"), position = $(lua_quote "${POS%.*}x0"), scale = 1 })"
 sleep 1
 WS=$(hyprctl monitors -j | python3 -c "
 import sys, json
 print([m['activeWorkspace']['id'] for m in json.load(sys.stdin) if m['name'] == '$HEAD'][0])")
-hyprctl dispatch focusmonitor "$HEAD" >/dev/null
+hypr_lua dispatch "hl.dsp.focus({ monitor = $(lua_quote "$HEAD") })"
 
 # Job control gives the command its own process group, so cleanup can take
 # down a wrapper and whatever it spawned in one signal.
@@ -85,13 +82,13 @@ sleep "$WAIT"
 
 if [ -n "$CLASS" ]; then
     for _ in 1 2 3; do
-        hyprctl dispatch focusmonitor "$HEAD" >/dev/null
-        hyprctl dispatch movetoworkspacesilent "$WS,class:$CLASS" >/dev/null 2>&1 || true
+        hypr_lua dispatch "hl.dsp.focus({ monitor = $(lua_quote "$HEAD") })"
+        hypr_lua dispatch "hl.dsp.window.move({ workspace = $WS, window = $(lua_quote "class:$CLASS"), follow = false })" 2>/dev/null || true
         sleep 1.5
-        LANDED=$(hyprctl clients -j | python3 -c "
+        LANDED=$(hyprctl clients -j | python3 -c '
 import sys, json
-print(([c['workspace']['id'] for c in json.load(sys.stdin)
-        if c['class'] == '$CLASS'] or [0])[0])")
+print(([c["workspace"]["id"] for c in json.load(sys.stdin)
+        if c["class"] == sys.argv[1]] or [0])[0])' "$CLASS")
         [ "$LANDED" = "$WS" ] && break
     done
     if [ "${LANDED:-0}" != "$WS" ]; then

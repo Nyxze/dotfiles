@@ -92,9 +92,15 @@ skips it and an edit made there is lost on the next install.
 | SDDM greeter    | `preview -c sddm-greeter-qt6 -o shot.png -- sddm-greeter-qt6 --test-mode --theme system/sddm/themes/endfield` — the `-c` is not optional, the greeter opens full-screen wherever it likes and focus alone will not move it. The real one only restarts with the session |
 | Nautilus        | `nautilus -q` first — it is D-Bus activated, so a plain relaunch reuses the running process and its old CSS |
 
-`hyprctl reload` re-reads every `source =` file, so a keybind or monitor change
-lands immediately. Verify with `hyprctl binds -j` / `hyprctl monitors -j`
-rather than by eye.
+Hyprland uses `hyprland.lua` and `require` modules. `hyprctl reload` re-reads
+them, so a keybind or monitor change lands immediately. Verify with
+`hyprctl binds -j` / `hyprctl monitors -j` rather than by eye. Switching from
+the legacy parser requires a new session; reload cannot switch parsers.
+
+Runtime commands use `hyprctl dispatch 'hl.dsp.…'` or `hyprctl eval 'hl.…'`.
+`hyprctl keyword` and legacy dispatcher strings do not work in Lua sessions.
+The hand-maintained display rules are in `displays.lua`; `monitors.lua` is
+nwg-displays output and is deliberately not loaded.
 
 ## What lives where
 
@@ -123,10 +129,11 @@ taking over the screen. Read it before touching anything under that directory.
 
 ## The palette
 
-`endfield` is defined five times over, in five syntaxes that share nothing:
-`.config/theme/endfield.{css,conf,rasi}`, `.config/ghostty/themes/endfield`, and
-`Theme.qml` in the Quickshell config. A colour changed in one has to be changed
-in all of them.
+`endfield` is defined in several syntaxes that share nothing:
+`.config/theme/endfield.{css,conf,lua,rasi}`, `.config/ghostty/themes/endfield`,
+the Qt color schemes, and `Theme.qml` in the Quickshell config. A colour changed
+in one has to be changed in all of them. Hyprland uses the Lua palette;
+Hyprlock still uses the Hyprlang `.conf` palette.
 
 GTK is the awkward one, and the two versions do not behave alike. GTK4 resolves
 the libadwaita colour names at runtime, so `.config/gtk-4.0/gtk.css` redefines

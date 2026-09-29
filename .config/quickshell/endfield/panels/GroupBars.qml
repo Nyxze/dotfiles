@@ -132,7 +132,7 @@ Scope {
 
                         TapHandler {
                             acceptedButtons: Qt.LeftButton
-                            onTapped: Hyprland.dispatch("focuswindow address:" + tab.modelData.address)
+                            onTapped: Hyprland.dispatch("hl.dsp.focus({ window = " + JSON.stringify("address:" + tab.modelData.address) + " })")
                         }
                     }
                 }
@@ -141,8 +141,8 @@ Scope {
                     onWheel: event => {
                         if (!bar.group)
                             return;
-                        Hyprland.dispatch("focuswindow address:" + bar.group.activeAddress);
-                        Hyprland.dispatch("changegroupactive " + (event.angleDelta.y > 0 ? "b" : "f"));
+                        Hyprland.dispatch("hl.dsp.focus({ window = " + JSON.stringify("address:" + bar.group.activeAddress) + " })");
+                        Hyprland.dispatch(event.angleDelta.y > 0 ? "hl.dsp.group.prev()" : "hl.dsp.group.next()");
                         event.accepted = true;
                     }
                 }

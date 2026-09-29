@@ -1,4 +1,5 @@
 #!/bin/bash
+source "$(dirname "${BASH_SOURCE[0]}")/lua-ipc.sh"
 
 get_workspaces() {
     hyprctl workspaces -j | jq -r '.[] | "\(.id): \(.name) [\(.windows) window(s)]"' | sort -n
@@ -27,10 +28,10 @@ DEST=$(get_destinations | rofi -dmenu -p "Move workspace $source_id to...")
 
 dest_id=$(echo "$DEST" | cut -d: -f1)
 
-windows=$(hyprctl clients -j | jq -r --arg id "$source_id" '.[] | select(.workspace.id == ($id | tonumber)) | .address')
+windows=$(hyprctl clients -j | jq -r --arg id "$source_id" '.[] | select(.workspace.name == $id or (.workspace.id | tostring) == $id) | .address')
 
 for win in $windows; do
-    hyprctl dispatch movetoworkspace "$dest_id,$win"
+    hypr_lua dispatch "hl.dsp.window.move({ workspace = $(lua_quote "$dest_id"), window = $(lua_quote "address:$win"), follow = true })"
 done
 
 notify-send "Workspace moved" "Moved workspace $source_id → $dest_id"

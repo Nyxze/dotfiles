@@ -6,19 +6,13 @@
     "layer": "top",
     "reload_style_on_change": true,
     "position": "top",
-    "hyprland/workspaces": {
+    "ext/workspaces": {
         "active-only": false,
         "all-outputs": false,
-        "format": "{icon}",
-        "show-special": false,
+        "format": "{name}",
+        "ignore-hidden": true,
         "on-click": "activate",
-        "persistent-workspaces": {
-            "1": [],
-            "2": [],
-            "3": [],
-            "4": [],
-            "5": []
-        }
+        "sort-by-name": true
     },
     "custom/power": {
         "format": "󰐥",
@@ -27,7 +21,7 @@
         "tooltip-format": "Session"
     },
     "modules-left": [
-        "hyprland/workspaces"
+        "ext/workspaces"
     ],
     "modules-center": [],
     "modules-right": [

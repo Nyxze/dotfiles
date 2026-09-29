@@ -70,7 +70,7 @@ PageRail          one icon per page, so the set is visible without hunting
 Escape leaves the page before it leaves the panel, and closing resets to
 notifications.
 
-Every page also has a keybind in `.config/hypr/keybinds.conf`
+Every page also has a keybind in `.config/hypr/keybinds.lua`
 (`SUPER+CTRL+{C,A,M,W,B,D,P}`), and waybar's gear button toggles the panel.
 
 ## The cursor
@@ -131,7 +131,7 @@ sidebar does with it.
 1. `panels/YourPanel.qml` — derive from `Panel`, set `surfaceName`, size and
    anchors, put the content inside.
 2. Mount it in `shell.qml` and add an `IpcHandler` with its own `target`.
-3. Bind it in `.config/hypr/keybinds.conf` with
+3. Bind it in `.config/hypr/keybinds.lua` with
    `qs -c endfield ipc call <target> toggle`.
 
 `Panel` already handles layer-shell placement, the frame, Escape to close, and
@@ -252,8 +252,8 @@ strings /run/user/1000/quickshell/by-id/*/log.qslog | tail
 
 ## Tokens
 
-`Theme.qml` is one of seven copies of the endfield palette, alongside
-`.config/theme/endfield.{css,conf,rasi}`, `ghostty/themes/endfield` and
+`Theme.qml` is one of eight copies of the endfield palette, alongside
+`.config/theme/endfield.{css,conf,lua,rasi}`, `ghostty/themes/endfield` and
 `qt{5,6}ct/colors/endfield.conf` — none of those parsers share a syntax. A
 colour changed here must be changed in all of them. `.config/theme/DESIGN.md`
 holds the language itself: what each token means, the type scale, the spacing

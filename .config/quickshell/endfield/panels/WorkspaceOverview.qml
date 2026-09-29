@@ -46,7 +46,7 @@ Panel {
         if (workspace)
             workspace.activate();
         else
-            Hyprland.dispatch("workspace name:" + workspaceNames[selectedIndex]);
+            Hyprland.dispatch("hl.dsp.focus({ workspace = " + JSON.stringify("name:" + workspaceNames[selectedIndex]) + " })");
         closePanel();
     }
 
@@ -61,7 +61,7 @@ Panel {
         if (toplevel.wayland)
             toplevel.wayland.activate();
         else if (toplevel.address)
-            Hyprland.dispatch("focuswindow address:" + toplevel.address);
+            Hyprland.dispatch("hl.dsp.focus({ window = " + JSON.stringify("address:0x" + toplevel.address) + " })");
         closePanel();
     }
 
