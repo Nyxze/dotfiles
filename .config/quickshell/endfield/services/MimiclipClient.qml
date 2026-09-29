@@ -112,6 +112,7 @@ QtObject {
             return ;
         }
         commandBackoffMs = 250;
+        transportError("");
         commandHelloId = requestId("hello");
         write(commandSocket, {
             "id": commandHelloId,
@@ -132,6 +133,7 @@ QtObject {
             return ;
         }
         watchBackoffMs = 250;
+        transportError("");
         watchHelloId = requestId("watch-hello");
         write(watchSocket, {
             "id": watchHelloId,
@@ -156,6 +158,7 @@ QtObject {
                 return ;
             }
             commandReady = true;
+            transportError("");
             flushQueue();
             return ;
         }
@@ -203,6 +206,7 @@ QtObject {
                 return ;
             }
             watchReady = true;
+            transportError("");
             return ;
         }
         if (message.event !== undefined)
