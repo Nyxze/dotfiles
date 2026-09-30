@@ -1,8 +1,10 @@
 # Multi-distribution migration plan
 
 Status: **planning only**. No implementation is included in this document.
-Target: preserve the existing Arch Linux + Hyprland setup while adding
-Linux Mint + Cinnamon with a shared, maintainable configuration.
+Target: preserve the existing Arch Linux + Hyprland setup while adding an
+employer-provided Linux Mint machine with a shared, maintainable configuration.
+Cinnamon is assumed for planning only; the Mint release, desktop session and
+permission to install packages or change system settings remain unconfirmed.
 
 Read [the target architecture](multidistro-architecture.md) for directory
 ownership, profile semantics, provisioning boundaries and invariants. This
@@ -33,6 +35,13 @@ The current repository mirrors a single Arch/Hyprland machine:
 - `.zshrc` and `.zsh_profile` include absolute home paths and
   platform-specific NVM initialization. `.local/scripts/preview` imports
   Hyprland Lua IPC. These are concrete examples of hidden coupling.
+- Ghostty uses `NotoMono Nerd Font` and the Endfield palette. The terminal
+  milestone must install that font when possible, or adapt the palette and font
+  intent to the terminal already available on the work machine.
+- Rofi is an optional application launcher rather than a Hyprland-only
+  component. Its configuration/theme can be shared, while its Hyprland bind,
+  Quickshell shortcut hand-off and other compositor integration cannot. Its
+  current theme also hard-codes an artwork path under `/home/nyxze`.
 - Hyprland's Lua configuration, scripts, Quickshell QML and some status-bar
   commands depend on the current Hyprland IPC; moving them does not make
   them portable.
@@ -56,11 +65,13 @@ Deliver:
 Decisions to settle at the beginning of implementation, using evidence from
 the target hosts rather than assumptions:
 
-1. Confirm the Mint release, Cinnamon version, installed packages, default
-   display manager and restrictions on the work machine.
+1. Confirm the Mint release, desktop session (Cinnamon is only assumed),
+   installed packages, default display manager and restrictions on the work
+   machine, including whether package installation is permitted.
 2. Choose a small manifest format and the local active-profile state location.
-3. Decide which Endfield GUI components are explicitly enabled on Mint; keep
-   stock Cinnamon behavior where no port has been tested.
+3. Decide which Endfield GUI components are explicitly enabled on Mint after
+   the terminal tools are usable; keep the stock desktop behavior where no
+   port has been tested.
 4. Document the packages unavailable through Mint's official repositories
    and choose an acceptable source or mark the feature optional.
 5. Decide which machine-specific values need an ignored local override
@@ -69,7 +80,47 @@ the target hosts rather than assumptions:
 Acceptance: the two intended profiles, privilege boundaries and ownership
 rules are understood; no system or application files have been modified.
 
-## Phase 1 — Inventory and dependency classification
+## Phase 1 — Portable terminal tooling (first usable milestone)
+
+Deliver a `work-mint-tools` profile that selects the Mint platform and no
+desktop. This is the first usable result, not a dependency on completing the
+entire desktop migration or on designing a general installer framework. It
+must use the same explicit resolved manifest for deploy and capture, with the
+existing ownership and conflict safeguards, but may initially cover only the
+components below.
+
+Scope:
+
+- Zsh initialization without the current absolute-home assumptions.
+- Tmux and the existing session workflow, including opening a session rooted
+  in a project directory chosen by the user.
+- Yazi and portable terminal scripts.
+- A terminal font and Endfield colours: Ghostty when it is available and
+  permitted, otherwise a small terminal adapter for the installed terminal
+  that preserves the `NotoMono Nerd Font`/palette intent as far as it supports.
+- Optional Rofi configuration/theme when Rofi is available. Make its artwork
+  path portable; do not include the Hyprland binding or Quickshell hand-off.
+
+The profile must not deploy desktop settings, activate a session, import
+Cinnamon preferences, install a display manager or require workspace/window
+automation. Provisioning is conditional on the permissions and package sources
+available on the work machine; a missing package must be a clear prerequisite
+failure, not a reason to run privileged commands implicitly.
+
+Acceptance:
+
+- `work-mint-tools` has an explicit Mint platform selection and no desktop
+  selection.
+- Deploy and capture use one manifest and retain guarded conflict behavior for
+  every path in the milestone.
+- Zsh, Tmux, Yazi, the configured terminal font and the Endfield terminal
+  palette work on the actual machine or report the exact unavailable
+  prerequisite.
+- A Tmux session can be opened in a user-chosen project directory.
+- No desktop configuration, session activation or Arch/Hyprland path is read
+  or modified.
+
+## Phase 2 — Inventory and dependency classification
 
 Deliver a checked inventory for every tracked application/directory/file,
 plus the executable scripts and packages each component actually requires.
@@ -101,7 +152,7 @@ Acceptance: every tracked deployable path has an owner and a destination;
 all obvious Arch-only and Hyprland-only dependencies are labeled;
 the baseline and rollback path are documented.
 
-## Phase 2 — Relayout with zero intended behavioral changes on Arch
+## Phase 3 — Relayout with zero intended behavioral changes on Arch
 
 Move files into `common/`, `desktop/hyprland/` and the relevant shared
 asset locations. Split `.local/scripts/` only after the inventory. Preserve
@@ -109,8 +160,9 @@ real target paths under `$HOME`; moving the repository must not require
 renaming application configuration directories.
 
 Adapt `deploy` and `sync-files` **together** to consume the same explicit
-list of managed sources/destinations. Initially, resolve only
-`personal-arch` and preserve its current deployment set. Retain:
+list of managed sources/destinations. Preserve the already-usable
+`work-mint-tools` subset while resolving `personal-arch` to its current
+deployment set. Retain:
 
 - Existing conflict guards, scoped VS Code/OpenCode handling,
   documentation exclusions and `--force` semantics.
@@ -148,11 +200,12 @@ Acceptance:
 - Generated SDDM files still stage correctly; root deployment is explicit.
 - Arch's live Hyprland session passes the recorded baseline checks.
 
-## Phase 3 — Profile-aware bootstrap and package adapters
+## Phase 4 — Profile-aware bootstrap and package adapters
 
-Implement the new profile selection without changing the working Arch
-defaults. Introduce a proposed `./bootstrap --profile <name>` interface;
-final names and manifest syntax should be chosen during implementation.
+Expand the minimal tools-profile selection into a complete profile interface
+without changing the working Arch defaults. Introduce a proposed
+`./bootstrap --profile <name>` interface; final names and manifest syntax
+should be chosen during implementation.
 
 Separate three operations, each individually invocable/testable:
 
@@ -180,31 +233,34 @@ The installer must be repeatable. On a partial failure, report completed
 steps and leave the repository/live files recoverable; do not silently
 continue past a required package or ownership conflict.
 
-Acceptance: both profiles produce understandable dry-run plans; repeated
-bootstrap is idempotent; mismatched distribution/profile refuses to
+Acceptance: every implemented profile produces an understandable dry-run plan;
+repeated bootstrap is idempotent; mismatched platform/profile refuses to
 provision; user-file operations do not need root; profile selection cannot
 cause another desktop's files to be deployed or captured.
 
-## Phase 4 — Mint/Cinnamon enablement
+## Phase 5 — Optional Mint desktop integration
 
-Add `work-mint`, initially with the common CLI/development tools and their
-theme assets. Validate Zsh initialization, `fzf`, NVM, Neovim/LSP tooling,
-Ghostty availability, Tmux, Yazi, Git/SSH helpers and the configured fonts
-on the *actual* Mint version. Replace absolute `/home/nyxze` assumptions
-with `$HOME` or XDG paths, and guard distro-specific initialization by
-checking the actual file/command.
+Begin this phase only after the tools-only profile is usable and the target
+desktop session has been confirmed. Add `work-mint-cinnamon` as an optional
+desktop profile; it composes with the terminal tooling rather than replacing
+or delaying it. Replace absolute `/home/nyxze` assumptions with `$HOME` or
+XDG paths, and guard distro-specific initialization by checking the actual
+file/command.
 
 Add Cinnamon integration incrementally:
 
 1. Respect the existing session, display manager, network/Bluetooth
    applets, notification provider and desktop-managed settings.
-2. Recreate only the useful shared user-facing shortcuts (terminal,
-   launcher, screenshots, workspace navigation) using Cinnamon-supported
-   settings or commands. Do not copy `hyprctl` dispatches.
-3. Apply selected Endfield fonts/icons/colours via documented, narrowly
+2. First recreate only the familiar shortcuts for the terminal, launcher,
+   workspaces 1–5 and project launchers using Cinnamon-supported settings or
+   commands. Keep window placement manual; do not add automatic application-
+   to-workspace rules or copy `hyprctl` dispatches.
+3. Add screenshots and other shared user-facing shortcuts after that small
+   workspace/launcher milestone is accepted.
+4. Apply selected Endfield fonts/icons/colours via documented, narrowly
    owned settings; do not deploy the entire Hyprland GTK/Qt configuration
    as an unreviewed overlay.
-4. Add optional GUI applications and platform-specific installation
+5. Add optional GUI applications and platform-specific installation
    sources only when they have been validated on Mint.
 
 Do not install Hyprland, UWSM, Quickshell, Waybar, Hyprlock, Hypridle,
@@ -219,10 +275,12 @@ interchangeable.
 
 Acceptance: the user can bootstrap the agreed Mint feature set on a fresh
 user account, log in normally, access network/Bluetooth and notifications,
-use the common terminal/development setup and the agreed shortcuts, and
-deploy/capture common changes without changing any Arch-specific file.
+use the common terminal/development setup and the agreed shortcuts, manually
+place windows in workspaces 1–5, and deploy/capture common changes without
+changing any Arch-specific file. Full desktop wallpaper, lock-screen and
+theme personalization remain optional and deferred.
 
-## Phase 5 — Regression tests, recovery and maintenance
+## Phase 6 — Regression tests, recovery and maintenance
 
 Build on the existing Hyprland IPC test. Add automated coverage for:
 
@@ -274,11 +332,12 @@ Before merging any implementation PR:
 | PR | Scope | Merge gate |
 | --- | --- | --- |
 | Documentation (this PR) | Architecture and migration contract | Review agrees on boundaries and decisions left open |
-| 1 — Inventory | Classify files, dependencies, target paths, baseline | No unowned deployable path |
-| 2 — Relayout | Move paths; update *both* sync directions and references | Arch parity and safe round trips |
-| 3 — Installer | Profile resolution and platform package adapters | Dry-run/idempotency/privilege checks |
-| 4 — Mint | Mint package map, common environment, Cinnamon-specific configuration | Fresh Mint user acceptance |
-| 5 — Hardening | Regression tests, rollback, operator docs, legacy cleanup | Both platforms pass |
+| 1 — Terminal tools | `work-mint-tools`, Zsh/Tmux/Yazi, font/palette and portable launcher | Actual work machine is usable without a desktop profile |
+| 2 — Inventory | Classify remaining files, dependencies, target paths and baseline | No unowned deployable path |
+| 3 — Relayout | Move paths; update *both* sync directions and references | Arch parity and safe round trips |
+| 4 — Installer | Profile resolution and platform package adapters | Dry-run/idempotency/privilege checks |
+| 5 — Mint desktop | Confirmed-session shortcuts, workspaces and project launchers | Fresh Mint user acceptance with manual placement |
+| 6 — Hardening | Regression tests, rollback, operator docs, legacy cleanup | Both platforms pass |
 
 Keep larger feature requests (a fully equivalent Cinnamon panel,
 automated visual-theme generation, a universal window-management API or
@@ -286,12 +345,14 @@ support for additional architectures) outside the critical migration path.
 
 ## Open questions to resolve before implementing them
 
-- Which Linux Mint release and Cinnamon version will the second machine
-  actually run, and can its package sources or system settings be changed?
+- Which Linux Mint release and desktop session will the second machine
+  actually run, and can its packages or system settings be changed?
 - Which optional GUI applications should follow the shared profile, and
-  which should remain Cinnamon defaults?
-- Should the first Mint deliverable include Endfield's full desktop
-  appearance or only the portable terminal/editor palette and fonts?
+  which should remain native desktop defaults?
+- Which terminal is already available if Ghostty cannot be installed, and
+  which parts of the Endfield font/palette can it represent?
+- Should the later Mint desktop work include any Endfield personalization
+  beyond the portable terminal/editor palette and fonts?
 - Which settings truly need a host-local override instead of a
   distribution/desktop-level definition?
 - What is the smallest manifest format that both deploy/capture commands
