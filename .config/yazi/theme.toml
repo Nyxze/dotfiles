@@ -1,0 +1,136 @@
+#:schema https://yazi-rs.github.io/schemas/theme.json
+
+# Endfield theme for Yazi.
+# Keep this in sync with ../theme/endfield.* and ghostty/themes/endfield.
+#
+# The desktop design system uses colour as punctuation rather than surface
+# treatment: neutral chrome, yellow for focus/selection, and status colours only
+# where they carry meaning.
+
+[app]
+overall = { bg = "#0B1118" }
+
+[mgr]
+cwd = { fg = "#FFE14D", bold = true }
+find_keyword = { fg = "#0B1118", bg = "#FFD400", bold = true }
+find_position = { fg = "#8A99A6" }
+symlink_target = { fg = "#8A99A6", italic = true }
+
+marker_copied = { fg = "#8BD32E", bg = "#8BD32E" }
+marker_cut = { fg = "#FF6B45", bg = "#FF6B45" }
+marker_marked = { fg = "#4B9BFF", bg = "#4B9BFF" }
+marker_selected = { fg = "#FFD400", bg = "#FFD400" }
+marker_symbol = "│"
+
+count_copied = { fg = "#0B1118", bg = "#8BD32E", bold = true }
+count_cut = { fg = "#0B1118", bg = "#FF6B45", bold = true }
+count_selected = { fg = "#0B1118", bg = "#FFD400", bold = true }
+
+border_symbol = "│"
+border_style = { fg = "#3A4A59" }
+
+[tabs]
+active = { fg = "#0B1118", bg = "#FFD400", bold = true }
+inactive = { fg = "#AAB7C2", bg = "#111A23" }
+sep_inner = { open = "", close = "" }
+sep_outer = { open = "", close = "" }
+
+[mode]
+normal_main = { fg = "#0B1118", bg = "#FFD400", bold = true }
+normal_alt = { fg = "#AAB7C2", bg = "#1B2733" }
+select_main = { fg = "#0B1118", bg = "#FFE14D", bold = true }
+select_alt = { fg = "#AAB7C2", bg = "#1B2733" }
+unset_main = { fg = "#E8EDF1", bg = "#3A4A59", bold = true }
+unset_alt = { fg = "#AAB7C2", bg = "#1B2733" }
+
+[indicator]
+parent = { fg = "#3A4A59" }
+current = { fg = "#FFD400", bold = true }
+preview = { fg = "#3A4A59" }
+padding = { open = "", close = "" }
+
+[status]
+overall = { fg = "#AAB7C2", bg = "#111A23" }
+sep_left = { open = "", close = "" }
+sep_right = { open = "", close = "" }
+
+perm_sep = { fg = "#3A4A59" }
+perm_type = { fg = "#8A99A6" }
+perm_read = { fg = "#AAB7C2" }
+perm_write = { fg = "#E8EDF1" }
+perm_exec = { fg = "#8BD32E" }
+
+progress_label = { fg = "#E8EDF1", bold = true }
+progress_normal = { fg = "#8BD32E", bg = "#1B2733" }
+progress_error = { fg = "#FF6B45", bg = "#1B2733" }
+
+[which]
+border = { fg = "#3A4A59" }
+cols = 3
+mask = { bg = "#0B1118" }
+cand = { fg = "#FFE14D", bold = true }
+rest = { fg = "#8A99A6" }
+desc = { fg = "#AAB7C2" }
+separator = "  "
+separator_style = { fg = "#3A4A59" }
+
+[confirm]
+border = { fg = "#3A4A59" }
+title = { fg = "#FFE14D", bold = true }
+body = { fg = "#E8EDF1" }
+list = { fg = "#AAB7C2" }
+btn_yes = { fg = "#0B1118", bg = "#FFD400", bold = true }
+btn_no = { fg = "#FFD400", bg = "#111A23" }
+btn_labels = [ "  [Y]es  ", "  (N)o  " ]
+
+[spot]
+border = { fg = "#3A4A59" }
+title = { fg = "#FFE14D", bold = true }
+tbl_col = { fg = "#8A99A6" }
+tbl_cell = { fg = "#E8EDF1", bg = "#1B2733" }
+
+[notify]
+title_info = { fg = "#4B9BFF" }
+title_warn = { fg = "#FFD400" }
+title_error = { fg = "#FF6B45" }
+
+[pick]
+border = { fg = "#3A4A59" }
+active = { fg = "#FFE14D", bg = "#1B2733", bold = true }
+inactive = { fg = "#AAB7C2" }
+
+[input]
+border = { fg = "#3A4A59" }
+title = { fg = "#FFE14D", bold = true }
+value = { fg = "#E8EDF1" }
+selected = { fg = "#0B1118", bg = "#FFD400" }
+
+[cmp]
+border = { fg = "#3A4A59" }
+active = { fg = "#FFE14D", bg = "#1B2733", bold = true }
+inactive = { fg = "#AAB7C2" }
+
+[tasks]
+border = { fg = "#3A4A59" }
+title = { fg = "#E8EDF1", bold = true }
+hovered = { fg = "#FFE14D", bg = "#1B2733", bold = true }
+
+[help]
+border = { fg = "#3A4A59" }
+chord = { fg = "#FFE14D", bold = true }
+action = { fg = "#AAB7C2" }
+hovered = { fg = "#FFE14D", bg = "#1B2733", bold = true }
+
+[filetype]
+rules = [
+  { mime = "**/image/*", fg = "#E8EDF1" },
+  { mime = "**/{audio,video}/*", fg = "#AAB7C2" },
+  { mime = "**/application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", fg = "#AAB7C2" },
+  { mime = "**/application/{pdf,doc,rtf}", fg = "#E8EDF1" },
+  { mime = "vfs/{absent,stale}", fg = "#8A99A6" },
+  { url = "*", is = "orphan", fg = "#FF6B45" },
+  { url = "*", is = "exec", fg = "#8BD32E" },
+  { url = "*", is = "dummy", fg = "#FF6B45" },
+  { url = "*/", is = "dummy", fg = "#FF6B45" },
+  { url = "*/", fg = "#E8EDF1" },
+]

@@ -14,7 +14,7 @@ carry colour at all.
 
 ## Where the tokens live
 
-The same palette exists seven times over, because no two of these parsers share
+The same palette exists eight times over, because no two of these parsers share
 a syntax:
 
 | File | Reads |
@@ -25,6 +25,7 @@ a syntax:
 | `endfield.rasi` | rofi |
 | `quickshell/endfield/Theme.qml` | the quickshell shell |
 | `ghostty/themes/endfield` | the terminal |
+| `yazi/theme.toml` | Yazi |
 | `qt5ct/colors/endfield.conf`, `qt6ct/colors/endfield.conf` | Qt applications |
 
 The SDDM greeter is the exception and deliberately not an eighth copy: its
