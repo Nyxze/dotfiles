@@ -11,6 +11,7 @@ hl.bind(mod .. " + SHIFT + L", hl.dsp.exec_cmd("qs -c endfield ipc call lock loc
 
 hl.bind(mod .. " + E", hl.dsp.exec_cmd("uwsm app -- nautilus"))
 hl.bind(mod .. " + F", hl.dsp.exec_cmd("uwsm app -- rofi -show drun"))
+hl.bind(mod .. " + F1", hl.dsp.exec_cmd("qs -c endfield ipc call shortcuts toggle"))
 hl.bind(mod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("uwsm app -- brave --enable-features=UseOzonePlatform --ozone-platform=wayland"))
 hl.bind(mod .. " + N", hl.dsp.exec_cmd("uwsm app -- code"))
@@ -43,6 +44,11 @@ hl.bind("Print", hl.dsp.exec_cmd("grim ~/Pictures/$(date +%Y-%m-%d_%H-%m-%s).png
 
 hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+hl.bind("mouse:272", hl.dsp.exec_cmd(scripts .. "/dismiss-rofi-on-outside-click.sh"), {
+    click = true,
+    non_consuming = true,
+    description = "Dismiss Rofi when clicking outside",
+})
 hl.bind(mod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mod .. " + SHIFT + F", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
 

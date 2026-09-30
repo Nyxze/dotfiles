@@ -14,6 +14,10 @@ ShellRoot {
         id: workspaceOverview
     }
 
+    ShortcutHelp {
+        id: shortcutHelp
+    }
+
     GroupBars {}
 
     Lock {
@@ -79,6 +83,22 @@ ShellRoot {
 
         function cancel(): void {
             workspaceOverview.dismiss();
+        }
+    }
+
+    IpcHandler {
+        target: "shortcuts"
+
+        function toggle(): void {
+            shortcutHelp.toggle();
+        }
+
+        function open(): void {
+            shortcutHelp.openPanel();
+        }
+
+        function close(): void {
+            shortcutHelp.closePanel();
         }
     }
 

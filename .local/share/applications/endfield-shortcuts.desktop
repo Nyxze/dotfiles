@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Keyboard Shortcuts
+Comment=Search desktop keyboard shortcuts
+Exec=qs -c endfield ipc call shortcuts toggle
+Icon=dialog-information
+Terminal=false
+Categories=Utility;
+Keywords=shortcuts;keybindings;help;hyprland;?;
+StartupNotify=false

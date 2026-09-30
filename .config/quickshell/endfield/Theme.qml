@@ -95,6 +95,11 @@ Singleton {
         pixelSize: 24,
         weight: 650
     })
+    readonly property font shortcut: Qt.font({
+        family: monoFamily,
+        pixelSize: 11,
+        weight: 500
+    })
 
     readonly property real bodyLineHeight: 20
 

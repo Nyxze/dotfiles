@@ -24,6 +24,10 @@ declare -A SCOPED=(
     [opencode]="opencode.json"
 )
 
+declare -A LOCAL_SCOPED=(
+    [applications]="endfield-shortcuts.desktop"
+)
+
 # Copies the listed paths one by one, refusing any whose destination is not
 # strictly older — the same rule the directory guard applies, per file.
 copy_scoped() {
@@ -139,6 +143,14 @@ sync_icons() {
     echo "✓ icons synced"
 }
 
+sync_local() {
+    local name="$1"
+    local source="$2"
+    local dest="$3"
+
+    copy_scoped "$name" "$source" "$dest" ${LOCAL_SCOPED[$name]}
+}
+
 sync_files() {
     local repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -146,12 +158,15 @@ sync_files() {
         sync_scripts "$repo_root/.local/scripts"
     elif [ "$1" == "icons" ]; then
         sync_icons "$repo_root/.local/share/icons/endfield"
+    elif [ "$1" == "applications" ]; then
+        sync_local "applications" "$HOME/.local/share/applications" "$repo_root/.local/share/applications"
     elif [ $# -gt 0 ]; then
         sync_config "$repo_root/.config" "$@"
     else
         sync_config "$repo_root/.config"
         sync_scripts "$repo_root/.local/scripts"
         sync_icons "$repo_root/.local/share/icons/endfield"
+        sync_local "applications" "$HOME/.local/share/applications" "$repo_root/.local/share/applications"
     fi
 }
 

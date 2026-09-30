@@ -4,10 +4,11 @@
 # The repository is the source of truth: edit here, deploy, test. sync-files is
 # for capturing what an application wrote on its own, not for hand edits.
 #
-#   ./deploy                 every tracked app, plus scripts and icons
+#   ./deploy                 every tracked app, plus scripts, icons and desktop entries
 #   ./deploy hypr waybar     just these
 #   ./deploy scripts         just ~/.local/scripts
 #   ./deploy icons           just the endfield icon theme
+#   ./deploy applications    just tracked desktop entries
 
 # Both directions delete, so each refuses to run while the other side holds
 # something it would destroy.
@@ -28,6 +29,10 @@
 declare -A SCOPED=(
     [Code]="User/settings.json User/keybindings.json User/mcp.json"
     [opencode]="opencode.json"
+)
+
+declare -A LOCAL_SCOPED=(
+    [applications]="endfield-shortcuts.desktop"
 )
 
 # Copies the listed paths one by one, refusing any whose destination is not
@@ -141,6 +146,14 @@ deploy_icons() {
     echo "✓ icons deployed"
 }
 
+deploy_local() {
+    local name="$1"
+    local source="$2"
+    local dest="$3"
+
+    copy_scoped "$name" "$source" "$dest" ${LOCAL_SCOPED[$name]}
+}
+
 FORCE=0
 FAILED=0
 args=()
@@ -154,12 +167,15 @@ if [ "${args[0]-}" == "scripts" ]; then
     deploy_scripts "$repo_root/.local/scripts"
 elif [ "${args[0]-}" == "icons" ]; then
     deploy_icons "$repo_root/.local/share/icons/endfield"
+elif [ "${args[0]-}" == "applications" ]; then
+    deploy_local "applications" "$repo_root/.local/share/applications" "$HOME/.local/share/applications"
 elif [ ${#args[@]} -gt 0 ]; then
     deploy_config "$repo_root/.config" "${args[@]}"
 else
     deploy_config "$repo_root/.config"
     deploy_scripts "$repo_root/.local/scripts"
     deploy_icons "$repo_root/.local/share/icons/endfield"
+    deploy_local "applications" "$repo_root/.local/share/applications" "$HOME/.local/share/applications"
 fi
 
 exit $FAILED

@@ -6,8 +6,11 @@ Rectangle {
 
     property alias text: input.text
     property string placeholder: "Search"
+    property bool dismissOnEscape: false
     readonly property bool navigable: true
     readonly property bool hasCursor: Cursor.item === field
+
+    signal dismissed
 
     function navActivate() {
         input.forceActiveFocus();
@@ -54,6 +57,10 @@ Rectangle {
         }
         Keys.onEscapePressed: (keyEvent) => {
             keyEvent.accepted = true;
+            if (field.dismissOnEscape) {
+                field.dismissed();
+                return;
+            }
             if (input.text !== "")
                 input.text = "";
             else
