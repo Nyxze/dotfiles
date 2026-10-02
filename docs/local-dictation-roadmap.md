@@ -131,7 +131,7 @@ normal copies made in the other window remain eligible for capture.
   content. Add a non-focusable Quickshell indicator if desired.
 - Expose ready, recording, transcribing, delivering, pending, and error states.
   Keep feedback readable when the target window is on another workspace.
-- Add package prerequisites to `scripts/rice`, user service configuration, and
+- Add package prerequisites to `platform/arch/packages/desktop.sh`, user service configuration, and
   a repeatable setup step for the isolated runtime and model cache.
 - Keep implementation in the repository and deploy through its existing workflow.
   Validate against live copies, reload Hyprland, and inspect live bindings.

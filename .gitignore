@@ -15,8 +15,8 @@ system/sddm/themes/endfield/textures/
 system/sddm/themes/endfield/backdrop/
 system/sddm/themes/endfield/ground.png
 
-# Emitted by .config/theme/greeter.py; the script is the source, not this.
-.config/theme/greeter.svg
+# Emitted by home/.config/theme/greeter.py; the script is the source, not this.
+home/.config/theme/greeter.svg
 
 # Local Codex policy and generated Python bytecode.
 .codex/
