@@ -19,7 +19,7 @@ exec --no-startup-id blueman-applet
 exec --no-startup-id xfce4-notifyd
 exec --no-startup-id xfce4-power-manager
 
-exec --no-startup-id ~/.nix-profile/bin/qs -c endfield
+exec --no-startup-id sh -c 'export I3SOCK="$(i3 --get-socketpath)"; exec "$HOME/.nix-profile/bin/qs" -c endfield'
 
 bindsym $mod+Return exec ghostty
 bindsym $mod+e exec thunar
