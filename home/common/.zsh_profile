@@ -1,0 +1,37 @@
+
+if (( $+commands[fzf] )); then
+    source <(fzf --zsh)
+fi
+
+# ENV
+addToPath() {
+    if [[ ":$PATH:" != *":$1:"* ]]; then
+        export PATH="$PATH:$1"
+    fi
+}
+
+addToPathFront() {
+    if [[ ! -z "$2" ]] || [[ "$PATH" != *"$1"* ]]; then
+        export PATH=$1:$PATH
+    fi
+}
+
+addToPathFront $HOME/.local/scripts
+
+# Zsh stuff
+function zvm_config() {
+    ZVM_VI_INSERT_ESCAPE_BINDKEY=jj
+    ZVM_VI_HIGHLIGHT_FOREGROUND=#dfe3e3           # Hex value
+    ZVM_VI_HIGHLIGHT_BACKGROUND=#1B2733           # Hex value
+    ZVM_SYSTEM_CLIPBOARD_ENABLED=true
+}
+
+# source /usr/share/zsh/plugins/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+
+bindkey -s ^f "tmux-sus\n"
+
+addToPathFront "$HOME/.local/bin"
+if (( $+commands[go] )); then
+    addToPath "$(go env GOBIN)"
+    addToPath "$(go env GOPATH)/bin"
+fi

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Apply the common layer and the selected desktop profile to the home directory.
+set -euo pipefail
+
+repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "$repo_root/scripts/lib/managed-home.sh"
+run_managed_home deploy "$repo_root" "$@"

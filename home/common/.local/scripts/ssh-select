@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+_is_ipv4() {
+    [[ "$1" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]]
+}
+
+_emit_target() {
+    local target="$1"
+    local port="$2"
+    local source="$3"
+    local name
+
+    [[ -n "$target" ]] || return
+
+    if _is_ipv4 "$target"; then
+        name=$(getent hosts "$target" 2>/dev/null | awk 'NR == 1 {print $2}')
+        name="${name:-unknown}"
+    else
+        name="$target"
+    fi
+
+    [[ -n "$port" ]] && source="$source :$port"
+    printf '%s\t%s\t%s\t%s\n' "$target" "$port" "$name" "$source"
+}
+
+_neighbours() {
+    ip -o -4 neigh show 2>/dev/null \
+        | awk '$NF != "FAILED" && $NF != "INCOMPLETE" {print $1}'
+}
+
+_configured_hosts() {
+    local config="$HOME/.ssh/config"
+    [[ -r "$config" ]] || return
+
+    awk '
+        tolower($1) == "host" {
+            for (i = 2; i <= NF; i++) {
+                if ($i !~ /[*?!]/) print $i
+            }
+        }
+    ' "$config"
+}
+
+_known_hosts() {
+    local file
+
+    for file in "$HOME/.ssh/known_hosts" /etc/ssh/ssh_known_hosts; do
+        [[ -r "$file" ]] || continue
+
+        awk '
+            $1 !~ /^#/ && $1 !~ /^@/ && $1 !~ /^\\|/ {
+                count = split($1, hosts, ",")
+                for (i = 1; i <= count; i++) {
+                    if (match(hosts[i], /^\\[([^]]+)\\]:([0-9]+)$/, parts)) {
+                        print parts[1] "\t" parts[2]
+                    } else {
+                        print hosts[i] "\t"
+                    }
+                }
+            }
+        ' "$file"
+    done
+}
+
+_scan_lan() {
+    # Detect LAN subnets (skip docker/loopback)
+    local subnets
+    subnets=$(ip route show | awk '/scope link/ && $1!~/^172\.|^127\./ {print $1}' | sort -u)
+
+    # Only offer devices that accept the standard SSH port.
+    for subnet in $subnets; do
+        nmap -n -p 22 --open --host-timeout 2s "$subnet" 2>/dev/null \
+            | awk '/Nmap scan report for/{
+                if (match($NF, /\(([0-9.]+)\)/, m)) print m[1]
+                else if ($NF ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/) print $NF
+            }'
+    done
+}
+
+_candidates() {
+    local target
+    local port
+
+    while read -r target; do
+        _emit_target "$target" "" "neighbour"
+    done < <(_neighbours)
+
+    while IFS=$'\t' read -r target port; do
+        _emit_target "$target" "$port" "known host"
+    done < <(_known_hosts)
+
+    while read -r target; do
+        _emit_target "$target" "" "SSH config"
+    done < <(_configured_hosts)
+
+    while read -r target; do
+        _emit_target "$target" "" "SSH port scan"
+    done < <(_scan_lan)
+}
+
+main() {
+    local print_target=0
+    local account
+    local selection
+    local target
+    local port
+
+    if [[ "${1:-}" == "--print" ]]; then
+        print_target=1
+        shift
+    fi
+
+    account="${1:-}"
+    selection=$(_candidates \
+        | awk -F '\t' '!seen[$1 FS $2]++' \
+        | sort -t $'\t' -k1,1V \
+        | fzf --delimiter=$'\t' --with-nth=1,3,4 --prompt="Select device: ")
+
+    [[ -n "$selection" ]] || return
+    IFS=$'\t' read -r target port _ <<< "$selection"
+
+    if [[ -n "$account" ]]; then
+        target="${account}@${target}"
+    fi
+
+    if [[ "$print_target" -eq 1 ]]; then
+        printf '%s\n' "$target"
+        return
+    fi
+
+    if [[ -n "$port" ]]; then
+        ssh -p "$port" -- "$target"
+        return
+    fi
+
+    ssh -- "$target"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

@@ -1,0 +1,71 @@
+set $mod Mod4
+set $ws1 1
+set $ws2 2
+set $ws3 3
+set $ws4 4
+set $ws5 5
+
+font pango:JetBrainsMono Nerd Font 10
+floating_modifier $mod normal
+focus_follows_mouse no
+workspace_auto_back_and_forth yes
+
+# Xfce owns the panel, tray, network, Bluetooth, notifications, and settings.
+exec --no-startup-id qs -c endfield
+
+bindsym $mod+Return exec ghostty
+bindsym $mod+e exec thunar
+bindsym $mod+f exec rofi -show drun
+bindsym $mod+F1 exec qs -c endfield ipc call shortcuts toggle
+bindsym $mod+b exec brave
+bindsym $mod+n exec code
+bindsym $mod+Shift+l exec xflock4
+bindsym Ctrl+Mod1+Delete exec xfce4-session-logout
+
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+bindsym $mod+v floating toggle
+bindsym $mod+Shift+f fullscreen toggle
+bindsym $mod+F4 kill
+
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+
+bindsym $mod+Tab exec qs -c endfield ipc call overview next
+bindsym $mod+Shift+Tab exec qs -c endfield ipc call overview previous
+bindsym $mod+d exec qs -c endfield ipc call sidebar toggle
+bindsym $mod+Ctrl+c exec qs -c endfield ipc call sidebar page clipboard
+bindsym $mod+Ctrl+a exec qs -c endfield ipc call sidebar page output
+bindsym $mod+Ctrl+m exec qs -c endfield ipc call sidebar page input
+bindsym $mod+Ctrl+w exec qs -c endfield ipc call sidebar page network
+bindsym $mod+Ctrl+b exec qs -c endfield ipc call sidebar page bluetooth
+bindsym $mod+Ctrl+d exec qs -c endfield ipc call sidebar page calendar
+bindsym $mod+Ctrl+p exec qs -c endfield ipc call sidebar page power
+
+bindsym Print exec xfce4-screenshooter -f
+bindsym $mod+Shift+s exec xfce4-screenshooter -r
+
+bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+
+bindsym XF86AudioLowerVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindsym XF86AudioMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+bindsym XF86AudioMicMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym XF86AudioNext exec --no-startup-id playerctl next
+bindsym XF86AudioPause exec --no-startup-id playerctl play-pause
+bindsym XF86AudioPlay exec --no-startup-id playerctl play-pause
+bindsym XF86AudioPrev exec --no-startup-id playerctl previous
+
+exec --no-startup-id setxkbmap -layout us -variant altgr-intl -option caps:ctrl_modifier

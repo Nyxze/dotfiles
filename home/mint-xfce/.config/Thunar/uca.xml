@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+  <action>
+    <icon>utilities-terminal</icon>
+    <name>Open Terminal Here</name>
+    <unique-id>1700000000000001</unique-id>
+    <command>ghostty --working-directory %f</command>
+    <description>Open Ghostty in this folder</description>
+    <patterns>*</patterns>
+    <directories/>
+  </action>
+</actions>

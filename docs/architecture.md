@@ -1,90 +1,69 @@
 # Repository architecture
 
-This repository currently targets one Arch Linux + Hyprland workstation. The
-layout separates user files, system files, package provisioning and repository
-tooling without introducing cross-distribution abstractions.
+The repository supports two desktop profiles from one shared base:
 
 ```text
-home/                         mirrors paths below $HOME
-  .config/                    application configuration
-  .local/                     personal scripts, icons and desktop entries
-  .zshrc                      shell entry points
-  .zsh_profile
-  .tmux.conf
-  .tmuxrc
-platform/arch/                Arch provisioning
-  packages/terminal.sh        CLI and development tools
-  packages/desktop.sh         GUI and compositor-bound dependencies
-profiles/personal-arch.manifest
-                              explicit repository-to-home ownership map
-system/                       root-owned files, mirroring /
-prompts/                      provider-independent skills and agents
-scripts/                      repository build and installation helpers
-tests/                        non-graphical regression tests
+home/
+  common/                   files shared by both desktops
+  arch-hyprland/            Hyprland, Waybar, nwg, GTK/Qt overrides
+  mint-xfce/                i3, Thunar actions, and X11 Endfield backends
+platform/
+  arch/                     pacman/AUR provisioning
+  mint/                     apt provisioning and Quickshell build
+system/                     Arch-only root-owned SDDM configuration
 ```
 
-## User-file ownership
+## User-file layers
 
-`profiles/personal-arch.manifest` is the source of truth for paths managed by
-`deploy` and `sync-files`. Each entry has one of three modes:
+`apply-config` copies `home/common` first and then the selected profile. A profile
+file at the same relative path deliberately overlays the common one. It copies
+individual files only; application-owned siblings below `~/.config` are never
+removed.
 
-- `mirror`: own an application directory and remove untracked destination
-  files after the conflict guard succeeds.
-- `scoped`: own only the listed files inside an application-controlled
-  directory, leaving caches and history untouched.
-- `file`: own one file directly below the home directory.
+The state file at `$XDG_STATE_HOME/dotfiles/deployed-files/<profile>` records
+the paths and hashes created by a successful deployment. A later deployment may
+remove only paths in that state file, and refuses to remove one that the user or
+an application changed unless `--force` is given.
 
-Both directions consume the same manifest. They retain the checksum and
-timestamp guard: a destination change must be captured or deployed before the
-opposite direction may overwrite it. `--force` remains an explicit escape
-hatch. Documentation, design references and generated caches are excluded from
-home deployment.
-
-The repository is the source of truth for hand edits. Application-written
-changes can be captured selectively:
+`capture-config` copies a live file back to the source layer that currently wins the
+overlay. It keeps the timestamp/checksum guard and never guesses a deletion.
 
 ```bash
-./deploy
-./deploy hypr waybar
-./sync-files nwg-look
+./apply-config
+./apply-config --profile arch-hyprland hypr waybar
+./apply-config --profile mint-xfce i3 quickshell
+./capture-config --profile mint-xfce Thunar
 ```
 
-## Arch provisioning
+The default profile comes from `/etc/os-release`: `arch` selects
+`arch-hyprland`, and `linuxmint` selects `mint-xfce`. `--profile` is intended
+for testing a layer without changing the host distribution.
 
-The root `install.sh` detects the distribution and is the single bootstrap
-entry point. It can be streamed directly on a machine without Git:
+## Platforms
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/Nyxze/dotfiles/main/install.sh | bash
-```
+The root `install.sh` bootstraps Git when necessary and dispatches to the
+detected platform installer. Arch continues to install its complete Hyprland
+desktop and publishes the SDDM theme. Mint installs its terminal and Xfce/i3
+dependencies with APT and does not run `scripts/install-system.sh`.
 
-The streamed script installs Git when missing, clones the repository to the
-conventional `~/stuff/dotfiles` path, then re-executes itself from that checkout.
-On Arch it installs official and AUR packages, deploys the managed home,
-installs prompt providers and language toolchains, then publishes the root-owned
-configuration. Platform and deployment scripts remain callable on their own for
-focused updates.
+The Mint installer builds Quickshell for the user from the tagged v0.1.0 source
+when it is absent. It requires Qt 6.6 or newer and reports an actionable error
+when the enabled Mint repositories are older. The source build disables Wayland
+and Hyprland support while retaining X11 and i3 IPC support.
 
-`platform/arch/packages/terminal.sh` records tools that remain useful without a
-graphical session. `platform/arch/packages/desktop.sh` contains GUI applications
-and dependencies coupled to Hyprland, Wayland, audio or the desktop session.
-`platform/arch/install.sh` combines both inventories for a complete workstation,
-performs a full Arch upgrade when official packages are missing, bootstraps
-`yay` when necessary, and installs missing packages from both lists. Already
-installed packages are not upgraded by a repeated bootstrap. Docker is
-installed but its system units remain disabled.
+## Desktop boundaries
 
-The signed ChatGPT repository bootstrap remains an independent optional step
-at `platform/arch/install-chatgpt.sh`; it is not a dotfiles dependency.
+Arch owns Hyprland, Waybar, nwg utilities, custom GTK/Qt styling, and the
+Wayland implementations of Endfield panels, notifications, lock screen,
+display handling, workspace previews, and window groups.
 
-Go comes from Arch. Mise installs the pinned global Node.js and Bun versions
-declared in `home/.config/mise/config.toml`; project configuration can override
-them. Uv manages the pinned default Python toolchain declared in
-`home/.config/uv/.python-version`. Pins change deliberately in the repository,
-so repeating the bootstrap never upgrades a toolchain implicitly. OpenCode,
-Mimiclip and user-installed language binaries remain outside package
-provisioning.
+Mint leaves Xfce's panel, tray, notification daemon, network applet, Blueman,
+audio controls, display settings, lock screen, and display manager untouched.
+i3 supplies the shared window-management shortcut contract. Endfield uses X11
+panels and i3 IPC there; its workspace overview shows workspace metadata rather
+than Wayland previews, and its display page opens the native Xfce settings.
 
-Root-owned SDDM files remain under `system/` and are installed separately with
-`scripts/install-system.sh`. This keeps package installation, user-file
-deployment and privileged system deployment independently reviewable.
+Common Endfield components may use desktop-independent services such as
+PipeWire, BlueZ, NetworkManager, Calendar, and the sidebar UI. Backend files
+are always profile-owned. Common files do not import Hyprland, Wayland, or call
+`hyprctl` or `wl-copy`.
