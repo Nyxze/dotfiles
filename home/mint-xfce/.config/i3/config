@@ -11,12 +11,12 @@ focus_follows_mouse no
 workspace_auto_back_and_forth yes
 
 # Xfce owns the panel, tray, network, Bluetooth, notifications, and settings.
-exec --no-startup-id qs -c endfield
+exec --no-startup-id ~/.nix-profile/bin/qs -c endfield
 
 bindsym $mod+Return exec ghostty
 bindsym $mod+e exec thunar
 bindsym $mod+f exec rofi -show drun
-bindsym $mod+F1 exec qs -c endfield ipc call shortcuts toggle
+bindsym $mod+F1 exec ~/.nix-profile/bin/qs -c endfield ipc call shortcuts toggle
 bindsym $mod+b exec brave
 bindsym $mod+n exec code
 bindsym $mod+Shift+l exec xflock4
@@ -45,16 +45,16 @@ bindsym $mod+Shift+3 move container to workspace number $ws3
 bindsym $mod+Shift+4 move container to workspace number $ws4
 bindsym $mod+Shift+5 move container to workspace number $ws5
 
-bindsym $mod+Tab exec qs -c endfield ipc call overview next
-bindsym $mod+Shift+Tab exec qs -c endfield ipc call overview previous
-bindsym $mod+d exec qs -c endfield ipc call sidebar toggle
-bindsym $mod+Ctrl+c exec qs -c endfield ipc call sidebar page clipboard
-bindsym $mod+Ctrl+a exec qs -c endfield ipc call sidebar page output
-bindsym $mod+Ctrl+m exec qs -c endfield ipc call sidebar page input
-bindsym $mod+Ctrl+w exec qs -c endfield ipc call sidebar page network
-bindsym $mod+Ctrl+b exec qs -c endfield ipc call sidebar page bluetooth
-bindsym $mod+Ctrl+d exec qs -c endfield ipc call sidebar page calendar
-bindsym $mod+Ctrl+p exec qs -c endfield ipc call sidebar page power
+bindsym $mod+Tab exec ~/.nix-profile/bin/qs -c endfield ipc call overview next
+bindsym $mod+Shift+Tab exec ~/.nix-profile/bin/qs -c endfield ipc call overview previous
+bindsym $mod+d exec ~/.nix-profile/bin/qs -c endfield ipc call sidebar toggle
+bindsym $mod+Ctrl+c exec ~/.nix-profile/bin/qs -c endfield ipc call sidebar page clipboard
+bindsym $mod+Ctrl+a exec ~/.nix-profile/bin/qs -c endfield ipc call sidebar page output
+bindsym $mod+Ctrl+m exec ~/.nix-profile/bin/qs -c endfield ipc call sidebar page input
+bindsym $mod+Ctrl+w exec ~/.nix-profile/bin/qs -c endfield ipc call sidebar page network
+bindsym $mod+Ctrl+b exec ~/.nix-profile/bin/qs -c endfield ipc call sidebar page bluetooth
+bindsym $mod+Ctrl+d exec ~/.nix-profile/bin/qs -c endfield ipc call sidebar page calendar
+bindsym $mod+Ctrl+p exec ~/.nix-profile/bin/qs -c endfield ipc call sidebar page power
 
 bindsym Print exec xfce4-screenshooter -f
 bindsym $mod+Shift+s exec xfce4-screenshooter -r
