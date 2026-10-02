@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+DESKTOP_PACMAN_PACKAGES=(
+    bluez
+    bluez-utils
+    brightnessctl
+    capitaine-cursors
+    file-roller
+    ghostty
+    grim
+    gvfs
+    hypridle
+    hyprland
+    hyprlock
+    hyprpaper
+    hyprpicker
+    hyprpolkitagent
+    iw
+    libnotify
+    libpulse
+    librsvg
+    nautilus
+    networkmanager
+    noto-fonts
+    noto-fonts-emoji
+    nwg-bar
+    nwg-displays
+    nwg-look
+    papirus-icon-theme
+    pavucontrol
+    pipewire-alsa
+    pipewire-audio
+    pipewire-pulse
+    playerctl
+    qt5-wayland
+    qt5ct
+    qt6-shadertools
+    qt6-virtualkeyboard
+    qt6ct
+    quickshell
+    rofi
+    sddm
+    slurp
+    swappy
+    tlp
+    ttf-jetbrains-mono-nerd
+    ttf-noto-nerd
+    uwsm
+    waybar
+    wireplumber
+    wl-clipboard
+    xdg-desktop-portal-hyprland
+    xdg-utils
+)
+
+DESKTOP_AUR_PACKAGES=(
+    brave-bin
+    nautilus-open-any-terminal
+    papirus-folders
+    postman-bin
+    ttf-harmonyos-sans
+    visual-studio-code-bin
+)

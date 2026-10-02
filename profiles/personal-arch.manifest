@@ -1,0 +1,32 @@
+# mode    name          repository source                         home destination                  managed files
+mirror    autostart     home/.config/autostart                    .config/autostart
+mirror    btop          home/.config/btop                         .config/btop
+scoped    Code          home/.config/Code                         .config/Code                      User/settings.json User/keybindings.json User/mcp.json
+mirror    fontconfig    home/.config/fontconfig                   .config/fontconfig
+mirror    ghostty       home/.config/ghostty                      .config/ghostty
+mirror    gtk-3.0       home/.config/gtk-3.0                      .config/gtk-3.0
+mirror    gtk-4.0       home/.config/gtk-4.0                      .config/gtk-4.0
+mirror    hypr          home/.config/hypr                         .config/hypr
+mirror    mise          home/.config/mise                         .config/mise
+mirror    nvim          home/.config/nvim                         .config/nvim
+mirror    nwg-bar       home/.config/nwg-bar                      .config/nwg-bar
+mirror    nwg-displays  home/.config/nwg-displays                 .config/nwg-displays
+mirror    nwg-look      home/.config/nwg-look                     .config/nwg-look
+scoped    opencode      home/.config/opencode                     .config/opencode                  opencode.json
+mirror    qt5ct         home/.config/qt5ct                        .config/qt5ct
+mirror    qt6ct         home/.config/qt6ct                        .config/qt6ct
+mirror    quickshell    home/.config/quickshell                   .config/quickshell
+mirror    rofi          home/.config/rofi                         .config/rofi
+mirror    theme         home/.config/theme                        .config/theme
+mirror    tmux          home/.config/tmux                         .config/tmux
+mirror    uv            home/.config/uv                           .config/uv
+mirror    waybar        home/.config/waybar                       .config/waybar
+mirror    yazi          home/.config/yazi                         .config/yazi
+mirror    zsh           home/.config/zsh                          .config/zsh
+mirror    scripts       home/.local/scripts                       .local/scripts
+scoped    applications  home/.local/share/applications            .local/share/applications         endfield-shortcuts.desktop
+mirror    icons         home/.local/share/icons/endfield          .local/share/icons/endfield
+file      zshrc         home/.zshrc                               .zshrc
+file      zsh-profile   home/.zsh_profile                         .zsh_profile
+file      tmux-conf     home/.tmux.conf                           .tmux.conf
+file      tmuxrc        home/.tmuxrc                              .tmuxrc

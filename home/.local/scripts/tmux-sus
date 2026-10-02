@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# Quick session launcher for local projects, with an SSH-host mode.
+set -uo pipefail
+
+switch() {
+    if [ -z "${TMUX:-}" ]; then
+        tmux attach-session -t "=$1:"
+    else
+        tmux switch-client -t "=$1:"
+    fi
+}
+
+open_folder() {
+    local folder="$1" name
+    name=$(basename "$folder" | tr ':,. ' '____')
+
+    if ! tmux has-session -t="=$name" 2>/dev/null; then
+        tmux new-session -ds "$name" -c "$folder"
+        tmux send-keys -t "=$name:" 'run-tmux' C-m
+    fi
+    switch "$name"
+}
+
+open_host() {
+    local host="$1" command
+    if ! tmux has-session -t="=$host" 2>/dev/null; then
+        tmux new-session -ds "$host"
+        printf -v command 'ssh -- %q' "$host"
+        tmux send-keys -t "=$host:" "$command" C-m
+    fi
+    switch "$host"
+}
+
+folder_rows() {
+    local folder label
+    while IFS= read -r folder; do
+        label="~${folder#"$HOME"}"
+        printf 'folder:%s\t \t󰉋\t%s\t\n' "$folder" "$label"
+    done < <(find "$HOME/stuff" -mindepth 1 -maxdepth 1 -type d | sort)
+}
+
+host_rows() {
+    if [ -f "$HOME/.ssh/config" ]; then
+        awk 'tolower($1) == "host" {
+            for (i = 2; i <= NF; i++)
+                if ($i !~ /[*?!]/)
+                    print $i
+        }' "$HOME/.ssh/config" | sort -u | while IFS= read -r host; do
+            printf 'host:%s\t \t󰒋\t%s\tssh\n' "$host" "$host"
+        done
+    fi
+    printf 'action:scan\t \t󰛳\tScan local network…\tSSH\n'
+}
+
+mode=local
+while :; do
+    if [ "$mode" = local ]; then
+        mapfile -t out < <(folder_rows | tmux-picker 'Find a folder…' ctrl-r 1 'local › ' '' \
+            'Ctrl-r remote hosts')
+    else
+        mapfile -t out < <(host_rows | tmux-picker 'Find an SSH host…' ctrl-r 1 'remote › ' '' \
+            'Ctrl-r local folders')
+    fi
+
+    key="${out[1]:-}"
+    selected="${out[2]:-}"
+    if [ "$key" = ctrl-r ]; then
+        [ "$mode" = local ] && mode=remote || mode=local
+        continue
+    fi
+
+    case "$selected" in
+        folder:*) open_folder "${selected#folder:}" ;;
+        host:*) open_host "${selected#host:}" ;;
+        action:scan) tmux-ssh ;;
+    esac
+    exit 0
+done

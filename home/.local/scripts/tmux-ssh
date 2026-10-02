@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+account="${1:-}"
+user_host=$(ssh-select --print "$account")
+[[ -n "$user_host" ]] || exit 0
+
+selected=$(ssh -n -o ConnectTimeout=10 "$user_host" "find ~ -mindepth 1 -maxdepth 1 -type d 2>/dev/null" | fzf --prompt="Select project: ")
+
+if [[ -z "$selected" ]]; then
+    exit 0
+fi
+
+project_name=$(basename "$selected" | tr ':,. ' '____')
+host_name=${user_host##*@}
+selected_name="${project_name}@${host_name}"
+
+switch() {
+    if [[ -z "$TMUX" ]]; then
+        tmux attach-session -t "=$selected_name:"
+    else
+        tmux switch-client -t "=$selected_name:"
+    fi
+}
+
+if tmux has-session -t="=$selected_name" 2>/dev/null; then
+    switch
+    exit 0
+fi
+
+tmux new-session -ds "$selected_name"
+tmux rename-window -t "=$selected_name:" "$selected_name"
+printf -v remote_command 'cd %q && exec $SHELL' "$selected"
+printf -v command 'ssh -t %q %q' "$user_host" "$remote_command"
+tmux send-keys -t "=$selected_name:" "$command" C-m
+
+switch

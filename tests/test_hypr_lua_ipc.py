@@ -5,7 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 
-SCRIPT = Path(__file__).resolve().parents[1] / ".config/hypr/scripts/displays.py"
+SCRIPT = Path(__file__).resolve().parents[1] / "home/.config/hypr/scripts/displays.py"
 
 
 class DisplayIPCExpressions(unittest.TestCase):

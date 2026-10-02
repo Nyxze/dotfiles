@@ -1,0 +1,94 @@
+{
+    "tray": {
+        "icon-size": 22,
+        "spacing": 10
+    },
+    "battery": {
+        "align": 0,
+        "rotate": 0,
+        "full-at": 100,
+        "design-capacity": false,
+        "states": {
+            "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon}",
+        "format-charging": "{icon}",
+        "format-plugged": "{icon}",
+        "format-full": "{icon}",
+        "format-alt": "{icon}  {capacity}%",
+        "format-icons": [
+            "󰂎",
+            "󰁺",
+            "󰁻",
+            "󰁼",
+            "󰁽",
+            "󰁾",
+            "󰁿",
+            "󰂀",
+            "󰂁",
+            "󰂂",
+            "󰁹"
+        ],
+        "format-time": "{H}h {M}min",
+        "tooltip": true,
+        "tooltip-format": "{capacity}%  |  {timeTo}  |  {power}w"
+    },
+    "clock": {
+        "interval": 30,
+        "format": "{:%H:%M}",
+        "format-alt": "{:%a %d %b  %H:%M}",
+        "tooltip-format": "{:%A %d %B %Y}",
+        "locale": "fr_FR.UTF-8"
+    },
+    "pulseaudio": {
+        "format": "{icon}",
+        "format-bluetooth": "{icon}",
+        "format-muted": "󰖁",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "default": [
+                "",
+                "",
+                "󰕾",
+                ""
+            ],
+            "ignored-sinks": [
+                "Easy Effects Sink"
+            ]
+        },
+        "scroll-step": 5.0,
+        "on-click": "qs -c endfield ipc call sidebar page output",
+        "on-click-right": "pavucontrol -t 3",
+        "tooltip-format": "{icon} {desc} | {volume}%",
+        "smooth-scrolling-threshold": 1,
+        "format-alt": "{icon}  {volume}%"
+    },
+    "pulseaudio#microphone": {
+        "format": "{format_source}",
+        "format-source": " {volume}%",
+        "format-source-muted": "",
+        "on-click": "qs -c endfield ipc call sidebar page input",
+        "on-click-right": "pavucontrol -t 4",
+        "tooltip-format": "{source_desc} | {source_volume}%",
+        "scroll-step": 5
+    },
+    "network": {
+        "format-wifi": "󰖩",
+        "format-ethernet": "󰈀",
+        "format-linked": "󰈀",
+        "format-disconnected": "󰖪",
+        "tooltip-format": "{ifname} via {gwaddr}",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%) | {ipaddr}",
+        "tooltip-format-ethernet": "{ifname} | {ipaddr}",
+        "tooltip-format-disconnected": "Disconnected",
+        "interval": 5,
+        "on-click": "qs -c endfield ipc call sidebar page network",
+        "format-alt": "󰖩  {signalStrength}%"
+    }
+}

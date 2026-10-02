@@ -8,8 +8,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SHELL_DIR="$ROOT/.config/quickshell/endfield"
-PALETTE="$ROOT/.config/theme"
+SHELL_DIR="$ROOT/home/.config/quickshell/endfield"
+PALETTE="$ROOT/home/.config/theme"
 THEME="$ROOT/system/sddm/themes/endfield"
 DEST=/usr/share/sddm/themes/endfield
 
@@ -71,7 +71,7 @@ stage() {
         done
     done
 
-    # The clouds are baked by .config/theme/pointcloud.py from raw XYZ dumps
+    # The clouds are baked by home/.config/theme/pointcloud.py from raw XYZ dumps
     # that do not live in this repository. What ships is the texture pair.
     install -dm755 "$THEME/backdrop/clouds"
     install -m644 "$PALETTE"/clouds/*.png "$THEME/backdrop/clouds/"
