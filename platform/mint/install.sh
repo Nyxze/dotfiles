@@ -64,7 +64,7 @@ install_nix() {
 
 install_quickshell() {
     local architecture
-    local quickshell_flake='git+https://github.com/quickshell-mirror/quickshell?ref=v0.1.0'
+    local quickshell_flake='git+https://github.com/quickshell-mirror/quickshell?rev=703a3789083d2f990c4e99cd25c97c2a4cccbd81'
 
     case "$(uname -m)" in
         x86_64) architecture=x86_64-linux ;;
