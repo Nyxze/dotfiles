@@ -1,5 +1,5 @@
 #!/bin/bash
-# Repository -> the system paths ./deploy cannot reach because root owns them.
+# Repository -> the system paths ./apply-config cannot reach because root owns them.
 # Right now that is the SDDM greeter theme and the drop-in that selects it.
 #
 # The theme is not a second copy of the interface language. Everything in it
@@ -8,8 +8,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SHELL_DIR="$ROOT/home/.config/quickshell/endfield"
-PALETTE="$ROOT/home/.config/theme"
+SHELL_DIR="$ROOT/home/common/.config/quickshell/endfield"
+PALETTE="$ROOT/home/common/.config/theme"
 THEME="$ROOT/system/sddm/themes/endfield"
 DEST=/usr/share/sddm/themes/endfield
 
@@ -71,7 +71,7 @@ stage() {
         done
     done
 
-    # The clouds are baked by home/.config/theme/pointcloud.py from raw XYZ dumps
+    # The clouds are baked by home/common/.config/theme/pointcloud.py from raw XYZ dumps
     # that do not live in this repository. What ships is the texture pair.
     install -dm755 "$THEME/backdrop/clouds"
     install -m644 "$PALETTE"/clouds/*.png "$THEME/backdrop/clouds/"

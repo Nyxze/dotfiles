@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# Repository -> home for the Arch profile.
-set -uo pipefail
-
-repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-source "$repo_root/scripts/lib/managed-home.sh"
-run_managed_home deploy "$repo_root" "$repo_root/profiles/personal-arch.manifest" "$@"

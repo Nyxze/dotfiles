@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Capture home-directory changes into the layer that owns each file.
+set -euo pipefail
+
+repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+source "$repo_root/scripts/lib/managed-home.sh"
+run_managed_home capture "$repo_root" "$@"

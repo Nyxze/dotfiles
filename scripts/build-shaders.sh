@@ -9,7 +9,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SHADERS="$ROOT/home/.config/quickshell/endfield/backdrop/shaders"
+SHADERS="$ROOT/home/common/.config/quickshell/endfield/backdrop/shaders"
 QSB=/usr/lib/qt6/bin/qsb
 
 if [ ! -x "$QSB" ]; then

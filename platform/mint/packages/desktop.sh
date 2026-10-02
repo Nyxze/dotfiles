@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+DESKTOP_APT_PACKAGES=(
+    blueman
+    bluez
+    brightnessctl
+    file-roller
+    ghostty
+    i3-wm
+    i3status
+    libnotify-bin
+    network-manager
+    network-manager-gnome
+    pavucontrol
+    pipewire-audio
+    playerctl
+    rofi
+    thunar
+    thunar-archive-plugin
+    wireplumber
+    xfce4-notifyd
+    xfce4-power-manager
+    xfce4-screenshooter
+)
+
+QUICKSHELL_BUILD_PACKAGES=(
+    cmake
+    libcli11-dev
+    libdrm-dev
+    libjemalloc-dev
+    libpam0g-dev
+    libpipewire-0.3-dev
+    libpolkit-gobject-1-dev
+    libwayland-dev
+    libxcb1-dev
+    ninja-build
+    pkg-config
+    qt6-base-dev
+    qt6-base-private-dev
+    qt6-declarative-dev
+    qt6-declarative-private-dev
+    qt6-shadertools-dev
+    qt6-svg-dev
+    qt6-wayland-dev
+    wayland-protocols
+)

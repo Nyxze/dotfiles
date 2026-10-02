@@ -24,6 +24,7 @@ detect_platform() {
     source /etc/os-release
     case "${ID,,}" in
         arch) printf '%s\n' arch ;;
+        linuxmint) printf '%s\n' mint ;;
         *)
             echo "Unsupported distribution: ${PRETTY_NAME:-$ID}." >&2
             return 1
@@ -39,6 +40,12 @@ bootstrap_repository() {
         arch)
             if ! command -v git >/dev/null; then
                 sudo pacman -Syu --needed --noconfirm git
+            fi
+            ;;
+        mint)
+            if ! command -v git >/dev/null; then
+                sudo apt-get update
+                sudo apt-get install --yes git
             fi
             ;;
     esac
@@ -77,10 +84,13 @@ fi
 "$repo_root/platform/$platform/install.sh"
 
 # Installing this repository makes it authoritative on a new workstation.
-"$repo_root/deploy" --force
+"$repo_root/apply-config" --force
 "$repo_root/scripts/install.sh" --force
 
+export PATH="$HOME/.local/bin:$PATH"
 mise install
 uv python install
 
-"$repo_root/scripts/install-system.sh"
+if [ "$platform" = arch ]; then
+    "$repo_root/scripts/install-system.sh"
+fi
