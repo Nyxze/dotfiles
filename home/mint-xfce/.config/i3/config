@@ -10,7 +10,15 @@ floating_modifier $mod
 focus_follows_mouse no
 workspace_auto_back_and_forth yes
 
-# Xfce owns the panel, tray, network, Bluetooth, notifications, and settings.
+# Restore the Xfce desktop services when i3 is selected as a standalone session.
+exec --no-startup-id xfsettingsd
+exec --no-startup-id xfdesktop
+exec --no-startup-id xfce4-panel
+exec --no-startup-id nm-applet
+exec --no-startup-id blueman-applet
+exec --no-startup-id xfce4-notifyd
+exec --no-startup-id xfce4-power-manager
+
 exec --no-startup-id ~/.nix-profile/bin/qs -c endfield
 
 bindsym $mod+Return exec ghostty
