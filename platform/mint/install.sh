@@ -64,7 +64,8 @@ install_nix() {
 
 install_quickshell() {
     local architecture
-    local quickshell_flake='git+https://github.com/quickshell-mirror/quickshell?rev=703a3789083d2f990c4e99cd25c97c2a4cccbd81'
+    local quickshell_version='0.3.1'
+    local quickshell_flake='git+https://github.com/quickshell-mirror/quickshell?rev=1a4716cde794a59928d9d9fc15f2afc7a95de360'
 
     case "$(uname -m)" in
         x86_64) architecture=x86_64-linux ;;
@@ -76,7 +77,13 @@ install_quickshell() {
     esac
 
     if [ -x "$HOME/.nix-profile/bin/qs" ]; then
-        return 0
+        local current_version
+        current_version=$("$HOME/.nix-profile/bin/qs" --version | awk 'NR == 1 { print $2 }')
+        if [ "$current_version" = "$quickshell_version" ]; then
+            return 0
+        fi
+
+        nix --extra-experimental-features 'nix-command flakes' profile remove quickshell
     fi
 
     nix --extra-experimental-features 'nix-command flakes' profile install \
@@ -110,7 +117,7 @@ install_extra_applications() {
 
 show_progress "Installing Nix"
 install_nix
-show_progress "Installing Quickshell 0.1.0"
+show_progress "Installing Quickshell 0.3.1"
 install_quickshell
 
 show_progress "Installing Ghostty and Yazi"
