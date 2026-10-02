@@ -17,9 +17,9 @@ TERMINAL_APT_PACKAGES=(
     python3-pip
     ripgrep
     rsync
+    software-properties-common
     sshfs
     tmux
     xclip
-    yazi
     zsh
 )

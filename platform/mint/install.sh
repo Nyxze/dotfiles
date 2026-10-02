@@ -6,7 +6,7 @@ source "$platform_dir/packages/terminal.sh"
 source "$platform_dir/packages/desktop.sh"
 export PATH="$HOME/.local/bin:$PATH"
 progress_step=0
-progress_total=4
+progress_total=5
 
 if [ ! -r /etc/os-release ]; then
     echo "This installer supports Linux Mint only." >&2
@@ -83,10 +83,38 @@ install_quickshell() {
         "${quickshell_flake}#packages.${architecture}.default"
 }
 
+install_extra_applications() {
+    local yazi_keyring=/usr/share/keyrings/yazi-keyring.gpg
+    local yazi_source=/etc/apt/sources.list.d/yazi.list
+    local yazi_repository='deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main'
+    local packages=()
+
+    if ! command -v yazi >/dev/null; then
+        curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg | sudo tee "$yazi_keyring" >/dev/null
+        printf '%s\n' "$yazi_repository" | sudo tee "$yazi_source" >/dev/null
+        packages+=(yazi)
+    fi
+
+    if ! command -v ghostty >/dev/null; then
+        if ! grep -Rqs 'mkasberg/ghostty-ubuntu' /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null; then
+            sudo add-apt-repository --yes ppa:mkasberg/ghostty-ubuntu
+        fi
+        packages+=(ghostty)
+    fi
+
+    [ "${#packages[@]}" -eq 0 ] && return 0
+
+    sudo apt-get update
+    sudo apt-get install --yes "${packages[@]}"
+}
+
 show_progress "Installing Nix"
 install_nix
 show_progress "Installing Quickshell 0.1.0"
 install_quickshell
+
+show_progress "Installing Ghostty and Yazi"
+install_extra_applications
 
 show_progress "Installing development tool managers"
 if ! command -v mise >/dev/null; then

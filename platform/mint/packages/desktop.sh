@@ -5,7 +5,6 @@ DESKTOP_APT_PACKAGES=(
     bluez
     brightnessctl
     file-roller
-    ghostty
     i3-wm
     i3status
     libnotify-bin
