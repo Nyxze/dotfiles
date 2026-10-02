@@ -65,7 +65,7 @@ install_nix() {
 install_quickshell() {
     local architecture
     local quickshell_version='0.3.1'
-    local quickshell_flake='git+https://github.com/quickshell-mirror/quickshell?rev=1a4716cde794a59928d9d9fc15f2afc7a95de360'
+    local quickshell_flake="$platform_dir/quickshell"
 
     case "$(uname -m)" in
         x86_64) architecture=x86_64-linux ;;
@@ -79,7 +79,8 @@ install_quickshell() {
     if [ -x "$HOME/.nix-profile/bin/qs" ]; then
         local current_version
         current_version=$("$HOME/.nix-profile/bin/qs" --version | awk 'NR == 1 { print $2 }')
-        if [ "$current_version" = "$quickshell_version" ]; then
+        if [ "$current_version" = "$quickshell_version" ] \
+            && grep -Fq nixGLIntel "$(readlink -f "$HOME/.nix-profile/bin/qs")"; then
             return 0
         fi
 
@@ -87,6 +88,7 @@ install_quickshell() {
     fi
 
     nix --extra-experimental-features 'nix-command flakes' profile install \
+        --impure --no-write-lock-file \
         "${quickshell_flake}#packages.${architecture}.default"
 }
 
