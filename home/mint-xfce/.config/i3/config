@@ -10,11 +10,17 @@ floating_modifier $mod
 focus_follows_mouse no
 workspace_auto_back_and_forth yes
 
-# Restore the Xfce desktop services when i3 is selected as a standalone session.
+bar {
+    position top
+    workspace_buttons yes
+}
+
+# Restore the Xfce services that are useful under i3 without starting Xfce's
+# desktop or panel. xfdesktop is intentionally kept out until the dedicated
+# workspace-1 desktop integration is implemented; otherwise i3 can manage it as
+# a normal container. i3bar owns the workspace indicator instead of xfce4-panel.
 # Xfce assigns bare Super to its menu by default, preventing i3 shortcuts.
 exec --no-startup-id sh -c 'xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Super_L -r >/dev/null 2>&1 || true; exec xfsettingsd'
-exec --no-startup-id xfdesktop
-exec --no-startup-id xfce4-panel
 exec --no-startup-id nm-applet
 exec --no-startup-id blueman-applet
 exec --no-startup-id xfce4-notifyd
