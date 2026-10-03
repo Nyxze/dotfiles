@@ -89,12 +89,6 @@ file_hash() {
     sha256sum "$1" | awk '{print $1}'
 }
 
-preserve_modified_when_unmanaged() {
-    case "$1" in
-        .config/mise/config.toml) return 0 ;;
-    esac
-    return 1
-}
 
 hash_selected_sources() {
     local sources_name="$1" hashes_name="$2"
@@ -187,9 +181,6 @@ run_deploy() {
         destination="$HOME/$relative"
         [ -e "$destination" ] || continue
         if [ "$FORCE" -ne 1 ] && [ "$(file_hash "$destination")" != "${previous[$relative]}" ]; then
-            if preserve_modified_when_unmanaged "$relative"; then
-                continue
-            fi
             echo "✗ $component: $relative was changed outside the repository."
             echo "  Pass --force to remove the file created by an earlier deployment."
             failed=1
@@ -220,12 +211,6 @@ run_deploy() {
         destination="$HOME/$relative"
         if [ ! -e "$destination" ]; then
             unset 'next[$relative]'
-            continue
-        fi
-        if preserve_modified_when_unmanaged "$relative" \
-            && [ "$(file_hash "$destination")" != "${previous[$relative]}" ]; then
-            unset 'next[$relative]'
-            echo "✓ kept user-owned $component: $relative"
             continue
         fi
         rm -f -- "$destination"
