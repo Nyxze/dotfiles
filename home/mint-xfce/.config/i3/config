@@ -35,7 +35,7 @@ bindsym $mod+F1 exec ~/.nix-profile/bin/qs -c endfield ipc call shortcuts toggle
 bindsym $mod+b exec brave-browser
 bindsym $mod+n exec code
 bindsym $mod+Shift+l exec xflock4
-bindsym Ctrl+Mod1+Delete exec xfce4-session-logout
+bindsym Ctrl+Mod1+Delete exec i3-msg exit
 
 bindsym $mod+h focus left
 bindsym $mod+j focus down
