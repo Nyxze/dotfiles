@@ -51,7 +51,9 @@ is provided through a small Nix flake so its newer Qt runtime stays isolated
 from APT. The same provisioning pass also installs the required workstation
 applications that are not in Mint's default repositories: VS Code and Brave
 through their vendor APT repositories, Postman from its vendor Linux bundle,
-and ChatGPT from OpenAI's Debian package.
+and ChatGPT from OpenAI's Debian package. The Mint setup also installs the
+JetBrains Mono and Noto Nerd Font families used by i3, Ghostty, and terminal
+glyphs from the pinned Nerd Fonts release.
 
 Mint also makes Zsh the login shell and installs the user-local Oh My Zsh tree
 expected by the shared prompt. This is what makes the common Ghostty/Zsh/Tmux
