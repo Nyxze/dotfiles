@@ -40,10 +40,9 @@ The default profile comes from `/etc/os-release`: `arch` selects
 for testing a layer without changing the host distribution.
 
 The repository-owned mise toolset lives in
-`~/.config/mise/conf.d/dotfiles.toml` rather than the global
-`~/.config/mise/config.toml`. This keeps `mise use -g` and other personal
-global overrides user-owned while still letting `mise install` provision the
-shared Node, Bun, and fzf versions after configuration is applied.
+`~/.config/mise/config.toml`. It is the source of truth for shared tool
+versions such as Node, Bun, and fzf; after applying the dotfiles, `mise install`
+provisions those exact versions.
 
 `apply-config` keeps the per-file safety guard but is incremental: identical
 destinations are not copied again, and managed source hashes are calculated in
