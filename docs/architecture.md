@@ -39,6 +39,17 @@ The default profile comes from `/etc/os-release`: `arch` selects
 `arch-hyprland`, and `linuxmint` selects `mint-xfce`. `--profile` is intended
 for testing a layer without changing the host distribution.
 
+The repository-owned mise toolset lives in
+`~/.config/mise/conf.d/dotfiles.toml` rather than the global
+`~/.config/mise/config.toml`. This keeps `mise use -g` and other personal
+global overrides user-owned while still letting `mise install` provision the
+shared Node, Bun, and fzf versions after configuration is applied.
+
+`apply-config` keeps the per-file safety guard but is incremental: identical
+destinations are not copied again, and managed source hashes are calculated in
+one batch instead of spawning one hashing process per file. The output remains
+per-file so it is still clear which layer owns each deployed path.
+
 ## Platforms
 
 The root `install.sh` bootstraps Git when necessary and dispatches to the
