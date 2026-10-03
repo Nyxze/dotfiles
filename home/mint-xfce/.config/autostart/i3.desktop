@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=i3 window manager
+Comment=Replace Xfwm4 with i3 inside the Xfce session
+Exec=i3 --replace
+TryExec=i3
+OnlyShowIn=XFCE;
+Terminal=false
+X-GNOME-Autostart-enabled=true
