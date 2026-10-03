@@ -53,7 +53,7 @@ setup_brave_repository() {
 }
 
 install_vendor_apt_applications() {
-    sudo apt-get install --yes ca-certificates curl gnupg wget
+    sudo apt-get install --yes ca-certificates curl fontconfig gnupg wget xz-utils
     setup_vscode_repository
     setup_brave_repository
     sudo apt-get update
