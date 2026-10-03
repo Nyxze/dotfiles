@@ -1,0 +1,271 @@
+@import url("../theme/endfield.css");
+
+/* libadwaita reads these at runtime, so redefining them is enough here. */
+
+@define-color accent_color @accent-soft;
+@define-color accent_bg_color @accent;
+@define-color accent_fg_color @on-accent;
+
+@define-color destructive_color @danger;
+@define-color destructive_bg_color @danger;
+@define-color destructive_fg_color @on-accent;
+
+@define-color success_color @success;
+@define-color success_bg_color @success;
+@define-color success_fg_color @on-accent;
+
+@define-color warning_color @accent;
+@define-color warning_bg_color @accent;
+@define-color warning_fg_color @on-accent;
+
+@define-color error_color @danger;
+@define-color error_bg_color @danger;
+@define-color error_fg_color @on-accent;
+
+/* Flat chrome: the bars sit on the window rather than above it, so the window
+ * reads as one plane the way the bar and the launcher do. Depth is spent on
+ * what floats above the window, and on the wells that take input. */
+@define-color window_bg_color @bg-panel;
+@define-color window_fg_color @text-primary;
+@define-color view_bg_color @bg-panel;
+@define-color view_fg_color @text-primary;
+@define-color headerbar_bg_color @bg-panel;
+@define-color headerbar_fg_color @text-primary;
+@define-color headerbar_backdrop_color @bg-panel;
+@define-color sidebar_bg_color @bg-panel;
+@define-color sidebar_fg_color @text-secondary;
+@define-color sidebar_backdrop_color @bg-panel;
+@define-color secondary_sidebar_bg_color @bg-panel;
+@define-color secondary_sidebar_fg_color @text-secondary;
+@define-color thumbnail_bg_color @bg-deep;
+@define-color thumbnail_fg_color @text-primary;
+
+@define-color popover_bg_color @bg-raised;
+@define-color popover_fg_color @text-primary;
+@define-color card_bg_color @bg-raised;
+@define-color card_fg_color @text-primary;
+@define-color dialog_bg_color @bg-raised;
+@define-color dialog_fg_color @text-primary;
+
+/* A hairline separates the panes; the gradients libadwaita would otherwise
+ * draw there are what make a flat window look layered. */
+@define-color headerbar_border_color @line;
+@define-color headerbar_shade_color @line;
+@define-color sidebar_border_color @line;
+@define-color sidebar_shade_color @line;
+@define-color secondary_sidebar_border_color @line;
+@define-color secondary_sidebar_shade_color @line;
+@define-color shade_color @line;
+@define-color scrollbar_outline_color transparent;
+
+/* Input is a well, not a plate: it sinks below the window rather than rising
+ * above it, which is what tells it apart from the popovers and cards. */
+entry,
+entry.search,
+searchbar entry,
+.nautilus-pathbar,
+.floating-bar {
+    background-color: @bg-deep;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+entry:focus-within {
+    box-shadow: inset 0 0 0 2px @accent;
+}
+
+/* Square, not rounded: the 45 degree cut that replaces a radius in this
+ * language has no clip in GTK4 CSS, so anything not worth painting a corner
+ * triangle over simply keeps its corners. */
+row,
+button,
+.nautilus-path-button,
+.navigation-sidebar > row,
+gridview > child,
+listview > row,
+columnview listview > row {
+    border-radius: 0;
+}
+
+/* Hover raises the surface and answers with a neutral underline; pressing
+ * puts an accent bar on the leading edge. Yellow has one job outside that
+ * press, and it is to mark what is selected or active. */
+row:hover,
+button:hover,
+.nautilus-path-button:hover {
+    background-color: @bg-raised;
+    color: @text-primary;
+    box-shadow: inset 0 -2px 0 @text-muted;
+}
+
+row:active,
+button:active,
+.nautilus-path-button:active {
+    background-color: @bg-raised;
+    color: @text-primary;
+    box-shadow: inset 4px 0 0 @accent;
+}
+
+/* Primary takes the accent as a fill, secondary as a hairline. libadwaita
+ * already fills `.suggested-action` from accent_bg_color, so only the other
+ * half needs saying. */
+.dialog-action-area button:not(.suggested-action):not(.destructive-action),
+.response-area button:not(.suggested-action):not(.destructive-action),
+alertdialog button:not(.suggested-action):not(.destructive-action) {
+    border: 1px solid @accent;
+    color: @text-primary;
+    background-color: @bg-raised;
+}
+
+/* The fill is the selection marker everywhere else, and it is unavailable
+ * here: the folder icons are themselves the accent, so a yellow plate behind
+ * them erases the thing being selected. A file manager therefore marks with
+ * the border and the label instead — the same accent, a shape that does not
+ * collide with its own content.
+ *
+ * No corner cut here: GTK draws an outline as a closed rectangle, so a painted
+ * notch behind it is traced over and never reads. Square is the honest answer
+ * where the cut cannot be had. */
+
+
+scrollbar slider {
+    background-color: @line;
+}
+
+scrollbar slider:hover {
+    background-color: @text-muted;
+}
+
+/* Where selection is the only channel a row has, it takes the accent as a
+ * fill with dark text — the way the source marks an active tab, and the one
+ * treatment that cannot be mistaken for texture. A rail is what marks state
+ * where focus needs the fill for itself, which is not the case here: one step
+ * of surface under a hatch was reading as noise rather than as a selection.
+ *
+ * The sidebar is a flat known ground, so the cut corners can be painted. */
+.navigation-sidebar > row:selected,
+.navigation-sidebar > row:selected:hover,
+listview > row:selected {
+    border-radius: 0;
+    background-color: @accent;
+    color: @on-accent;
+    /* The bands lean the way the source leans them: the top edge reaches
+     * further right than the bottom. CSS angles are the gradient direction and
+     * the bands sit perpendicular to it, so mirroring this is a matter of
+     * 110deg against 70deg and the difference is easy to get backwards. */
+    background-image:
+        repeating-linear-gradient(135deg,
+            rgba(11, 17, 24, 0.16) 0px, rgba(11, 17, 24, 0.16) 1px,
+            rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) 3.2px),
+        linear-gradient(110deg,
+            rgba(17, 26, 35, 0) 0%, rgba(17, 26, 35, 0) 34%,
+            rgba(17, 26, 35, 0.38) 34%, rgba(17, 26, 35, 0.38) 67%,
+            rgba(17, 26, 35, 0.54) 67%);
+    /* A fifth of the row, not a fixed width: the tail has to keep the same
+     * proportion on a narrow sidebar row and a wide list row alike. */
+    background-size: auto, 20% 100%;
+    background-position: 0 0, right top;
+    background-repeat: repeat, no-repeat;
+}
+
+/* The file views are the exception, and it is a consequence of the icons: a
+ * folder icon is itself the accent, so a yellow plate behind one erases the
+ * thing being selected. There, selection takes the border and an accent label
+ * — same signal, a shape that does not collide with its own content. Stated
+ * after the banner so it wins on the rows both rules match.
+ *
+ * No corner cut: GTK draws an outline as a closed rectangle, so a painted
+ * notch behind it is traced over and never reads. */
+gridview > child:selected,
+gridview > child:selected:focus,
+gridview > child:selected:hover,
+columnview listview > row:selected,
+.nautilus-list-view listview > row:selected {
+    background-color: @bg-raised;
+    background-image: none;
+    color: @accent;
+    outline: 2px solid @accent;
+    outline-offset: -2px;
+}
+
+/* Two textures, measured off the source and not interchangeable. The ground
+ * carries a fine orthogonal grid at the threshold of visibility; the mid-tone
+ * plates carry diagonal hatching running bottom-left to top-right. Putting the
+ * hatch on the ground is what makes it look like a filter rather than a
+ * surface. Amplitude is a share of the surface's own luminance, so the light
+ * used here tracks the palette's brightest text rather than plain white. */
+window,
+window > contents,
+.background {
+    background-color: @bg-panel;
+    background-image:
+        repeating-linear-gradient(0deg,
+            rgba(232, 237, 241, 0.010) 0px, rgba(232, 237, 241, 0.010) 1px,
+            rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) 4.5px),
+        repeating-linear-gradient(90deg,
+            rgba(232, 237, 241, 0.010) 0px, rgba(232, 237, 241, 0.010) 1px,
+            rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) 4.5px);
+}
+
+.floating-bar,
+popover.background > contents {
+    background-image: repeating-linear-gradient(135deg,
+        rgba(232, 237, 241, 0.13) 0px, rgba(232, 237, 241, 0.13) 1px,
+        rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) 3.2px);
+}
+
+/* A popover is two nodes: `> contents` is the menu, and the outer
+ * `popover.background` spans it plus the margin the shadow is drawn into.
+ * `.background` in the ground rule above matches that outer node, which put an
+ * opaque slab of window ground behind every menu. Only the contents get a
+ * surface. */
+popover.background {
+    background-color: transparent;
+    background-image: none;
+}
+
+/* libadwaita rounds its own surfaces from inside the library, so squaring them
+ * takes a rule rather than a token. The popover carries a hairline instead:
+ * with no radius and no shadow it would otherwise dissolve into the window
+ * behind it. */
+popover.background > contents,
+popover.background > arrow,
+window,
+window.csd,
+.dialog-content,
+.card,
+.osd {
+    border-radius: 0;
+}
+
+popover.background > contents {
+    border: 1px solid @line;
+}
+
+/* A menu row has to stay legible over the hatch it sits on, so the hatch stops
+ * at the row: a highlighted item paints its own flat plate. */
+popover.background > contents modelbutton:hover,
+popover.background > contents row:hover {
+    background-image: none;
+    background-color: @bg-raised;
+}
+
+/* GTK4 CSS has no clip-path, so the corner cuts are painted rather than
+ * clipped: a ground-coloured triangle in each corner, over the hatch. The
+ * triangle only joins where the ground is flat and known, which is why this
+ * is the pathbar and not every plate. The source cuts 4-6px at 45 degrees,
+ * and only on some corners. */
+.nautilus-pathbar {
+    border-radius: 0;
+    background-image:
+        linear-gradient(to bottom right, @bg-panel 0, @bg-panel 5px, rgba(0,0,0,0) 5px),
+        linear-gradient(to bottom left,  @bg-panel 0, @bg-panel 5px, rgba(0,0,0,0) 5px),
+        linear-gradient(to top right,    @bg-panel 0, @bg-panel 5px, rgba(0,0,0,0) 5px),
+        linear-gradient(to top left,     @bg-panel 0, @bg-panel 5px, rgba(0,0,0,0) 5px),
+        repeating-linear-gradient(135deg,
+            rgba(232, 237, 241, 0.13) 0px, rgba(232, 237, 241, 0.13) 1px,
+            rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) 3.2px);
+    background-size: 7px 7px, 7px 7px, 7px 7px, 7px 7px, auto;
+    background-position: top left, top right, bottom left, bottom right, 0 0;
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+}
