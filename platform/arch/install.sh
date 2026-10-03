@@ -57,7 +57,7 @@ gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal ghostt
 gsettings set com.github.stunkymonkey.nautilus-open-any-terminal new-tab true
 gsettings set org.gnome.desktop.interface gtk-theme Adwaita
 gsettings set org.gnome.desktop.interface color-scheme prefer-dark
-gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
+gsettings set org.gnome.desktop.interface icon-theme endfield
 
 # Papirus upgrades restore the default blue folders.
 sudo papirus-folders -C grey --theme Papirus-Dark
