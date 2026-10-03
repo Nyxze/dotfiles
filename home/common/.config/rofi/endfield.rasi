@@ -95,7 +95,7 @@ element alternate.normal {
 element selected.normal {
     background-color: @accent;
     text-color:       @on-accent;
-    background-image: url("/home/nyxze/.config/theme/rofi-tail.png", width);
+    background-image: url("~/.config/theme/rofi-tail.png", width);
 }
 
 element urgent.normal {

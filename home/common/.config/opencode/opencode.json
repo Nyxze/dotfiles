@@ -4,9 +4,6 @@
     "playwright": {
       "type": "local",
       "command": ["npx", "-y", "@playwright/mcp@latest", "--browser", "chromium"],
-      "environment": {
-        "PLAYWRIGHT_BROWSERS_PATH": "/home/nyxze/.cache/ms-playwright"
-      },
       "enabled": true
     },
     "linear": {
