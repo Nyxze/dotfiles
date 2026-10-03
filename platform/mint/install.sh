@@ -6,7 +6,7 @@ source "$platform_dir/packages/terminal.sh"
 source "$platform_dir/packages/desktop.sh"
 export PATH="$HOME/.local/bin:$PATH"
 progress_step=0
-progress_total=5
+progress_total=7
 
 if [ ! -r /etc/os-release ]; then
     echo "This installer supports Linux Mint only." >&2
@@ -50,6 +50,30 @@ apt_install_available() {
 show_progress "Installing APT packages"
 sudo apt-get update
 apt_install_available "${TERMINAL_APT_PACKAGES[@]}" "${DESKTOP_APT_PACKAGES[@]}"
+
+install_shell_environment() {
+    local zsh_path current_shell
+
+    if [ ! -d "$HOME/.oh-my-zsh/.git" ]; then
+        if [ -e "$HOME/.oh-my-zsh" ]; then
+            echo "Cannot install Oh My Zsh: $HOME/.oh-my-zsh exists but is not a Git checkout." >&2
+            return 1
+        fi
+        git clone --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$HOME/.oh-my-zsh"
+    fi
+
+    zsh_path=$(command -v zsh)
+    current_shell=$(getent passwd "$USER" | cut -d: -f7)
+    if [ "$current_shell" != "$zsh_path" ]; then
+        sudo chsh -s "$zsh_path" "$USER"
+    fi
+}
+
+show_progress "Configuring Zsh and Tmux workflow"
+install_shell_environment
+
+show_progress "Installing workstation applications"
+bash "$platform_dir/install-applications.sh"
 
 install_nix() {
     local nix_profile=/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
