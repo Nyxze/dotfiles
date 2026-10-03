@@ -76,11 +76,22 @@ Arch owns Hyprland, Waybar, nwg utilities, custom GTK/Qt styling, and the
 Wayland implementations of Endfield panels, notifications, lock screen,
 display handling, workspace previews, and window groups.
 
-Mint leaves Xfce's panel, tray, notification daemon, network applet, Blueman,
-audio controls, display settings, lock screen, and display manager untouched.
-i3 supplies the shared window-management shortcut contract. Endfield uses X11
-panels and i3 IPC there; its workspace overview shows workspace metadata rather
-than Wayland previews, and its display page opens the native Xfce settings.
+Mint runs a normal Xfce session and uses i3 only as the window manager.
+Xfce owns the session manager, desktop, panel, tray, notification daemon,
+network/Bluetooth applets, power management, display settings, and logout flow.
+An XDG autostart entry runs `i3 --replace` after Xfce starts, replacing xfwm4
+without replacing the rest of the desktop environment. i3 supplies tiling,
+workspaces, focus, resize, borders/gaps, and the shared window-management
+shortcut contract.
+
+The Xfce panel remains visible on every i3 workspace in this first hybrid
+version. Xfce does not expose a native per-workspace panel visibility setting;
+if workspace-1-only visibility is still desirable, implement it later as an i3
+IPC-driven integration rather than coupling it to this baseline migration.
+
+Endfield uses X11 panels and i3 IPC on Mint; its workspace overview shows
+workspace metadata rather than Wayland previews, and its display page opens the
+native Xfce settings.
 
 Common Endfield components may use desktop-independent services such as
 PipeWire, BlueZ, NetworkManager, Calendar, and the sidebar UI. Backend files
