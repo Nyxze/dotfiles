@@ -15,9 +15,9 @@ default_floating_border pixel 2
 gaps inner 2
 gaps outer 4
 
-client.focused          #FFD400CC #0B1118 #E8EDF1 #FFD400CC #FFD400CC
-client.focused_inactive #3A4A5988 #0B1118 #AAB7C2 #3A4A5988 #3A4A5988
-client.unfocused        #3A4A5988 #0B1118 #8A99A6 #3A4A5988 #3A4A5988
+client.focused          #FFD400 #0B1118 #E8EDF1 #FFD400 #FFD400
+client.focused_inactive #3A4A59 #0B1118 #AAB7C2 #3A4A59 #3A4A59
+client.unfocused        #3A4A59 #0B1118 #8A99A6 #3A4A59 #3A4A59
 client.urgent           #FF6B45   #0B1118 #E8EDF1 #FF6B45   #FF6B45
 client.background       #0B1118
 
