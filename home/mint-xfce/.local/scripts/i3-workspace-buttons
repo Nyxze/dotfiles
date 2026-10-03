@@ -13,7 +13,9 @@ from gi.repository import Gdk, GLib, Gtk
 
 
 STYLE = b"""
-window { background-color: #2e2e33; }
+/* The top edge of i3-wallpaper is #0B1118 across the full screen. X11 has no
+ * compositor here, so an opaque matching fill gives the wallpaper appearance. */
+window { background-color: #0b1118; }
 button {
     background: transparent;
     border: 0;
@@ -28,6 +30,11 @@ button {
 button.active {
     border-top: 2px solid #ffd400;
     color: #e8edf1;
+    padding-top: 0;
+}
+button.urgent {
+    border-top: 2px solid #ff6b45;
+    color: #ff6b45;
     padding-top: 0;
 }
 button:hover { background: #3a4a59; }
@@ -67,7 +74,7 @@ class WorkspaceButtons(Gtk.Window):
         while True:
             try:
                 with subprocess.Popen(
-                    ["i3-msg", "-t", "subscribe", "-m", '["workspace"]'],
+                    ["i3-msg", "-t", "subscribe", "-m", '["workspace", "window"]'],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.DEVNULL,
                     text=True,
@@ -77,8 +84,10 @@ class WorkspaceButtons(Gtk.Window):
                     for line in subscription.stdout:
                         try:
                             event = json.loads(line)
-                            if isinstance(event, dict) and event.get("change") == "focus":
-                                GLib.idle_add(self.set_workspace, event["current"]["num"])
+                            if isinstance(event, dict) and event.get("change") in (
+                                "focus", "urgent", "move", "new", "close"
+                            ):
+                                GLib.idle_add(self.refresh)
                         except (TypeError, KeyError, ValueError):
                             GLib.idle_add(self.refresh)
             except OSError:
@@ -101,23 +110,29 @@ class WorkspaceButtons(Gtk.Window):
                 text=True,
                 check=True,
             )
+            workspaces = json.loads(result.stdout)
             focused = next(
-                (workspace["num"] for workspace in json.loads(result.stdout)
-                 if workspace["focused"]),
+                (workspace["num"] for workspace in workspaces if workspace["focused"]),
                 None,
             )
+            urgent = {workspace["num"] for workspace in workspaces if workspace["urgent"]}
         except (OSError, subprocess.CalledProcessError, ValueError):
             focused = None
+            urgent = set()
 
-        self.set_workspace(focused)
+        self.set_workspace(focused, urgent)
 
-    def set_workspace(self, focused):
+    def set_workspace(self, focused, urgent):
         for number, button in self.buttons.items():
             context = button.get_style_context()
             if number == focused:
                 context.add_class("active")
             else:
                 context.remove_class("active")
+            if number in urgent and number != focused:
+                context.add_class("urgent")
+            else:
+                context.remove_class("urgent")
 
         if focused is None or focused == 0:
             self.hide()

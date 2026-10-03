@@ -28,6 +28,30 @@ PanelWindow {
     // is the only way to know what the bar's exclusive zone left over; the
     // input mask then keeps the unused strip click-through.
     property int contentHeight: -1
+    property int panelWidth: 380
+    property int panelHeight: 0
+    readonly property int topReserved: 0
+
+    implicitWidth: panelWidth
+    implicitHeight: panelHeight
+
+    property bool panelTop: false
+    property bool panelRight: false
+    property bool panelBottom: false
+    property bool panelLeft: false
+    property int panelTopMargin: 0
+    property int panelRightMargin: 0
+    property int panelBottomMargin: 0
+    property int panelLeftMargin: 0
+
+    anchors.top: panelTop
+    anchors.right: panelRight
+    anchors.bottom: panelBottom
+    anchors.left: panelLeft
+    margins.top: panelTopMargin
+    margins.right: panelRightMargin
+    margins.bottom: panelBottomMargin
+    margins.left: panelLeftMargin
 
     visible: shown
     screen: resolvedScreen

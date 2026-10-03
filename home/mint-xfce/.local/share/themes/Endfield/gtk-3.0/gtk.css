@@ -1,0 +1,320 @@
+/* GTK 3 preview for Mint/Thunar. Keep Adwaita's widget details and replace
+ * its visible surfaces with the shared Endfield palette. */
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
+
+@define-color bg-deep #0B1118;
+@define-color bg-panel #111A23;
+@define-color bg-raised #1B2733;
+@define-color line #3A4A59;
+@define-color text-primary #E8EDF1;
+@define-color text-secondary #AAB7C2;
+@define-color text-muted #8A99A6;
+@define-color accent #FFD400;
+@define-color accent-soft #FFE14D;
+@define-color info #4B9BFF;
+@define-color success #8BD32E;
+@define-color danger #FF6B45;
+@define-color on-accent #0B1118;
+
+/* A fine orthogonal grid belongs on large grounds. Keep the contrast low so
+ * names and thumbnails remain easier to read than the material behind them. */
+window,
+window:backdrop,
+dialog,
+dialog:backdrop,
+.background,
+.background:backdrop,
+.view,
+.view:backdrop,
+iconview.view,
+iconview.view:backdrop,
+treeview.view,
+treeview.view:backdrop,
+scrolledwindow > viewport,
+scrolledwindow > viewport:backdrop {
+    background-color: @bg-panel;
+    background-image:
+        repeating-linear-gradient(0deg,
+            rgba(232, 237, 241, 0.010) 0px,
+            rgba(232, 237, 241, 0.010) 1px,
+            transparent 1px, transparent 4.5px),
+        repeating-linear-gradient(90deg,
+            rgba(232, 237, 241, 0.010) 0px,
+            rgba(232, 237, 241, 0.010) 1px,
+            transparent 1px, transparent 4.5px);
+    color: @text-primary;
+}
+
+headerbar,
+headerbar:backdrop,
+.titlebar,
+.titlebar:backdrop,
+menubar,
+menubar:backdrop,
+toolbar,
+toolbar:backdrop,
+.toolbar,
+.toolbar:backdrop,
+statusbar,
+statusbar:backdrop,
+notebook > header {
+    background-color: @bg-panel;
+    background-image: none;
+    color: @text-secondary;
+    border-color: @line;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.sidebar,
+.sidebar:backdrop,
+placessidebar,
+placessidebar:backdrop,
+.sidebar list,
+.sidebar list:backdrop,
+stacksidebar list,
+stacksidebar list:backdrop {
+    background-color: @bg-panel;
+    color: @text-secondary;
+    border-color: @line;
+}
+
+/* i3 already marks focus at the window border. Keep the interior identical
+ * when GTK marks a window as backdrop. */
+.thunar .sidebar .view:backdrop,
+.thunar .standard-view .view:backdrop {
+    background-color: @bg-panel;
+    color: @text-primary;
+}
+
+/* Keep all GTK 3 pane handles visible and easy to grab. */
+paned > separator {
+    background-color: @text-muted;
+    background-image: none;
+    border: none;
+}
+
+/* An 8px hit area carries a lighter 2px gray line. */
+paned.horizontal > separator {
+    min-width: 6px;
+    margin: 0;
+    padding: 0;
+    background-color: @text-muted;
+    background-image: none;
+}
+
+paned.horizontal > separator:hover {
+    background-color: @accent;
+}
+
+paned.vertical > separator {
+    min-height: 6px;
+    margin: 0;
+    padding: 0;
+    background-color: @text-muted;
+    background-image: none;
+}
+
+paned.vertical > separator:hover {
+    background-color: @accent;
+}
+
+/* Menus and floating plates carry the diagonal hatch, not the file canvas. */
+menu,
+.menu,
+.context-menu,
+popover.background > contents,
+tooltip,
+tooltip.background {
+    background-color: @bg-raised;
+    background-image: repeating-linear-gradient(135deg,
+        rgba(232, 237, 241, 0.13) 0px,
+        rgba(232, 237, 241, 0.13) 1px,
+        transparent 1px, transparent 3.2px);
+    color: @text-primary;
+    border: 1px solid @line;
+    border-radius: 0;
+}
+
+popover.background {
+    background-color: transparent;
+    background-image: none;
+}
+
+menuitem:hover,
+popover.background row:hover,
+popover.background modelbutton:hover {
+    background-color: @line;
+    background-image: none;
+    color: @text-primary;
+}
+
+entry,
+spinbutton:not(.vertical) {
+    background-color: @bg-deep;
+    background-image: none;
+    color: @text-primary;
+    border-color: @line;
+    border-radius: 0;
+    box-shadow: none;
+    caret-color: @accent;
+}
+
+entry:focus {
+    box-shadow: inset 0 0 0 2px @accent;
+}
+
+button,
+button.flat,
+button.toggle {
+    background-image: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+button:hover,
+row:hover {
+    background-color: @bg-raised;
+    color: @text-primary;
+    box-shadow: inset 0 -2px 0 @text-muted;
+}
+
+button:active {
+    background-color: @bg-raised;
+    box-shadow: inset 4px 0 0 @accent;
+}
+
+button:checked,
+check:checked,
+radio:checked,
+switch:checked,
+progressbar progress,
+levelbar block.filled,
+scale highlight {
+    background-color: @accent;
+    background-image: none;
+    color: @on-accent;
+    border-color: @accent;
+}
+
+selection,
+entry selection,
+textview text selection {
+    background-color: @accent;
+    background-image: none;
+    color: @on-accent;
+}
+
+/* The active file and shortcut use the same accent banner as the shell.
+ * A dark hatch crosses the fill; translucent diagonal bands soften its right
+ * edge. The tail occupies one fifth of the selected cell's width. */
+iconview.view:selected,
+iconview.view:selected:focus,
+iconview.view:selected:backdrop,
+treeview.view:selected,
+treeview.view:selected:focus,
+treeview.view:selected:backdrop,
+row:selected,
+row:selected:hover,
+row:selected:backdrop {
+    background-color: @accent;
+    background-image:
+        repeating-linear-gradient(135deg,
+            rgba(11, 17, 24, 0.16) 0px,
+            rgba(11, 17, 24, 0.16) 1px,
+            transparent 1px, transparent 3.2px),
+        linear-gradient(110deg,
+            transparent 0%, transparent 34%,
+            rgba(17, 26, 35, 0.38) 34%,
+            rgba(17, 26, 35, 0.38) 67%,
+            rgba(17, 26, 35, 0.54) 67%);
+    background-size: auto, 20% 100%;
+    background-position: 0 0, right top;
+    background-repeat: repeat, no-repeat;
+    color: @on-accent;
+    border-radius: 0;
+    box-shadow: inset 0 0 0 2px @on-accent;
+}
+
+/* Thunar's file pane uses ExoIconView, whose cells are styled through .view
+ * rather than GTK's iconview node. Preserve the yellow folder glyphs by
+ * selecting files with a raised dark plate, yellow label and yellow border. */
+.thunar .standard-view .view:selected,
+.thunar .standard-view .view:selected:focus,
+.thunar .standard-view .view:selected:backdrop,
+widget.view:selected,
+widget.view:selected:focus,
+widget.view:selected:backdrop,
+widget.view.cell:selected,
+widget.view.cell:selected:focus,
+widget.view.cell:selected:backdrop,
+widget.view.cell:selected:hover {
+    background-color: @bg-raised;
+    background-image:
+        linear-gradient(@accent, @accent),
+        linear-gradient(@accent, @accent),
+        linear-gradient(@accent, @accent),
+        linear-gradient(@accent, @accent);
+    background-size: 2px 100%, 2px 100%, 100% 2px, 100% 2px;
+    background-position: left top, right top, left top, left bottom;
+    background-repeat: no-repeat;
+    color: @accent-soft;
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 0 0 2px @accent;
+    outline: none;
+}
+
+/* The shortcuts pane also marks the current location as :active when the
+ * file pane has keyboard focus. Keep its yellow banner in either state. */
+.thunar .sidebar .view:selected,
+.thunar .sidebar .view:selected:backdrop,
+.thunar .sidebar .view:active,
+.thunar .sidebar .view:active:backdrop {
+    background-color: @accent;
+    background-image:
+        repeating-linear-gradient(135deg,
+            rgba(11, 17, 24, 0.16) 0px,
+            rgba(11, 17, 24, 0.16) 1px,
+            transparent 1px, transparent 3.2px),
+        linear-gradient(110deg,
+            transparent 0%, transparent 34%,
+            rgba(17, 26, 35, 0.38) 34%,
+            rgba(17, 26, 35, 0.38) 67%,
+            rgba(17, 26, 35, 0.54) 67%);
+    background-size: auto, 20% 100%;
+    background-position: 0 0, right top;
+    background-repeat: repeat, no-repeat;
+    color: @on-accent;
+    border-radius: 0;
+    box-shadow: inset 0 0 0 2px @on-accent;
+}
+
+iconview.view:hover:not(:selected),
+treeview.view:hover:not(:selected) {
+    background-color: @bg-raised;
+    background-image: none;
+    color: @text-primary;
+    box-shadow: inset 0 -2px 0 @text-muted;
+}
+
+scrollbar slider {
+    background-color: @line;
+    border-radius: 0;
+}
+
+scrollbar slider:hover {
+    background-color: @text-muted;
+}
+
+scrollbar slider:active {
+    background-color: @accent;
+}
+
+*:link {
+    color: @info;
+}
+
+*:focus-visible {
+    outline-color: @accent;
+}

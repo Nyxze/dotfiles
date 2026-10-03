@@ -61,14 +61,14 @@ Panel {
             .includes(query);
     })
 
-    anchors.top: true
-    margins.top: Math.max(0, (shortcutHelp.screen ? shortcutHelp.screen.height - shortcutHelp.contentHeight : 0) / 2)
+    panelTop: true
+    panelTopMargin: Math.max(0, (shortcutHelp.screen ? shortcutHelp.screen.height - shortcutHelp.contentHeight : 0) / 2)
 
     surfaceName: "endfield-shortcut-help"
-    implicitWidth: Theme.space(180)
-    implicitHeight: Theme.space(104)
+    panelWidth: Theme.space(180)
+    panelHeight: Theme.space(104)
     contentHeight: Theme.space(104)
-    exclusionMode: ExclusionMode.Ignore
+    exclusionMode: typeof ExclusionMode !== "undefined" ? ExclusionMode.Ignore : 0
     focusTarget: keyCatcher
 
     function dismiss() {

@@ -229,25 +229,22 @@ Panel {
             scroller.contentY = bottom - scroller.height;
     }
 
-    anchors {
-        top: true
-        right: true
-        bottom: true
-    }
+    panelTop: true
+    panelRight: true
+    panelBottom: true
 
-    margins {
-        top: 10
-        right: 10
-        bottom: 10
-    }
+    panelTopMargin: 10 + topReserved
+    panelRightMargin: 10
+    panelBottomMargin: 10
 
     surfaceName: "endfield-sidebar"
-    implicitWidth: 380
+    panelWidth: 380
     focusTarget: keyCatcher
 
     // Grow with the content instead of always spanning the screen: an empty
     // notification feed left most of a full-height panel as dead space.
     contentHeight: stack.implicitHeight + 2 * Theme.padding
+
 
     onShownChanged: {
         if (shown)

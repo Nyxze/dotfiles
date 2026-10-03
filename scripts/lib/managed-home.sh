@@ -16,6 +16,7 @@ component_for() {
             ;;
         .local/scripts/*) printf '%s\n' scripts ;;
         .local/share/icons/endfield/*) printf '%s\n' icons ;;
+        .local/share/themes/*) printf '%s\n' themes ;;
         .local/share/applications/*) printf '%s\n' applications ;;
         .*)
             name=${path##*/}

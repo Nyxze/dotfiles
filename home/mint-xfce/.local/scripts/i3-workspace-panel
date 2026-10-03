@@ -72,10 +72,102 @@ def workspace_zero_visible():
 
 
 def xfconf(path, value):
+    value_type = ("bool" if isinstance(value, bool) else
+                  "uint" if isinstance(value, int) else "string")
     subprocess.run(["xfconf-query", "-c", "xfce4-panel", "-p", path,
-                    "-n", "-t", "bool" if isinstance(value, bool) else "string",
-                    "-s", str(value).lower() if isinstance(value, bool) else value],
+                    "-n", "-t", value_type,
+                    "-s", str(value).lower() if isinstance(value, bool) else str(value)],
                    check=True)
+
+
+def xfconf_read(path):
+    result = subprocess.run(["xfconf-query", "-c", "xfce4-panel", "-p", path],
+                            capture_output=True, text=True, check=False)
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+class PanelBackground:
+    """Match the wallpaper on i3 workspaces, restore the native Mint panel."""
+
+    STYLE = "/panels/panel-1/background-style"
+    RGBA = "/panels/panel-1/background-rgba"
+    WALLPAPER_RGBA = (11 / 255, 17 / 255, 24 / 255, 1)
+
+    def __init__(self):
+        self.state_path = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"),
+                                       "i3-workspace-panel-background.json")
+        recovered = os.path.exists(self.state_path)
+        if recovered:
+            with open(self.state_path, encoding="utf-8") as saved:
+                original = json.load(saved)
+            self.original_style = original["style"]
+            self.original_rgba = original["rgba"]
+        else:
+            original_style = xfconf_read(self.STYLE)
+            self.original_style = int(original_style) if original_style is not None else None
+            self.original_rgba = self.parse_rgba(xfconf_read(self.RGBA))
+            pending = self.state_path + ".tmp"
+            with open(pending, "w", encoding="utf-8") as saved:
+                json.dump({"style": self.original_style, "rgba": self.original_rgba}, saved)
+            os.replace(pending, self.state_path)
+        current_rgba = self.parse_rgba(xfconf_read(self.RGBA))
+        self.active = (recovered and xfconf_read(self.STYLE) == "1"
+                       and current_rgba is not None
+                       and all(abs(a - b) < 0.0001 for a, b in
+                               zip(current_rgba, self.WALLPAPER_RGBA)))
+
+    @staticmethod
+    def parse_rgba(value):
+        if value is None:
+            return None
+        numbers = []
+        for line in value.splitlines():
+            try:
+                numbers.append(float(line))
+            except ValueError:
+                continue
+        return numbers if len(numbers) == 4 else None
+
+    @classmethod
+    def set_rgba(cls, values):
+        if values is None:
+            subprocess.run(["xfconf-query", "-c", "xfce4-panel", "-p", cls.RGBA,
+                            "-r"], check=False, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL)
+            return
+        args = ["xfconf-query", "-c", "xfce4-panel", "-p", cls.RGBA, "-n", "-a"]
+        for value in values:
+            args.extend(["-t", "double", "-s", str(value)])
+        subprocess.run(args, check=True)
+
+    def update(self, native):
+        if self.active == (not native):
+            return
+        if native:
+            self.restore()
+        else:
+            self.set_rgba(self.WALLPAPER_RGBA)
+            xfconf(self.STYLE, 1)
+            self.active = True
+
+    def restore(self):
+        if not self.active:
+            return
+        if self.original_style is not None:
+            xfconf(self.STYLE, self.original_style)
+        else:
+            subprocess.run(["xfconf-query", "-c", "xfce4-panel", "-p", self.STYLE,
+                            "-r"], check=False, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.DEVNULL)
+        self.set_rgba(self.original_rgba)
+        self.active = False
+
+    def close(self):
+        self.restore()
+        try:
+            os.unlink(self.state_path)
+        except FileNotFoundError:
+            pass
 
 
 def configured_mint_panel():
@@ -117,6 +209,14 @@ def main():
         x11.XOpenDisplay.restype = ctypes.c_void_p
         x11.XSync.argtypes = [ctypes.c_void_p, ctypes.c_int]
         x11.XCloseDisplay.argtypes = [ctypes.c_void_p]
+        x11.XQueryTree.argtypes = [
+            ctypes.c_void_p, ctypes.c_ulong, ctypes.POINTER(ctypes.c_ulong),
+            ctypes.POINTER(ctypes.c_ulong), ctypes.POINTER(ctypes.POINTER(ctypes.c_ulong)),
+            ctypes.POINTER(ctypes.c_uint),
+        ]
+        x11.XFetchName.argtypes = [ctypes.c_void_p, ctypes.c_ulong,
+                                   ctypes.POINTER(ctypes.c_char_p)]
+        x11.XFree.argtypes = [ctypes.c_void_p]
         error_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)
         x11.XSetErrorHandler.argtypes = [error_type]
         error_handler = error_type(lambda _display, _error: 0)
@@ -137,8 +237,31 @@ def main():
                 xext.XShapeCombineRectangles(display, window, kind, 0, 0,
                                               ctypes.byref(rect), 1, 0, 0)
 
+        def i3_container(window):
+            """The full-width i3 frame also needs clipping or it paints black."""
+            root = ctypes.c_ulong()
+            parent = ctypes.c_ulong()
+            children = ctypes.POINTER(ctypes.c_ulong)()
+            count = ctypes.c_uint()
+            if not x11.XQueryTree(display, window, ctypes.byref(root),
+                                  ctypes.byref(parent), ctypes.byref(children),
+                                  ctypes.byref(count)):
+                return None
+            if children:
+                x11.XFree(children)
+            name = ctypes.c_char_p()
+            if not x11.XFetchName(display, parent.value, ctypes.byref(name)):
+                return None
+            try:
+                return parent.value if name.value and name.value.startswith(b"[i3 con]") else None
+            finally:
+                x11.XFree(name)
+
         subscription = None
         plugin = None
+        container = None
+        container_size = None
+        background = PanelBackground()
         signal.signal(signal.SIGTERM, lambda _signum, _frame: sys.exit(0))
         try:
             xfconf("/panels/panel-1/position", "p=6;x=0;y=0")
@@ -152,14 +275,25 @@ def main():
                 current = panel_window()
                 if current:
                     window, width, height = current
+                    parent = i3_container(window)
+                    if container is not None and container != parent:
+                        shape(container, 0, *container_size)
+                    container = parent
+                    container_size = (width, height)
                     left = tray_start(window, plugin)
                     if left is None:
                         plugin = tray_plugin_window()
                         left = tray_start(window, plugin)
-                    if workspace_zero_visible():
+                    native = workspace_zero_visible()
+                    background.update(native)
+                    if native:
                         shape(window, 0, width, height)
+                        if container is not None:
+                            shape(container, 0, width, height)
                     elif left is not None and 0 < left < width:
                         shape(window, left, width - left, height)
+                        if container is not None:
+                            shape(container, left, width - left, height)
                     x11.XSync(display, 0)
                 elif subprocess.run(["pgrep", "-x", "xfce4-panel"],
                                     stdout=subprocess.DEVNULL).returncode:
@@ -174,7 +308,10 @@ def main():
             if current:
                 window, width, height = current
                 shape(window, 0, width, height)
-                x11.XSync(display, 0)
+            if container is not None:
+                shape(container, 0, *container_size)
+            background.close()
+            x11.XSync(display, 0)
             xfconf("/panels/panel-1/position", "p=10;x=0;y=0")
             x11.XCloseDisplay(display)
             if subscription is not None and subscription.poll() is None:

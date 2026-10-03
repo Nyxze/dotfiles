@@ -68,9 +68,15 @@ Panel {
 
     function dismiss() { closePanel(); }
 
-    anchors { top: true; left: true; right: true; bottom: true }
-    margins { top: Theme.space(10); left: Theme.space(10); right: Theme.space(10); bottom: Theme.space(10) }
-    contentHeight: Math.min(overview.height, Theme.space(72))
+    panelTop: true
+    panelLeft: true
+    panelRight: true
+    panelBottom: true
+    panelTopMargin: Theme.space(10)
+    panelLeftMargin: Theme.space(10)
+    panelRightMargin: Theme.space(10)
+    panelBottomMargin: Theme.space(10)
+    contentHeight: Theme.space(72)
 
     Process {
         id: treeQuery

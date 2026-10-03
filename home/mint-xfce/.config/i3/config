@@ -14,6 +14,7 @@ font pango:JetBrainsMono Nerd Font 10
 default_border pixel 2
 default_floating_border pixel 2
 for_window [window_type="normal"] border pixel 2
+for_window [title="^endfield-"] floating enable, border none
 exec_always --no-startup-id i3-msg '[window_type="normal"] border pixel 2'
 gaps inner 2
 gaps outer 4
