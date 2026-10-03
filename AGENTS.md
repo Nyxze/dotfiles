@@ -6,8 +6,10 @@ base. User files are copied into real directories rather than symlinked.
 ## Layers and deployment
 
 `home/common/` contains configuration shared by both systems.
-`home/arch-hyprland/` contains Hyprland, Waybar, nwg, GTK/Qt, and Wayland-only
-Endfield files. `home/mint-xfce/` contains i3, Thunar actions, and X11/i3
+`home/arch-hyprland/` contains Hyprland, Waybar, nwg, GTK3/Qt desktop overrides,
+and Wayland-only Endfield files. Shared GTK4 application styling lives in
+`home/common/` so applications such as Nautilus render consistently on both
+profiles. `home/mint-xfce/` contains i3, Thunar fallback actions, and X11/i3
 Endfield backends. A profile overlays common files at the same relative path.
 
 ```bash
@@ -37,7 +39,8 @@ runs `scripts/install-system.sh`. Mint provisioning is in `platform/mint/`,
 uses APT, and leaves Mint's display manager and theme untouched.
 
 Mint keeps Xfce as the fallback desktop. Do not deploy Xfce-wide settings,
-panels, applet overrides, GTK/Qt overrides, or notification ownership there.
+panels, applet overrides, GTK3/Qt desktop overrides, or notification ownership
+there. GTK4 application styling may be shared when it is desktop-independent.
 i3 supplies window-management bindings; Xfce retains its panel, tray,
 NetworkManager applet, Blueman, audio controls, update tools, and settings.
 
