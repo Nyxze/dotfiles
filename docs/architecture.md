@@ -46,10 +46,17 @@ detected platform installer. Arch continues to install its complete Hyprland
 desktop and publishes the SDDM theme. Mint installs its terminal and Xfce/i3
 dependencies with APT and does not run `scripts/install-system.sh`.
 
-The Mint installer builds Quickshell for the user from the tagged v0.1.0 source
-when it is absent. It requires Qt 6.6 or newer and reports an actionable error
-when the enabled Mint repositories are older. The source build disables Wayland
-and Hyprland support while retaining X11 and i3 IPC support.
+The Mint installer keeps the distribution Qt stack untouched. Quickshell 0.3.1
+is provided through a small Nix flake so its newer Qt runtime stays isolated
+from APT. The same provisioning pass also installs the required workstation
+applications that are not in Mint's default repositories: VS Code and Brave
+through their vendor APT repositories, Postman from its vendor Linux bundle,
+and ChatGPT from OpenAI's Debian package.
+
+Mint also makes Zsh the login shell and installs the user-local Oh My Zsh tree
+expected by the shared prompt. This is what makes the common Ghostty/Zsh/Tmux
+configuration behave the same way as it does on Arch, including the Ctrl-F
+tmux session launcher.
 
 ## Desktop boundaries
 
