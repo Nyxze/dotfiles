@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 DESKTOP_APT_PACKAGES=(
+    alacritty
     blueman
     bluez
     brightnessctl
@@ -9,9 +10,12 @@ DESKTOP_APT_PACKAGES=(
     i3status
     imagemagick
     gir1.2-gtk-3.0
+    libglib2.0-bin
     libnotify-bin
     network-manager
     network-manager-gnome
+    nautilus
+    papirus-icon-theme
     pavucontrol
     pipewire-audio
     playerctl
@@ -20,6 +24,7 @@ DESKTOP_APT_PACKAGES=(
     thunar
     thunar-archive-plugin
     wireplumber
+    xdg-utils
     xfce4-notifyd
     xfce4-panel
     xfce4-power-manager
