@@ -15,7 +15,14 @@ local muted="%F{#8A99A6}"
 local off="%f"
 
 # The accent tick that marks a heading everywhere else on this desktop.
-PROMPT="${accent}▎${off} ${secondary}%2~${off}"'$(git_prompt_info)'"
+# Local shells stay minimal; SSH shells include user@host so the remote context
+# is always visible without making the normal prompt noisier.
+local remote=""
+if [[ -n "${SSH_CONNECTION:-}" ]]; then
+    remote="${muted}%n@%m${off} "
+fi
+
+PROMPT="${accent}▎${off} ${remote}${secondary}%2~${off}"'$(git_prompt_info)'"
 %(?.${accent}.${danger})❯${off} "
 
 # A failing command leaves its code at the right edge, where every other
