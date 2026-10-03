@@ -44,8 +44,8 @@ exec --no-startup-id ~/.local/scripts/i3-workspace-buttons
 
 exec --no-startup-id sh -c 'export I3SOCK="$(i3 --get-socketpath)"; exec "$HOME/.nix-profile/bin/qs" -c endfield'
 
-bindsym $mod+Return exec ghostty
-bindsym $mod+e exec thunar
+bindsym $mod+Return exec alacritty
+bindsym $mod+e exec nautilus
 bindsym $mod+f exec rofi -show drun
 bindsym $mod+F1 exec ~/.nix-profile/bin/qs -c endfield ipc call shortcuts toggle
 bindsym $mod+b exec brave-browser

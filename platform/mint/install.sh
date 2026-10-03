@@ -6,7 +6,7 @@ source "$platform_dir/packages/terminal.sh"
 source "$platform_dir/packages/desktop.sh"
 export PATH="$HOME/.local/bin:$PATH"
 progress_step=0
-progress_total=7
+progress_total=8
 
 if [ ! -r /etc/os-release ]; then
     echo "This installer supports Linux Mint only." >&2
@@ -74,6 +74,54 @@ install_shell_environment
 
 show_progress "Installing workstation applications"
 bash "$platform_dir/install-applications.sh"
+
+set_xfce_helper() {
+    local key="$1" value="$2"
+    local config_dir="$HOME/.config/xfce4"
+    local config_file="$config_dir/helpers.rc"
+    local temporary
+
+    mkdir -p "$config_dir"
+    temporary=$(mktemp)
+
+    if [ -r "$config_file" ]; then
+        awk -v key="$key" -v value="$value" '
+            BEGIN { updated = 0 }
+            $0 ~ ("^" key "=") {
+                print key "=" value
+                updated = 1
+                next
+            }
+            { print }
+            END {
+                if (!updated)
+                    print key "=" value
+            }
+        ' "$config_file" >"$temporary"
+    else
+        printf '%s=%s\n' "$key" "$value" >"$temporary"
+    fi
+
+    mv "$temporary" "$config_file"
+}
+
+configure_desktop_defaults() {
+    set_xfce_helper WebBrowser brave
+    set_xfce_helper FileManager nautilus
+    set_xfce_helper TerminalEmulator alacritty
+
+    xdg-mime default brave-browser.desktop x-scheme-handler/http
+    xdg-mime default brave-browser.desktop x-scheme-handler/https
+    xdg-mime default brave-browser.desktop text/html
+    xdg-mime default org.gnome.Nautilus.desktop inode/directory
+
+    gsettings set org.gnome.desktop.interface gtk-theme Adwaita
+    gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+    gsettings set org.gnome.desktop.interface icon-theme endfield
+}
+
+show_progress "Configuring desktop defaults"
+configure_desktop_defaults
 
 install_nix() {
     local nix_profile=/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
