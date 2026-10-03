@@ -10,7 +10,7 @@ ColumnLayout {
     readonly property var actions: [
         { glyph: "󰌾", label: "Lock", command: ["xflock4"] },
         { glyph: "󰒲", label: "Suspend", command: ["systemctl", "suspend"] },
-        { glyph: "󰗽", label: "Log out", command: ["xfce4-session-logout"] },
+        { glyph: "󰗽", label: "Log out", command: ["i3-msg", "exit"] },
         { glyph: "󰜉", label: "Restart", command: ["systemctl", "reboot"] },
         { glyph: "󰐥", label: "Shut down", command: ["systemctl", "poweroff"] }
     ]
