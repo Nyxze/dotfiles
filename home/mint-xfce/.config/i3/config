@@ -26,7 +26,7 @@ bindsym $mod+Return exec ghostty
 bindsym $mod+e exec thunar
 bindsym $mod+f exec rofi -show drun
 bindsym $mod+F1 exec ~/.nix-profile/bin/qs -c endfield ipc call shortcuts toggle
-bindsym $mod+b exec brave
+bindsym $mod+b exec brave-browser
 bindsym $mod+n exec code
 bindsym $mod+Shift+l exec xflock4
 bindsym Ctrl+Mod1+Delete exec xfce4-session-logout
