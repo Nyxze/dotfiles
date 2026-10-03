@@ -160,6 +160,37 @@ install_chatgpt() {
     rm -rf "$temporary"
 }
 
+install_nerd_fonts() {
+    local version='3.5.1'
+    local font_root="$HOME/.local/share/fonts/NerdFonts"
+    local temporary changed=0 family archive target
+
+    mkdir -p "$font_root"
+    temporary=$(mktemp -d)
+
+    for family in JetBrainsMono Noto; do
+        target="$font_root/$family"
+        if [ -r "$target/.version" ] && [ "$(cat "$target/.version")" = "$version" ]; then
+            continue
+        fi
+
+        archive="$temporary/$family.tar.xz"
+        curl --proto '=https' --tlsv1.2 -fL             "https://github.com/ryanoasis/nerd-fonts/releases/download/v$version/$family.tar.xz"             -o "$archive"
+
+        rm -rf "$target"
+        mkdir -p "$target"
+        tar -xJf "$archive" -C "$target"
+        printf '%s\n' "$version" >"$target/.version"
+        changed=1
+    done
+
+    rm -rf "$temporary"
+    if [ "$changed" -eq 1 ]; then
+        fc-cache -f "$font_root"
+    fi
+}
+
 install_vendor_apt_applications
 install_postman
 install_chatgpt
+install_nerd_fonts
