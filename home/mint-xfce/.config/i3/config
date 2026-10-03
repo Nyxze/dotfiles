@@ -26,34 +26,11 @@ tiling_drag modifier
 focus_follows_mouse no
 workspace_auto_back_and_forth yes
 
-bar {
-    position top
-    workspace_buttons yes
-    font pango:JetBrainsMono Nerd Font 10
-
-    colors {
-        background #0B1118
-        statusline #AAB7C2
-        separator  #3A4A59
-
-        focused_workspace  #FFD400 #FFD400 #0B1118
-        active_workspace   #3A4A59 #111A23 #E8EDF1
-        inactive_workspace #1B2733 #111A23 #AAB7C2
-        urgent_workspace   #FF6B45 #FF6B45 #0B1118
-        binding_mode       #FFD400 #FFD400 #0B1118
-    }
-}
-
-# Restore the Xfce services that are useful under i3 without starting Xfce's
-# desktop or panel. xfdesktop is intentionally kept out until the dedicated
-# workspace-1 desktop integration is implemented; otherwise i3 can manage it as
-# a normal container. i3bar owns the workspace indicator instead of xfce4-panel.
+# Xfce owns the desktop session: xfsettingsd, xfdesktop, xfce4-panel, applets,
+# notifications, power management, and session lifecycle. i3 only replaces
+# xfwm4 as the window manager.
 # Xfce assigns bare Super to its menu by default, preventing i3 shortcuts.
-exec --no-startup-id sh -c 'xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Super_L -r >/dev/null 2>&1 || true; exec xfsettingsd'
-exec --no-startup-id nm-applet
-exec --no-startup-id blueman-applet
-exec --no-startup-id xfce4-notifyd
-exec --no-startup-id xfce4-power-manager
+exec --no-startup-id xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Super_L -r
 
 exec --no-startup-id sh -c 'export I3SOCK="$(i3 --get-socketpath)"; exec "$HOME/.nix-profile/bin/qs" -c endfield'
 
@@ -64,7 +41,7 @@ bindsym $mod+F1 exec ~/.nix-profile/bin/qs -c endfield ipc call shortcuts toggle
 bindsym $mod+b exec brave-browser
 bindsym $mod+n exec code
 bindsym $mod+Shift+l exec xflock4
-bindsym Ctrl+Mod1+Delete exec i3-msg exit
+bindsym Ctrl+Mod1+Delete exec xfce4-session-logout
 
 bindsym $mod+h focus left
 bindsym $mod+j focus down
