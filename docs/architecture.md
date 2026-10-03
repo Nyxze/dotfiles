@@ -84,10 +84,11 @@ without replacing the rest of the desktop environment. i3 supplies tiling,
 workspaces, focus, resize, borders/gaps, and the shared window-management
 shortcut contract.
 
-The Xfce panel remains visible on every i3 workspace in this first hybrid
-version. Xfce does not expose a native per-workspace panel visibility setting;
-if workspace-1-only visibility is still desirable, implement it later as an i3
-IPC-driven integration rather than coupling it to this baseline migration.
+Workspace 0 (Super+0) presents the native Mint/Xfce panel content at the top:
+menu, launchers, window list, and tray. Workspaces 1–5 present a layout as close as
+possible to Arch/Hyprland: workspace controls and tray at the top, with no Mint
+panel at the bottom. The i3 workspace integration switches these views while
+preserving Xfce's panel and applets as the fallback if the integration stops.
 
 Endfield uses X11 panels and i3 IPC on Mint; its workspace overview shows
 workspace metadata rather than Wayland previews, and its display page opens the

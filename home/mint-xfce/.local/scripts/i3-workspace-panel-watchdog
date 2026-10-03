@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Keep the workspace-specific Xfce panel layout alive through transient i3/X11
+# disconnects. The panel script restores the native Mint layout on exit.
+set -u
+
+exec 9>"${XDG_RUNTIME_DIR:-/tmp}/i3-workspace-panel-watchdog.lock"
+flock -n 9 || exit 0
+
+panel_script="$HOME/.local/scripts/i3-workspace-panel"
+child=
+cleanup() {
+    if [ -n "$child" ]; then
+        kill "$child" 2>/dev/null || true
+        wait "$child" 2>/dev/null || true
+    fi
+}
+trap 'exit 0' TERM INT
+trap cleanup EXIT
+
+while i3-msg -t get_version >/dev/null 2>&1; do
+    "$panel_script" &
+    child=$!
+    wait "$child" || true
+    child=
+    i3-msg -t get_version >/dev/null 2>&1 || break
+    sleep 2
+done

@@ -7,12 +7,15 @@ DESKTOP_APT_PACKAGES=(
     file-roller
     i3-wm
     i3status
+    imagemagick
+    gir1.2-gtk-3.0
     libnotify-bin
     network-manager
     network-manager-gnome
     pavucontrol
     pipewire-audio
     playerctl
+    python3-gi
     rofi
     thunar
     thunar-archive-plugin

@@ -1,0 +1,130 @@
+#!/usr/bin/python3
+"""i3 workspace buttons shown alongside the Xfce top panel on workspaces 1–5."""
+
+import json
+import subprocess
+import threading
+import time
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gdk, GLib, Gtk
+
+
+STYLE = b"""
+window { background-color: #2e2e33; }
+button {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    color: #aab7c2;
+    font: 16px "JetBrainsMono Nerd Font";
+    min-height: 28px;
+    min-width: 36px;
+    padding: 2px 6px 0;
+}
+button.active {
+    border-top: 2px solid #ffd400;
+    color: #e8edf1;
+    padding-top: 0;
+}
+button:hover { background: #3a4a59; }
+"""
+
+
+class WorkspaceButtons(Gtk.Window):
+    def __init__(self):
+        super().__init__(type=Gtk.WindowType.POPUP)
+        self.set_decorated(False)
+        self.set_accept_focus(False)
+        self.set_skip_taskbar_hint(True)
+        self.set_skip_pager_hint(True)
+        self.set_type_hint(Gdk.WindowTypeHint.DOCK)
+        self.set_size_request(240, 32)
+
+        provider = Gtk.CssProvider()
+        provider.load_from_data(STYLE)
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        )
+
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self.add(row)
+        self.buttons = {}
+        for number in range(1, 6):
+            button = Gtk.Button(label=str(number))
+            button.set_relief(Gtk.ReliefStyle.NONE)
+            button.connect("clicked", self.switch, number)
+            row.pack_start(button, True, True, 0)
+            self.buttons[number] = button
+
+        self.refresh()
+        threading.Thread(target=self.listen, daemon=True).start()
+
+    def listen(self):
+        while True:
+            try:
+                with subprocess.Popen(
+                    ["i3-msg", "-t", "subscribe", "-m", '["workspace"]'],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    text=True,
+                    bufsize=1,
+                ) as subscription:
+                    GLib.idle_add(self.refresh)
+                    for line in subscription.stdout:
+                        try:
+                            event = json.loads(line)
+                            if isinstance(event, dict) and event.get("change") == "focus":
+                                GLib.idle_add(self.set_workspace, event["current"]["num"])
+                        except (TypeError, KeyError, ValueError):
+                            GLib.idle_add(self.refresh)
+            except OSError:
+                pass
+            time.sleep(1)
+
+    @staticmethod
+    def switch(_button, number):
+        subprocess.Popen(
+            ["i3-msg", f"workspace number {number}"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+    def refresh(self):
+        try:
+            result = subprocess.run(
+                ["i3-msg", "-t", "get_workspaces"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            focused = next(
+                (workspace["num"] for workspace in json.loads(result.stdout)
+                 if workspace["focused"]),
+                None,
+            )
+        except (OSError, subprocess.CalledProcessError, ValueError):
+            focused = None
+
+        self.set_workspace(focused)
+
+    def set_workspace(self, focused):
+        for number, button in self.buttons.items():
+            context = button.get_style_context()
+            if number == focused:
+                context.add_class("active")
+            else:
+                context.remove_class("active")
+
+        if focused is None or focused == 0:
+            self.hide()
+        elif not self.get_visible():
+            self.show_all()
+            self.move(0, 0)
+
+
+WorkspaceButtons()
+Gtk.main()

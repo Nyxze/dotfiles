@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+"""Show Mint's Xfce panel on workspace 0, only its native tray elsewhere."""
+
+import ctypes
+import fcntl
+import json
+import os
+import re
+import select
+import signal
+import subprocess
+import sys
+
+PANEL_LINE = re.compile(r'^\s*(0x[0-9a-fA-F]+) "xfce4-panel": .*? (\d+)x(\d+)\+')
+CHILD_LINE = re.compile(r'^     (0x[0-9a-fA-F]+) .*? (\d+)x(\d+)\+(-?\d+)\+(-?\d+)')
+MINT_PLUGINS = [1, 2, 14, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+
+
+class Rectangle(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_short), ("y", ctypes.c_short),
+                ("width", ctypes.c_ushort), ("height", ctypes.c_ushort)]
+
+
+def panel_window():
+    tree = subprocess.run(["xwininfo", "-root", "-tree"],
+                          capture_output=True, text=True, check=True).stdout
+    panels = []
+    for line in tree.splitlines():
+        match = PANEL_LINE.match(line)
+        if match and int(match[2]) >= 200 and 20 <= int(match[3]) <= 100:
+            panels.append((int(match[1], 16), int(match[2]), int(match[3])))
+    # Leave an unexpected custom panel layout alone.
+    return panels[0] if len(panels) == 1 else None
+
+
+def tray_plugin_window():
+    """Read the native systray plugin's XID from its Xfce wrapper process."""
+    result = subprocess.run(["pgrep", "-f", "xfce4/panel/wrapper-2.0"],
+                            capture_output=True, text=True, check=False)
+    for line in result.stdout.splitlines():
+        try:
+            with open(f"/proc/{int(line)}/cmdline", "rb") as process:
+                args = process.read().split(b"\0")
+            index = next(i for i, arg in enumerate(args)
+                         if arg.endswith(b"/libsystray.so"))
+            if args[index + 1] == b"8":
+                return int(args[index + 2])
+        except (OSError, ValueError, IndexError, StopIteration):
+            continue
+    return None
+
+
+def tray_start(panel, plugin):
+    if plugin is None:
+        return None
+    result = subprocess.run(["xwininfo", "-id", hex(panel), "-tree"],
+                            capture_output=True, text=True, check=True)
+    for line in result.stdout.splitlines():
+        match = CHILD_LINE.match(line)
+        if match and int(match[1], 16) == plugin:
+            width, height, x, y = map(int, match.groups()[1:])
+            if width > 1 and height > 1 and x >= 0 and y >= 0:
+                return x
+    return None
+
+
+def workspace_zero_visible():
+    result = subprocess.run(["i3-msg", "-t", "get_workspaces"],
+                            capture_output=True, text=True, check=True)
+    return any(ws["visible"] and ws["name"] == "0"
+               for ws in json.loads(result.stdout))
+
+
+def xfconf(path, value):
+    subprocess.run(["xfconf-query", "-c", "xfce4-panel", "-p", path,
+                    "-n", "-t", "bool" if isinstance(value, bool) else "string",
+                    "-s", str(value).lower() if isinstance(value, bool) else value],
+                   check=True)
+
+
+def configured_mint_panel():
+    def numbers(path):
+        result = subprocess.run(["xfconf-query", "-c", "xfce4-panel", "-p", path],
+                                capture_output=True, text=True, check=True)
+        return [int(line) for line in result.stdout.splitlines() if line.isdigit()]
+
+    try:
+        return (numbers("/panels") == [1]
+                and numbers("/panels/panel-1/plugin-ids") == MINT_PLUGINS
+                and subprocess.run(["xfconf-query", "-c", "xfce4-panel", "-p",
+                                    "/plugins/plugin-8"], capture_output=True,
+                                   text=True, check=True).stdout.strip() == "systray"
+                and subprocess.run(["xfconf-query", "-c", "xfce4-panel", "-p",
+                                    "/plugins/plugin-7/expand"], capture_output=True,
+                                   text=True, check=True).stdout.strip() == "true")
+    except (OSError, subprocess.CalledProcessError):
+        return False
+
+
+def main():
+    lock_path = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"),
+                             "i3-workspace-panel.lock")
+    with open(lock_path, "w", encoding="utf-8") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return 0
+
+        if not configured_mint_panel():
+            print("i3-workspace-panel: expected the single Mint panel layout",
+                  file=sys.stderr)
+            return 1
+
+        x11 = ctypes.CDLL("libX11.so.6")
+        xext = ctypes.CDLL("libXext.so.6")
+        x11.XOpenDisplay.argtypes = [ctypes.c_char_p]
+        x11.XOpenDisplay.restype = ctypes.c_void_p
+        x11.XSync.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        x11.XCloseDisplay.argtypes = [ctypes.c_void_p]
+        error_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)
+        x11.XSetErrorHandler.argtypes = [error_type]
+        error_handler = error_type(lambda _display, _error: 0)
+        x11.XSetErrorHandler(error_handler)
+        xext.XShapeCombineRectangles.argtypes = [
+            ctypes.c_void_p, ctypes.c_ulong, ctypes.c_int, ctypes.c_int,
+            ctypes.c_int, ctypes.POINTER(Rectangle), ctypes.c_int,
+            ctypes.c_int, ctypes.c_int,
+        ]
+        display = x11.XOpenDisplay(None)
+        if not display:
+            print("i3-workspace-panel: cannot open X display", file=sys.stderr)
+            return 1
+
+        def shape(window, x, width, height):
+            rect = Rectangle(x, 0, width, height)
+            for kind in (0, 2):  # visible pixels and clickable region
+                xext.XShapeCombineRectangles(display, window, kind, 0, 0,
+                                              ctypes.byref(rect), 1, 0, 0)
+
+        subscription = None
+        plugin = None
+        signal.signal(signal.SIGTERM, lambda _signum, _frame: sys.exit(0))
+        try:
+            xfconf("/panels/panel-1/position", "p=6;x=0;y=0")
+            xfconf("/panels/panel-1/enable-struts", True)
+            subscription = subprocess.Popen(
+                ["i3-msg", "-t", "subscribe", "-m", '["workspace", "output"]'],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                text=True, bufsize=1,
+            )
+            while subscription.poll() is None:
+                current = panel_window()
+                if current:
+                    window, width, height = current
+                    left = tray_start(window, plugin)
+                    if left is None:
+                        plugin = tray_plugin_window()
+                        left = tray_start(window, plugin)
+                    if workspace_zero_visible():
+                        shape(window, 0, width, height)
+                    elif left is not None and 0 < left < width:
+                        shape(window, left, width - left, height)
+                    x11.XSync(display, 0)
+                elif subprocess.run(["pgrep", "-x", "xfce4-panel"],
+                                    stdout=subprocess.DEVNULL).returncode:
+                    subprocess.Popen(["xfce4-panel", "--disable-wm-check"],
+                                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                     stderr=subprocess.DEVNULL, start_new_session=True)
+                ready, _, _ = select.select([subscription.stdout], [], [], 1)
+                if ready and not subscription.stdout.readline():
+                    break
+        finally:
+            current = panel_window()
+            if current:
+                window, width, height = current
+                shape(window, 0, width, height)
+                x11.XSync(display, 0)
+            xfconf("/panels/panel-1/position", "p=10;x=0;y=0")
+            x11.XCloseDisplay(display)
+            if subscription is not None and subscription.poll() is None:
+                subscription.terminate()
+        return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

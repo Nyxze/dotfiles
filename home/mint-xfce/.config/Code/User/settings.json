@@ -1,0 +1,312 @@
+{
+  "window.titleBarStyle": "native",
+  "window.menuStyle": "custom",
+  "editor.suggestSelection": "first",
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+  },
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "gopls": {
+    "ui.semanticTokens": true,
+  },
+  // Blue #569CD6
+  // 
+  "editor.semanticTokenColorCustomizations": {
+    "[Default Dark Modern]": {
+      "rules": {
+        // Interface coloring
+        "type.interface:go": {
+          "italic": true
+        },
+        "namespace": "#f19216",
+        "variable.signature": "#DCDCAA",
+        "variable.readonly.defaultLibrary":"#569CD6",
+        // "interface": "#b8d7a3"
+      }
+    }
+  },
+  // ======== VIM SETTINGS ==============
+  "vim.useSystemClipboard": true,
+  "vim.leader": "<Space>",
+  "vim.insertModeKeyBindings": [
+    {
+      "before": [
+        "j",
+        "j"
+      ],
+      "after": [
+        "<Esc>"
+      ]
+    }
+  ],
+  "vim.operatorPendingModeKeyBindingsNonRecursive": [
+    {
+      "before": [
+        "("
+      ],
+      "after": [
+        "i",
+        "("
+      ]
+    },
+    {
+      "before": [
+        ")"
+      ],
+      "after": [
+        "a",
+        "("
+      ]
+    },
+    {
+      "before": [
+        "{"
+      ],
+      "after": [
+        "i",
+        "{"
+      ]
+    },
+    {
+      "before": [
+        "}"
+      ],
+      "after": [
+        "a",
+        "{"
+      ]
+    }
+  ],
+  "vim.normalModeKeyBindingsNonRecursive": [
+    // NAV
+    // Switch buffer
+    {
+      "before": [
+        "<S-l>"
+      ],
+      "commands": [
+        ":bnext"
+      ]
+    },
+    {
+      "before": [
+        "<S-h>"
+      ],
+      "commands": [
+        ":bprevious"
+      ]
+    },
+    {
+      "before": [
+        "leader",
+        "a"
+      ],
+      "commands": [
+        "editor.action.quickFix"
+      ]
+    },
+    {
+      "before": [
+        "leader",
+        "d"
+      ],
+      "commands": [
+        "editor.action.revealDefinition"
+      ]
+    },
+    {
+      "before": [
+        "leader",
+        "r"
+      ],
+      "commands": [
+        "editor.action.rename"
+      ]
+    },
+    {
+      "before": [
+        "leader",
+        "f"
+      ],
+      "commands": [
+        "editor.action.formatDocument"
+      ]
+    },
+    // FILE TREE
+    {
+      "before": [
+        "leader",
+        "n",
+        "e"
+      ],
+      "commands": [
+        "workbench.explorer.fileView.focus"
+      ]
+    },
+    {
+      "before": [
+        "leader",
+        "p",
+      ],
+      "commands": [
+        "workbench.action.quickOpen"
+      ]
+    }
+  ],
+  "vim.visualModeKeyBindingsNonRecursive": [
+    {
+      "before": [
+        "leader",
+        "<"
+      ],
+      "commands": [
+        "editor.action.outdentLines"
+      ]
+    },
+    {
+      "before": [
+        "leader",
+        ">"
+      ],
+      "commands": [
+        "editor.action.indentLines"
+      ]
+    },
+    // ( quick select )
+    {
+      "before": [
+        "("
+      ],
+      "after": [
+        "i",
+        "("
+      ]
+    },
+    {
+      "before": [
+        ")"
+      ],
+      "after": [
+        "a",
+        "("
+      ]
+    },
+    // { quick select }
+    {
+      "before": [
+        "{"
+      ],
+      "after": [
+        "i",
+        "{"
+      ]
+    },
+    {
+      "before": [
+        "}"
+      ],
+      "after": [
+        "a",
+        "{"
+      ]
+    },
+    // [ quick select]
+    {
+      "before": [
+        "[",
+      ],
+      "after": [
+        "i",
+        "["
+      ]
+    },
+    {
+      "before": [
+        "]",
+      ],
+      "after": [
+        "a",
+        "["
+      ]
+    },
+    // " "quick select
+    {
+      "before": [
+        "\"",
+      ],
+      "after": [
+        "i",
+        "\""
+      ]
+    },
+    // Re-copy pasted 
+    {
+      "before": [
+        "p",
+      ],
+      "after": [
+        "p",
+        "g",
+        "v",
+        "y"
+      ]
+    },
+  ],
+  "vim.smartRelativeLine": true,
+  "vim.handleKeys": {
+    "<C-n>": false,
+    "<C-p>": false,
+    "<C-r>": false
+  },
+  "git.replaceTagsWhenPull": true,
+  "editor.minimap.enabled": false,
+  "editor.cursorSurroundingLinesStyle": "all",
+  "git.confirmSync": false,
+  "redhat.telemetry.enabled": true,
+  "explorer.confirmDelete": false,
+  "[dockercompose]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+  },
+  "rsp-ui.enableStartServerOnActivation": [
+    {
+      "id": "redhat.vscode-community-server-connector",
+      "name": "Community Server Connector",
+      "startOnActivation": true
+    }
+  ],
+  "workbench.activityBar.location": "top",
+  "workbench.secondarySideBar.defaultVisibility": "visible",
+  "chat.viewSessions.orientation": "stacked",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "explorer.confirmDragAndDrop": false,
+  "chat.mcp.gallery.enabled": true,
+  "jupyter.askForKernelRestart": false,
+  "explorer.confirmPasteNative": false,
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false
+  },
+  "security.workspace.trust.untrustedFiles": "open",
+  "editor.accessibilitySupport": "off"
+}

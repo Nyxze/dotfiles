@@ -41,6 +41,14 @@ panels, applet overrides, GTK/Qt overrides, or notification ownership there.
 i3 supplies window-management bindings; Xfce retains its panel, tray,
 NetworkManager applet, Blueman, audio controls, update tools, and settings.
 
+The Mint desktop has two workspace layouts. Workspace 0, reached with Super+0,
+keeps the native Mint/Xfce panel content (menu, launchers, window list, and
+tray); placing this panel at the top is acceptable. Workspaces 1–5 should
+match the Arch/Hyprland desktop as closely as X11/i3 allows: workspace
+controls at the top left, the tray at the top right, and no Mint panel or tray
+at the bottom. Switching workspaces must switch the whole layout reliably.
+Keep the native Xfce capabilities available when the i3 integration stops.
+
 ## Endfield
 
 Read `home/common/.config/quickshell/endfield/AGENTS.md` before changing common
