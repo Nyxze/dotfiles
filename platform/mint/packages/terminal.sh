@@ -10,7 +10,6 @@ TERMINAL_APT_PACKAGES=(
     golang-go
     jq
     lua-language-server
-    neovim
     nmap
     openssh-client
     python3
