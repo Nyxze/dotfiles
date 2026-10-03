@@ -112,7 +112,8 @@ fi
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-source ~/.zsh_profile
 if (( $+commands[mise] )); then
   eval "$(mise activate zsh)"
 fi
+
+source ~/.zsh_profile
