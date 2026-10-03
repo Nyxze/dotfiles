@@ -8,13 +8,19 @@ documentation_file() {
 }
 
 component_for() {
-    local path="$1"
+    local path="$1" rest name
     case "$path" in
-        .config/*) printf '%s\n' "${path#.config/}" | cut -d/ -f1 ;;
+        .config/*)
+            rest=${path#.config/}
+            printf '%s\n' "${rest%%/*}"
+            ;;
         .local/scripts/*) printf '%s\n' scripts ;;
         .local/share/icons/endfield/*) printf '%s\n' icons ;;
         .local/share/applications/*) printf '%s\n' applications ;;
-        .*) basename "$path" | sed 's/^\.//' ;;
+        .*)
+            name=${path##*/}
+            printf '%s\n' "${name#.}"
+            ;;
         *) printf '%s\n' "${path%%/*}" ;;
     esac
 }
@@ -83,6 +89,38 @@ file_hash() {
     sha256sum "$1" | awk '{print $1}'
 }
 
+preserve_modified_when_unmanaged() {
+    case "$1" in
+        .config/mise/config.toml) return 0 ;;
+    esac
+    return 1
+}
+
+hash_selected_sources() {
+    local sources_name="$1" hashes_name="$2"
+    local -n source_map="$sources_name" hashes="$hashes_name"
+    local -A relative_for_source=()
+    local -a paths=()
+    local relative source component record hash
+
+    for relative in "${!source_map[@]}"; do
+        component=$(component_for "$relative")
+        selected "$component" || continue
+        source=${source_map[$relative]}
+        paths+=("$source")
+        relative_for_source["$source"]="$relative"
+    done
+
+    [ "${#paths[@]}" -eq 0 ] && return 0
+
+    while IFS= read -r -d '' record; do
+        hash=${record%% *}
+        source=${record#*  }
+        relative=${relative_for_source[$source]}
+        hashes["$relative"]="$hash"
+    done < <(sha256sum --zero -- "${paths[@]}")
+}
+
 collect_layer() {
     local root="$1" layer="$2" sources_name="$3" layers_name="$4"
     local -n layer_sources="$sources_name" layer_names="$layers_name"
@@ -120,7 +158,7 @@ write_state() {
 
 run_deploy() {
     local repo_root="$1" profile="$2" state_file="$3"
-    local -A sources=() layers=() previous=() next=()
+    local -A sources=() layers=() previous=() next=() source_hashes=()
     local relative source destination component failed=0
 
     collect_layer "$repo_root" common sources layers
@@ -149,6 +187,9 @@ run_deploy() {
         destination="$HOME/$relative"
         [ -e "$destination" ] || continue
         if [ "$FORCE" -ne 1 ] && [ "$(file_hash "$destination")" != "${previous[$relative]}" ]; then
+            if preserve_modified_when_unmanaged "$relative"; then
+                continue
+            fi
             echo "✗ $component: $relative was changed outside the repository."
             echo "  Pass --force to remove the file created by an earlier deployment."
             failed=1
@@ -157,14 +198,18 @@ run_deploy() {
 
     [ "$failed" -eq 0 ] || return 1
 
+    hash_selected_sources sources source_hashes
+
     for relative in "${!sources[@]}"; do
         component=$(component_for "$relative")
         selected "$component" || continue
         source=${sources[$relative]}
         destination="$HOME/$relative"
         mkdir -p "$(dirname "$destination")"
-        rsync -a "$source" "$destination"
-        next["$relative"]="$(file_hash "$source")"
+        if [ ! -e "$destination" ] || ! cmp -s "$source" "$destination"; then
+            rsync -a "$source" "$destination"
+        fi
+        next["$relative"]="${source_hashes[$relative]}"
         echo "✓ $component: $relative (${layers[$relative]})"
     done
 
@@ -175,6 +220,12 @@ run_deploy() {
         destination="$HOME/$relative"
         if [ ! -e "$destination" ]; then
             unset 'next[$relative]'
+            continue
+        fi
+        if preserve_modified_when_unmanaged "$relative" \
+            && [ "$(file_hash "$destination")" != "${previous[$relative]}" ]; then
+            unset 'next[$relative]'
+            echo "✓ kept user-owned $component: $relative"
             continue
         fi
         rm -f -- "$destination"
