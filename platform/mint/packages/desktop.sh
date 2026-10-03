@@ -18,6 +18,10 @@ DESKTOP_APT_PACKAGES=(
     thunar-archive-plugin
     wireplumber
     xfce4-notifyd
+    xfce4-panel
     xfce4-power-manager
     xfce4-screenshooter
+    xfce4-session
+    xfce4-settings
+    xfdesktop
 )
