@@ -4,9 +4,9 @@ The repository supports two desktop profiles from one shared base:
 
 ```text
 home/
-  common/                   files shared by both desktops
-  arch-hyprland/            Hyprland, Waybar, nwg, GTK/Qt overrides
-  mint-xfce/                i3, Thunar actions, and X11 Endfield backends
+  common/                   shared files, including GTK4 app styling
+  arch-hyprland/            Hyprland, Waybar, nwg, GTK3/Qt overrides
+  mint-xfce/                i3, Thunar fallback actions, X11 Endfield backends
 platform/
   arch/                     pacman/AUR provisioning
   mint/                     apt provisioning and Quickshell build
@@ -56,14 +56,20 @@ detected platform installer. Arch continues to install its complete Hyprland
 desktop and publishes the SDDM theme. Mint installs its terminal and Xfce/i3
 dependencies with APT and does not run `scripts/install-system.sh`.
 
-The Mint installer keeps the distribution Qt stack untouched. Quickshell 0.3.1
+The Mint installer keeps the distribution Qt stack and Xfce/GTK3 desktop theme
+untouched. GTK4 application styling is shared with Arch so Nautilus uses the
+same Endfield palette, geometry, and selection treatment. Quickshell 0.3.1
 is provided through a small Nix flake so its newer Qt runtime stays isolated
 from APT. The same provisioning pass also installs the required workstation
 applications that are not in Mint's default repositories: VS Code and Brave
 through their vendor APT repositories, Postman from its vendor Linux bundle,
-and ChatGPT from OpenAI's Debian package. The Mint setup also installs the
-JetBrains Mono and Noto Nerd Font families used by i3, Ghostty, and terminal
-glyphs from the pinned Nerd Fonts release.
+and ChatGPT from OpenAI's Debian package. Mint also installs Nautilus,
+Papirus, and the XDG helper tooling; Ghostty remains the shared terminal. The installer selects Brave as
+the preferred browser, Nautilus as the preferred file manager, and Ghostty
+as the preferred terminal in Xfce, and mirrors the browser/file-manager choices
+through XDG MIME associations. The Mint setup also installs the JetBrains Mono
+and Noto Nerd Font families used by i3, Ghostty, and terminal glyphs from the
+pinned Nerd Fonts release.
 
 Mint also makes Zsh the login shell and installs the user-local Oh My Zsh tree
 expected by the shared prompt. This is what makes the common Ghostty/Zsh/Tmux
@@ -72,9 +78,12 @@ tmux session launcher.
 
 ## Desktop boundaries
 
-Arch owns Hyprland, Waybar, nwg utilities, custom GTK/Qt styling, and the
-Wayland implementations of Endfield panels, notifications, lock screen,
+Arch owns Hyprland, Waybar, nwg utilities, GTK3/Qt desktop-specific styling,
+and the Wayland implementations of Endfield panels, notifications, lock screen,
 display handling, workspace previews, and window groups.
+
+GTK4 application styling lives in the common layer and is intentionally shared
+between Arch and Mint; it does not make the Xfce desktop theme common.
 
 Mint runs a normal Xfce session and uses i3 only as the window manager.
 Xfce owns the session manager, desktop, panel, tray, notification daemon,

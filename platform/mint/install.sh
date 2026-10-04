@@ -6,7 +6,7 @@ source "$platform_dir/packages/terminal.sh"
 source "$platform_dir/packages/desktop.sh"
 export PATH="$HOME/.local/bin:$PATH"
 progress_step=0
-progress_total=7
+progress_total=8
 
 if [ ! -r /etc/os-release ]; then
     echo "This installer supports Linux Mint only." >&2
@@ -74,6 +74,43 @@ install_shell_environment
 
 show_progress "Installing workstation applications"
 bash "$platform_dir/install-applications.sh"
+
+set_xfce_helper() {
+    local file="$1" key="$2" value="$3"
+
+    if grep -q "^${key}=" "$file"; then
+        sed -i "s|^${key}=.*|${key}=${value}|" "$file"
+    else
+        printf '%s=%s\n' "$key" "$value" >>"$file"
+    fi
+}
+
+configure_desktop_defaults() {
+    local helpers="${XDG_CONFIG_HOME:-$HOME/.config}/xfce4/helpers.rc"
+
+    mkdir -p "$(dirname "$helpers")"
+    touch "$helpers"
+
+    # Xfce's preferred applications drive xfce4-mime-helper --launch.
+    set_xfce_helper "$helpers" WebBrowser brave
+    set_xfce_helper "$helpers" FileManager nautilus
+    set_xfce_helper "$helpers" TerminalEmulator ghostty
+
+    # XDG associations cover applications that bypass the Xfce helper layer.
+    xdg-mime default brave-browser.desktop x-scheme-handler/http
+    xdg-mime default brave-browser.desktop x-scheme-handler/https
+    xdg-mime default brave-browser.desktop text/html
+    xdg-mime default org.gnome.Nautilus.desktop inode/directory
+
+    # GTK4/libadwaita applications share the Endfield application theme while
+    # Xfce itself keeps Mint's GTK3 desktop theme and settings.
+    gsettings set org.gnome.desktop.interface gtk-theme Adwaita
+    gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+    gsettings set org.gnome.desktop.interface icon-theme endfield
+}
+
+show_progress "Configuring desktop defaults"
+configure_desktop_defaults
 
 install_nix() {
     local nix_profile=/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
@@ -158,4 +195,5 @@ if ! command -v uv >/dev/null; then
 fi
 
 # Mint's own desktop components remain authoritative. In particular, do not
-# replace its display manager, notification daemon, panel, tray, or theme.
+# replace its display manager, notification daemon, panel, tray, or Xfce/GTK3
+# desktop theme. Shared GTK4 application styling is configured above.

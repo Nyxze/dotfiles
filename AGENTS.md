@@ -5,10 +5,11 @@ base. User files are copied into real directories rather than symlinked.
 
 ## Layers and deployment
 
-`home/common/` contains configuration shared by both systems.
-`home/arch-hyprland/` contains Hyprland, Waybar, nwg, GTK/Qt, and Wayland-only
-Endfield files. `home/mint-xfce/` contains i3, Thunar actions, and X11/i3
-Endfield backends. A profile overlays common files at the same relative path.
+`home/common/` contains configuration shared by both systems, including the
+GTK4 application theme used by Nautilus. `home/arch-hyprland/` contains
+Hyprland, Waybar, nwg, GTK3/Qt, and Wayland-only Endfield files.
+`home/mint-xfce/` contains i3, Thunar fallback actions, and X11/i3 Endfield
+backends. A profile overlays common files at the same relative path.
 
 ```bash
 ./apply-config
@@ -34,12 +35,15 @@ deployed. Verify changes against the live copy after deployment.
 `install.sh` detects the host distribution. Arch provisioning is in
 `platform/arch/` and keeps the root-owned SDDM theme in `system/`; only Arch
 runs `scripts/install-system.sh`. Mint provisioning is in `platform/mint/`,
-uses APT, and leaves Mint's display manager and theme untouched.
+uses APT, and leaves Mint's display manager and Xfce/GTK3 desktop theme
+untouched. GTK4 application styling is shared so Nautilus looks the same on
+both platforms.
 
 Mint keeps Xfce as the fallback desktop. Do not deploy Xfce-wide settings,
-panels, applet overrides, GTK/Qt overrides, or notification ownership there.
-i3 supplies window-management bindings; Xfce retains its panel, tray,
-NetworkManager applet, Blueman, audio controls, update tools, and settings.
+panels, applet overrides, GTK3/Qt desktop overrides, or notification ownership
+there. GTK4 application overrides are allowed in `home/common/`. i3 supplies
+window-management bindings; Xfce retains its panel, tray, NetworkManager
+applet, Blueman, audio controls, update tools, and settings.
 
 The Mint desktop has two workspace layouts. Workspace 0, reached with Super+0,
 keeps the native Mint/Xfce panel content (menu, launchers, window list, and
