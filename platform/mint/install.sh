@@ -94,7 +94,7 @@ configure_desktop_defaults() {
     # Xfce's preferred applications drive xfce4-mime-helper --launch.
     set_xfce_helper "$helpers" WebBrowser brave
     set_xfce_helper "$helpers" FileManager nautilus
-    set_xfce_helper "$helpers" TerminalEmulator alacritty
+    set_xfce_helper "$helpers" TerminalEmulator ghostty
 
     # XDG associations cover applications that bypass the Xfce helper layer.
     xdg-mime default brave-browser.desktop x-scheme-handler/http
