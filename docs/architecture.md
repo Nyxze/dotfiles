@@ -64,8 +64,8 @@ from APT. The same provisioning pass also installs the required workstation
 applications that are not in Mint's default repositories: VS Code and Brave
 through their vendor APT repositories, Postman from its vendor Linux bundle,
 and ChatGPT from OpenAI's Debian package. Mint also installs Nautilus,
-Alacritty, Papirus, and the XDG helper tooling. The installer selects Brave as
-the preferred browser, Nautilus as the preferred file manager, and Alacritty
+Papirus, and the XDG helper tooling; Ghostty remains the shared terminal. The installer selects Brave as
+the preferred browser, Nautilus as the preferred file manager, and Ghostty
 as the preferred terminal in Xfce, and mirrors the browser/file-manager choices
 through XDG MIME associations. The Mint setup also installs the JetBrains Mono
 and Noto Nerd Font families used by i3, Ghostty, and terminal glyphs from the
