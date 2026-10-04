@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 DESKTOP_APT_PACKAGES=(
-    alacritty
     blueman
     bluez
     brightnessctl
