@@ -33,6 +33,18 @@ def panel_window():
     return panels[0] if len(panels) == 1 else None
 
 
+
+def panel_plugin_windows(panel):
+    """Return direct child windows of the Xfce panel, excluding its tray."""
+    result = subprocess.run(["xwininfo", "-id", hex(panel), "-tree"],
+                            capture_output=True, text=True, check=True)
+    children = []
+    for line in result.stdout.splitlines():
+        match = CHILD_LINE.match(line)
+        if match:
+            children.append((int(match[1], 16), int(match[2]), int(match[3])))
+    return children
+
 def tray_plugin_window():
     """Read the native systray plugin's XID from its Xfce wrapper process."""
     result = subprocess.run(["pgrep", "-f", "xfce4/panel/wrapper-2.0"],
@@ -261,6 +273,7 @@ def main():
         plugin = None
         container = None
         container_size = None
+        hidden_plugins = {}
         background = PanelBackground()
         signal.signal(signal.SIGTERM, lambda _signum, _frame: sys.exit(0))
         try:
@@ -286,14 +299,23 @@ def main():
                         left = tray_start(window, plugin)
                     native = workspace_zero_visible()
                     background.update(native)
+                    # Keep the panel background intact; hide only plugin windows.
+                    for child, (child_width, child_height) in list(hidden_plugins.items()):
+                        shape(child, 0, child_width, child_height)
+                    hidden_plugins.clear()
+                    if not native:
+                        for child, child_width, child_height in panel_plugin_windows(window):
+                            if child != plugin and child_width > 0 and child_height > 0:
+                                shape(child, 0, 0, 0)
+                                hidden_plugins[child] = (child_width, child_height)
                     if native:
                         shape(window, 0, width, height)
                         if container is not None:
                             shape(container, 0, width, height)
-                    elif left is not None and 0 < left < width:
-                        shape(window, left, width - left, height)
+                    else:
+                        shape(window, 0, width, height)
                         if container is not None:
-                            shape(container, left, width - left, height)
+                            shape(container, 0, width, height)
                     x11.XSync(display, 0)
                 elif subprocess.run(["pgrep", "-x", "xfce4-panel"],
                                     stdout=subprocess.DEVNULL).returncode:
@@ -304,6 +326,8 @@ def main():
                 if ready and not subscription.stdout.readline():
                     break
         finally:
+            for child, (child_width, child_height) in hidden_plugins.items():
+                shape(child, 0, child_width, child_height)
             current = panel_window()
             if current:
                 window, width, height = current
