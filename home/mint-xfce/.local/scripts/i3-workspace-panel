@@ -249,6 +249,11 @@ def main():
                 xext.XShapeCombineRectangles(display, window, kind, 0, 0,
                                               ctypes.byref(rect), 1, 0, 0)
 
+        def hide(window):
+            for kind in (0, 2):
+                xext.XShapeCombineRectangles(display, window, kind, 0, 0,
+                                              None, 0, 0, 0)
+
         def i3_container(window):
             """The full-width i3 frame also needs clipping or it paints black."""
             root = ctypes.c_ulong()
@@ -306,7 +311,7 @@ def main():
                     if not native:
                         for child, child_width, child_height in panel_plugin_windows(window):
                             if child != plugin and child_width > 0 and child_height > 0:
-                                shape(child, 0, 0, 0)
+                                hide(child)
                                 hidden_plugins[child] = (child_width, child_height)
                     if native:
                         shape(window, 0, width, height)
