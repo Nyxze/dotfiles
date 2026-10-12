@@ -6,6 +6,19 @@ set $ws3 3
 set $ws4 4
 set $ws5 5
 
+# Keep the Mint/i3 session's workspace layout aligned with Hyprland: Super+0
+# is the laptop workspace and Super+1…5 belong to an external display.
+# i3 selects the first active XRandR output in this list, so this covers every
+# external connector exposed by this machine without a watcher or polling.
+set $laptop_output eDP
+set $external_outputs HDMI-A-0 DisplayPort-0 DisplayPort-1 DisplayPort-2 DisplayPort-3 DisplayPort-4 DisplayPort-5 DisplayPort-6
+workspace $ws0 output $laptop_output
+workspace $ws1 output $external_outputs
+workspace $ws2 output $external_outputs
+workspace $ws3 output $external_outputs
+workspace $ws4 output $external_outputs
+workspace $ws5 output $external_outputs
+
 font pango:JetBrainsMono Nerd Font 10
 
 # Match the Hyprland profile as closely as i3 allows: square 2px borders,
@@ -28,19 +41,18 @@ client.background       #0B1118
 floating_modifier $mod
 tiling_drag modifier
 focus_follows_mouse no
-workspace_auto_back_and_forth yes
+# Repeating Super+<number> must leave the current workspace unchanged.
+workspace_auto_back_and_forth no
 
-# Xfce owns the desktop session: xfsettingsd, xfdesktop, xfce4-panel, applets,
-# notifications, power management, and session lifecycle. i3 only replaces
-# xfwm4 as the window manager.
-# xfdesktop's desktop window otherwise floats above tiled clients and the panel.
+# Xfce still owns the session services; i3 owns the visible panel in this
+# session. xfdesktop's desktop window otherwise floats above tiled clients.
 # Xfce assigns bare Super to its menu by default, preventing i3 shortcuts.
 exec --no-startup-id xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Super_L -r
 exec_always --no-startup-id xfdesktop --quit
+exec_always --no-startup-id xfce4-panel --quit
 exec_always --no-startup-id feh --bg-fill ~/.config/theme/greeter.png
 exec_always --no-startup-id xsetroot -cursor_name left_ptr
-exec_always --no-startup-id ~/.local/scripts/i3-workspace-panel-watchdog
-exec --no-startup-id ~/.local/scripts/i3-workspace-buttons
+# Quickshell owns the single reserved top bar on every XRandR output.
 
 exec --no-startup-id sh -c 'export I3SOCK="$(i3 --get-socketpath)"; exec "$HOME/.nix-profile/bin/qs" -c endfield'
 

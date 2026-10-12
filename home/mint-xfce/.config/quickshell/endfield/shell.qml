@@ -1,9 +1,18 @@
+//@ pragma UseQApplication
+
 import Quickshell
 import Quickshell.Io
 import "examples"
 import "panels"
 
 ShellRoot {
+    TopBar {
+        onSidebarPageRequested: function(page) {
+            sidebar.openPanel();
+            sidebar.page = page;
+        }
+        onSidebarToggleRequested: sidebar.toggle()
+    }
     Sidebar { id: sidebar }
     WorkspaceOverview { id: workspaceOverview }
     ShortcutHelp { id: shortcutHelp }
