@@ -6,7 +6,7 @@ source "$platform_dir/packages/terminal.sh"
 source "$platform_dir/packages/desktop.sh"
 export PATH="$HOME/.local/bin:$PATH"
 progress_step=0
-progress_total=7
+progress_total=8
 
 if [ ! -r /etc/os-release ]; then
     echo "This installer supports Linux Mint only." >&2
@@ -50,6 +50,54 @@ apt_install_available() {
 show_progress "Installing APT packages"
 sudo apt-get update
 apt_install_available "${TERMINAL_APT_PACKAGES[@]}" "${DESKTOP_APT_PACKAGES[@]}"
+
+install_neovim() {
+    local version='0.12.5'
+    local architecture package temporary current_version
+    local installed_packages=()
+
+    current_version=$(dpkg-query -W -f='${Version}' neovim 2>/dev/null || true)
+    if [ "$current_version" = "$version" ]; then
+        return 0
+    fi
+
+    case "$(dpkg --print-architecture)" in
+        amd64) architecture=x86_64 ;;
+        arm64) architecture=arm64 ;;
+        *)
+            echo "Unsupported architecture for Neovim: $(dpkg --print-architecture)" >&2
+            return 1
+            ;;
+    esac
+
+    for package in neovim neovim-runtime; do
+        if dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -q '^install ok installed$'; then
+            installed_packages+=("$package")
+        fi
+    done
+
+    if [ "${#installed_packages[@]}" -gt 0 ]; then
+        sudo apt-get remove --yes "${installed_packages[@]}"
+    fi
+
+    temporary=$(mktemp -d)
+    package="$temporary/nvim-linux-${architecture}.deb"
+    curl --proto '=https' --tlsv1.2 -fL \
+        "https://github.com/neovim/neovim-releases/releases/download/v$version/nvim-linux-${architecture}.deb" \
+        -o "$package"
+
+    if ! dpkg-deb --info "$package" >/dev/null 2>&1; then
+        echo "Downloaded Neovim package is not a valid Debian archive." >&2
+        rm -rf "$temporary"
+        return 1
+    fi
+
+    sudo apt-get install --yes "$package"
+    rm -rf "$temporary"
+}
+
+show_progress "Installing Neovim 0.12.5"
+install_neovim
 
 install_shell_environment() {
     local zsh_path current_shell
