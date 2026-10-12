@@ -4,9 +4,9 @@ The repository supports two desktop profiles from one shared base:
 
 ```text
 home/
-  common/                   files shared by both desktops
-  arch-hyprland/            Hyprland, Waybar, nwg, GTK/Qt overrides
-  mint-xfce/                i3, Thunar actions, and X11 Endfield backends
+  common/                   files shared by both desktops, including GTK4 app styling
+  arch-hyprland/            Hyprland, Waybar, nwg, GTK3/Qt desktop overrides
+  mint-xfce/                i3, Thunar fallback actions, and X11 Endfield backends
 platform/
   arch/                     pacman/AUR provisioning
   mint/                     apt provisioning and Quickshell build
@@ -56,6 +56,11 @@ detected platform installer. Arch continues to install its complete Hyprland
 desktop and publishes the SDDM theme. Mint installs its terminal and Xfce/i3
 dependencies with APT and does not run `scripts/install-system.sh`.
 
+Mint provisions Nautilus and Alacritty alongside the Xfce stack. The installer
+sets Brave, Nautilus, and Alacritty as Xfce preferred applications, mirrors the
+browser and directory handlers through XDG MIME defaults, and applies the shared
+Endfield GTK4/Nautilus styling. Thunar remains installed as an Xfce fallback.
+
 The Mint installer keeps the distribution Qt stack untouched. Quickshell 0.3.1
 is provided through a small Nix flake so its newer Qt runtime stays isolated
 from APT. The same provisioning pass also installs the required workstation
@@ -72,7 +77,7 @@ tmux session launcher.
 
 ## Desktop boundaries
 
-Arch owns Hyprland, Waybar, nwg utilities, custom GTK/Qt styling, and the
+Arch owns Hyprland, Waybar, nwg utilities, GTK3/Qt desktop styling, and the
 Wayland implementations of Endfield panels, notifications, lock screen,
 display handling, workspace previews, and window groups.
 

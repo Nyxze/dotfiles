@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 DESKTOP_APT_PACKAGES=(
+    alacritty
     blueman
     bluez
     brightnessctl
@@ -12,6 +13,8 @@ DESKTOP_APT_PACKAGES=(
     libnotify-bin
     network-manager
     network-manager-gnome
+    nautilus
+    papirus-icon-theme
     pavucontrol
     pipewire-audio
     playerctl
@@ -26,5 +29,6 @@ DESKTOP_APT_PACKAGES=(
     xfce4-screenshooter
     xfce4-session
     xfce4-settings
+    xdg-utils
     xfdesktop
 )
