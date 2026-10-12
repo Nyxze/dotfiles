@@ -40,6 +40,8 @@ exec_always --no-startup-id i3-msg '[class="Xfdesktop"] move scratchpad'
 exec --no-startup-id xfconf-query -c xfce4-keyboard-shortcuts -p /commands/custom/Super_L -r
 exec_always --no-startup-id ~/.local/scripts/i3-wallpaper
 exec_always --no-startup-id ~/.local/scripts/i3-workspace-panel-watchdog
+# Keep workspace 0 on the laptop and workspaces 1-5 on the external output.
+exec --no-startup-id /usr/bin/python3 ~/.local/scripts/i3-display-workspaces
 exec --no-startup-id ~/.local/scripts/i3-workspace-buttons
 
 exec --no-startup-id sh -c 'export I3SOCK="$(i3 --get-socketpath)"; exec "$HOME/.nix-profile/bin/qs" -c endfield'
