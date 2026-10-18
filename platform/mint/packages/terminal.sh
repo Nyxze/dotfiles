@@ -7,6 +7,7 @@ TERMINAL_APT_PACKAGES=(
     docker.io
     fzf
     git
+    gh
     golang-go
     jq
     lua-language-server

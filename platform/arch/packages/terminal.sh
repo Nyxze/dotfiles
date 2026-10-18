@@ -8,6 +8,7 @@ TERMINAL_PACMAN_PACKAGES=(
     docker-compose
     fzf
     git
+    github-cli
     go
     jq
     lua-language-server
