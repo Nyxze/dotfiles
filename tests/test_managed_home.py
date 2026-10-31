@@ -63,6 +63,55 @@ class ManagedHome(unittest.TestCase):
         self.assertEqual(captured.returncode, 0, captured.stderr)
         self.assertEqual(self.common_file.read_text(), "application\n")
 
+    def test_deploy_rejects_live_change_even_when_source_is_newer(self):
+        self.assertEqual(self.run_command("apply-config", "example").returncode, 0)
+        live_file = self.home / ".config/example/common"
+        live_file.write_text("personal setting\n")
+        self.common_file.write_text("new repository default\n")
+        future = time.time() + 10
+        os.utime(self.common_file, (future, future))
+
+        result = self.run_command("apply-config", "example")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("last synchronized copy", result.stdout)
+        self.assertEqual(live_file.read_text(), "personal setting\n")
+
+    def test_capture_rejects_repository_change_even_when_live_is_newer(self):
+        self.assertEqual(self.run_command("apply-config", "example").returncode, 0)
+        self.common_file.write_text("repository change\n")
+        live_file = self.home / ".config/example/common"
+        live_file.write_text("live change\n")
+        future = time.time() + 10
+        os.utime(live_file, (future, future))
+
+        result = self.run_command("capture-config", "example")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(self.common_file.read_text(), "repository change\n")
+
+    def test_capture_updates_baseline_for_later_deploy(self):
+        self.assertEqual(self.run_command("apply-config", "example").returncode, 0)
+        live_file = self.home / ".config/example/common"
+        live_file.write_text("captured setting\n")
+        self.assertEqual(self.run_command("capture-config", "example").returncode, 0)
+        self.common_file.write_text("next repository change\n")
+
+        result = self.run_command("apply-config", "example")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(live_file.read_text(), "next repository change\n")
+
+    def test_exact_path_capture_leaves_other_files_untouched(self):
+        self.assertEqual(self.run_command("apply-config", "example").returncode, 0)
+        live_common = self.home / ".config/example/common"
+        live_profile = self.home / ".config/example/profile"
+        live_common.write_text("capture this\n")
+        live_profile.write_text("leave this live\n")
+
+        result = self.run_command("capture-config", ".config/example/common")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(self.common_file.read_text(), "capture this\n")
+        self.assertEqual(self.profile_file.read_text(), "profile\n")
+        self.assertEqual(live_profile.read_text(), "leave this live\n")
+
     def test_profile_overlays_common_file(self):
         self.profile_file.unlink()
         profile_override = self.repo / "home/arch-hyprland/.config/example/common"

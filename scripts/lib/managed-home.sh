@@ -51,38 +51,41 @@ detect_profile() {
 
 usage() {
     cat <<'EOF'
-Usage: apply-config|capture-config [--profile PROFILE] [--force] [COMPONENT ...]
+Usage: apply-config|capture-config [--profile PROFILE] [--force] [COMPONENT|RELATIVE_PATH ...]
 
 Apply common files followed by PROFILE, or capture live changes into the layer
 that owns them. PROFILE defaults to the detected distribution. Components are
-top-level configuration names such as quickshell, hypr, i3, or scripts.
+top-level configuration names such as quickshell, hypr, i3, or scripts. Paths
+are relative to the home directory, such as .config/hypr/init.lua. Changes that
+diverge from the last synchronized copy stop the entire operation unless
+--force is supplied.
 EOF
 }
 
 selected() {
-    local component="$1" filter
+    local component="$1" relative="$2" filter
     [ "${#FILTERS[@]}" -eq 0 ] && return 0
     for filter in "${FILTERS[@]}"; do
-        [ "$filter" = "$component" ] && return 0
+        { [ "$filter" = "$component" ] || [ "$filter" = "$relative" ]; } && return 0
     done
     return 1
 }
 
 mark_seen() {
-    local component="$1" filter
+    local component="$1" relative="$2" filter
     for filter in "${FILTERS[@]}"; do
-        [ "$filter" = "$component" ] && SEEN["$filter"]=1
+        { [ "$filter" = "$component" ] || [ "$filter" = "$relative" ]; } && SEEN["$filter"]=1
     done
 }
 
 guard_file() {
-    local label="$1" source="$2" destination="$3"
+    local label="$1" source="$2" destination="$3" expected_hash="$4"
     [ -e "$destination" ] || return 0
     cmp -s "$source" "$destination" && return 0
-    [ "$source" -nt "$destination" ] && return 0
+    [ -n "$expected_hash" ] && [ "$(file_hash "$destination")" = "$expected_hash" ] && return 0
 
-    echo "✗ $label: the destination differs and is not older."
-    echo "  Run the opposite direction first, or pass --force to discard it."
+    echo "✗ $label: the destination differs from the last synchronized copy."
+    echo "  Reconcile both versions before retrying, or pass --force to discard the destination."
     return 1
 }
 
@@ -100,7 +103,7 @@ hash_selected_sources() {
 
     for relative in "${!source_map[@]}"; do
         component=$(component_for "$relative")
-        selected "$component" || continue
+        selected "$component" "$relative" || continue
         source=${source_map[$relative]}
         paths+=("$source")
         relative_for_source["$source"]="$relative"
@@ -165,11 +168,11 @@ run_deploy() {
 
     for relative in "${!sources[@]}"; do
         component=$(component_for "$relative")
-        selected "$component" || continue
-        mark_seen "$component"
+        selected "$component" "$relative" || continue
+        mark_seen "$component" "$relative"
         source=${sources[$relative]}
         destination="$HOME/$relative"
-        if [ "$FORCE" -ne 1 ] && ! guard_file "$component: $relative" "$source" "$destination"; then
+        if [ "$FORCE" -ne 1 ] && ! guard_file "$component: $relative" "$source" "$destination" "${previous[$relative]-}"; then
             failed=1
         fi
     done
@@ -177,8 +180,8 @@ run_deploy() {
     for relative in "${!previous[@]}"; do
         [ -n "${sources[$relative]+x}" ] && continue
         component=$(component_for "$relative")
-        selected "$component" || continue
-        mark_seen "$component"
+        selected "$component" "$relative" || continue
+        mark_seen "$component" "$relative"
         destination="$HOME/$relative"
         [ -e "$destination" ] || continue
         if [ "$FORCE" -ne 1 ] && [ "$(file_hash "$destination")" != "${previous[$relative]}" ]; then
@@ -194,12 +197,16 @@ run_deploy() {
 
     for relative in "${!sources[@]}"; do
         component=$(component_for "$relative")
-        selected "$component" || continue
+        selected "$component" "$relative" || continue
         source=${sources[$relative]}
         destination="$HOME/$relative"
         mkdir -p "$(dirname "$destination")"
         if [ ! -e "$destination" ] || ! cmp -s "$source" "$destination"; then
             rsync -a "$source" "$destination"
+        fi
+        if ! cmp -s "$source" "$destination"; then
+            echo "✗ $component: $relative was not copied correctly." >&2
+            return 1
         fi
         next["$relative"]="${source_hashes[$relative]}"
         echo "✓ $component: $relative (${layers[$relative]})"
@@ -208,7 +215,7 @@ run_deploy() {
     for relative in "${!previous[@]}"; do
         [ -n "${sources[$relative]+x}" ] && continue
         component=$(component_for "$relative")
-        selected "$component" || continue
+        selected "$component" "$relative" || continue
         destination="$HOME/$relative"
         if [ ! -e "$destination" ]; then
             unset 'next[$relative]'
@@ -223,21 +230,25 @@ run_deploy() {
 }
 
 run_capture() {
-    local repo_root="$1" profile="$2"
-    local -A sources=() layers=()
+    local repo_root="$1" profile="$2" state_file="$3"
+    local -A sources=() layers=() previous=() next=()
     local relative source destination component failed=0
 
     collect_layer "$repo_root" common sources layers
     collect_layer "$repo_root" "$profile" sources layers
+    load_state "$state_file" previous
+    for relative in "${!previous[@]}"; do
+        next["$relative"]="${previous[$relative]}"
+    done
 
     for relative in "${!sources[@]}"; do
         component=$(component_for "$relative")
-        selected "$component" || continue
-        mark_seen "$component"
+        selected "$component" "$relative" || continue
+        mark_seen "$component" "$relative"
         source="$HOME/$relative"
         destination=${sources[$relative]}
         [ -e "$source" ] || continue
-        if [ "$FORCE" -ne 1 ] && ! guard_file "$component: $relative" "$source" "$destination"; then
+        if [ "$FORCE" -ne 1 ] && ! guard_file "$component: $relative" "$source" "$destination" "${previous[$relative]-}"; then
             failed=1
         fi
     done
@@ -246,13 +257,20 @@ run_capture() {
 
     for relative in "${!sources[@]}"; do
         component=$(component_for "$relative")
-        selected "$component" || continue
+        selected "$component" "$relative" || continue
         source="$HOME/$relative"
         destination=${sources[$relative]}
         [ -e "$source" ] || continue
         rsync -a "$source" "$destination"
+        if ! cmp -s "$source" "$destination"; then
+            echo "✗ $component: $relative was not captured correctly." >&2
+            return 1
+        fi
+        next["$relative"]=$(file_hash "$source")
         echo "✓ $component: $relative (${layers[$relative]})"
     done
+
+    write_state "$state_file" next
 }
 
 run_managed_home() {
@@ -286,7 +304,7 @@ run_managed_home() {
     state_file="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/deployed-files/$profile"
     case "$direction" in
         deploy) run_deploy "$repo_root" "$profile" "$state_file" ;;
-        capture) run_capture "$repo_root" "$profile" ;;
+        capture) run_capture "$repo_root" "$profile" "$state_file" ;;
         *) echo "Unknown managed-home direction: $direction" >&2; return 2 ;;
     esac || return $?
 

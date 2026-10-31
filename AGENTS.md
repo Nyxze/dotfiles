@@ -15,17 +15,20 @@ Endfield backends. A profile overlays common files at the same relative path.
 ```bash
 ./apply-config
 ./apply-config --profile arch-hyprland hypr waybar
+./apply-config --profile arch-hyprland .config/hypr/init.lua
 ./apply-config --profile mint-xfce i3 quickshell
-./capture-config --profile mint-xfce Thunar
+./capture-config --profile mint-xfce .config/i3/config
 ```
 
 `apply-config` detects `arch-hyprland` for Arch and `mint-xfce` for Linux Mint unless
 `--profile` is supplied. It writes only files present in the layers. The state
 file under `$XDG_STATE_HOME/dotfiles/deployed-files/` records files previously
 created by each profile, so cleanup cannot delete application-owned files in
-Code, Xfce, Thunar, or other configuration directories. Both deployment and
-capture retain their timestamp/checksum overwrite guard; `--force` is the
-explicit override.
+Code, Xfce, Thunar, or other configuration directories. Deployment and capture
+compare changed files with the last synchronized checksum, regardless of file
+timestamps. Reconcile differences before retrying; `--force` explicitly discards
+one side. Pass exact home-relative paths when other files in a component are
+outside the task.
 
 `AGENTS.md`, `DESIGN.md`, `README.md`, `TODO.md`, `CLAUDE.md`, PDFs, and
 `icon-theme.cache` are documentation or generated artifacts and are not

@@ -1,0 +1,9 @@
+[Unit]
+Description=Endfield Quickshell session
+PartOf=graphical-session.target
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/qs -c endfield
+Restart=always
+RestartSec=2

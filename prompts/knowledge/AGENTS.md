@@ -6,6 +6,7 @@
 - Keep repository-specific constraints in that repository's `AGENTS.md`. Do not store a history of conversations in either place.
 - Resolve the references below relative to this file's canonical location in the dotfiles repository, not relative to a provider's symlink.
 - Personal reusable skills live in `prompts/skills/` in the same dotfiles repository. Create or update them there, then run `scripts/install-skills.sh --provider all` to link them to all providers. If a tool creates a skill in its own directory, capture it into the shared source during the same task.
+- For OS and desktop preferences, `~/stuff/dotfiles` is the source of truth. Follow the managed-configuration workflow in `references/development.md` for every change: reconcile source and live state, edit the owning layer, deploy the exact files, verify the live behavior, then commit and push. Never leave a live-only fix or silently discard a user's local change.
 
 ## Reference index
 
