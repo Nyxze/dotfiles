@@ -29,7 +29,10 @@ explicit override.
 
 `AGENTS.md`, `DESIGN.md`, `README.md`, `TODO.md`, `CLAUDE.md`, PDFs, and
 `icon-theme.cache` are documentation or generated artifacts and are not
-deployed. Verify changes against the live copy after deployment.
+deployed. Global agent preferences live in `prompts/knowledge/AGENTS.md`;
+personal skills live in `prompts/skills/`. `scripts/install.sh` links both into
+each provider.
+Verify changes against the live copy after deployment.
 
 ## Provisioning
 

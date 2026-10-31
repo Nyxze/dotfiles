@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Repository -> providers. prompts/ holds every skill and agent once; each
-# provider receives a copy, never a symlink, so a provider that falls out of
-# use costs nothing and a new one is a single entry in prompts/providers.sh.
+# Repository -> providers. Personal skills and global instructions are linked;
+# provider-specific agents are copied or converted.
 #
 #   ./scripts/install.sh                 every provider
 #   ./scripts/install.sh claude-code     just this one
@@ -64,5 +63,18 @@ done
 for provider in "${args[@]}"; do
     install_provider "$provider"
 done
+
+if [ "$FORCE" = 1 ]; then
+    "$PROMPTS_DIR/link-skills.sh" --force "${args[@]}" || FAILED=1
+else
+    "$PROMPTS_DIR/link-skills.sh" "${args[@]}" || FAILED=1
+fi
+
+knowledge_args=(home "${args[@]}")
+if [ "$FORCE" = 1 ]; then
+    "$PROMPTS_DIR/link-knowledge.sh" --force "${knowledge_args[@]}" || FAILED=1
+else
+    "$PROMPTS_DIR/link-knowledge.sh" "${knowledge_args[@]}" || FAILED=1
+fi
 
 exit $FAILED

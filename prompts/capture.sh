@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# Providers -> repository, the mirror of scripts/install.sh. For capturing what
-# a tool wrote on its own — skill-creator writes new skills straight into the
-# directory it scans — not for hand edits: those belong in prompts/, which is
-# the source of truth.
+# Providers -> repository. Capture new skills and provider agents written by a
+# tool; hand edits belong in prompts/, which is the source of truth.
 #
 #   ./prompts/capture.sh                 every provider
 #   ./prompts/capture.sh claude-code     just this one
@@ -46,6 +44,24 @@ capture_provider() {
     done < <(provider_entries "$provider")
 }
 
+capture_skills() {
+    local provider="$1" root="$2" candidate destination
+    [ -d "$root" ] || return
+    while IFS= read -r -d '' candidate; do
+        [ -f "$candidate/SKILL.md" ] || continue
+        destination="$PROMPTS_DIR/skills/$(basename "$candidate")"
+        if [ -e "$destination" ]; then
+            if ! diff -qr -- "$candidate" "$destination" >/dev/null 2>&1; then
+                echo "✗ $provider: $candidate differs from $destination; reconcile them manually"
+                FAILED=1
+            fi
+            continue
+        fi
+        cp -a -- "$candidate" "$destination"
+        echo "✓ $provider: new skill $(basename "$candidate") -> $destination"
+    done < <(find "$root" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
+}
+
 FORCE=0
 FAILED=0
 args=()
@@ -56,6 +72,10 @@ done
 [ ${#args[@]} -gt 0 ] || args=("${!PROVIDERS[@]}")
 for provider in "${args[@]}"; do
     capture_provider "$provider"
+    capture_skills "$provider" "${SKILL_TARGETS[$provider]-}"
+    if [ "$provider" = codex ]; then
+        capture_skills "$provider" "$HOME/.codex/skills"
+    fi
 done
 
 exit $FAILED

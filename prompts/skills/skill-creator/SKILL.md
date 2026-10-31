@@ -7,6 +7,15 @@ description: Create new skills, modify and improve existing skills, and measure 
 
 A skill for creating new skills and iteratively improving them.
 
+## Provider compatibility
+
+The authoring guidance applies to Codex, Claude Code, and OpenCode. The bundled
+evaluation and description-optimization scripts call the Claude Code CLI; run
+those scripts only when that CLI is the tool being evaluated. For other tools,
+use their native evaluation facilities or manual test prompts. Keep personal
+skills in `~/stuff/dotfiles/prompts/skills/` and run that repository's
+`scripts/install.sh` to link them into all three tools.
+
 At a high level, the process of creating a skill goes like this:
 
 - Decide what you want the skill to do and roughly how it should do it

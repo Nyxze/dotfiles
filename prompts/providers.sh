@@ -7,14 +7,29 @@
 
 # prompts/ subdirectory -> the directory that provider scans.
 #
-# opencode reads .opencode/skills relative to the working directory, walking up
-# no further than the git worktree, and ~/.config/opencode/skills is its only
-# global location. Skills placed under ~/.opencode therefore load only while the
-# working directory is the home directory itself, which is why they look
-# installed and are not.
+# OpenCode's native global skill directory is ~/.config/opencode/skills. It also
+# scans Claude and agent-compatible global directories, but explicit links in
+# each native directory make provider setup and repair independently visible.
 declare -A PROVIDERS=(
-    [claude-code]="skills:$HOME/.claude/skills agents:$HOME/.claude/agents"
-    [opencode]="skills:$HOME/.config/opencode/skills agents:$HOME/.config/opencode/agent"
+    [codex]=""
+    [claude-code]="agents:$HOME/.claude/agents"
+    [opencode]="agents:$HOME/.config/opencode/agent"
+)
+
+# Personal skills use one source directory and per-skill links. Each provider's
+# native directory may also contain skills it owns, which remain untouched.
+declare -A SKILL_TARGETS=(
+    [codex]="$HOME/.agents/skills"
+    [claude-code]="$HOME/.claude/skills"
+    [opencode]="$HOME/.config/opencode/skills"
+)
+
+# All global instruction files point to the same provider-neutral source.
+declare -A KNOWLEDGE_TARGETS=(
+    [home]="$HOME/AGENTS.md"
+    [codex]="$HOME/.codex/AGENTS.md"
+    [claude-code]="$HOME/.claude/CLAUDE.md"
+    [opencode]="$HOME/.config/opencode/AGENTS.md"
 )
 
 # A provider that reads a different format needs a translation rather than a

@@ -1,7 +1,7 @@
 # Claude Code
 
-`scripts/install.sh` copies straight from `prompts/`. There is no symlink and no
-intermediate directory.
+`scripts/install.sh` links skills and global instructions from `prompts/`. It
+copies provider agents. The global instruction target is `~/.claude/CLAUDE.md`.
 
 ```bash
 ./scripts/install.sh claude-code
@@ -9,12 +9,12 @@ intermediate directory.
 
 | Source            | Destination         |
 | ----------------- | ------------------- |
-| `prompts/skills/` | `~/.claude/skills/` |
+| `prompts/skills/` | `~/.claude/skills/<name>` (per-skill symlink) |
 | `prompts/agents/` | `~/.claude/agents/` |
+| `prompts/knowledge/AGENTS.md` | `~/.claude/CLAUDE.md` (symlink) |
 
 A skill is a directory holding a `SKILL.md`, and the directory name has to match
 the `name` in that file's front matter.
 
-skill-creator writes new skills into `~/.claude/skills` rather than here, so the
-copy refuses while that directory holds something `prompts/` does not.
-`./prompts/capture.sh claude-code` brings it back first; `--force` discards it.
+If a tool creates a new skill under `~/.claude/skills/`, run
+`./prompts/capture.sh claude-code` and `./scripts/install.sh` to share it.

@@ -1,7 +1,8 @@
 # OpenCode
 
-`scripts/install.sh` writes both destinations from `prompts/`. There is no
-symlink and no intermediate directory.
+`scripts/install.sh` links personal skills and global instructions from
+`prompts/`. It converts provider agents. The global instruction target is
+`~/.config/opencode/AGENTS.md`.
 
 ```bash
 ./scripts/install.sh opencode
@@ -9,17 +10,19 @@ symlink and no intermediate directory.
 
 | Source            | Destination                  | How        |
 | ----------------- | ---------------------------- | ---------- |
-| `prompts/skills/` | `~/.config/opencode/skills/` | copied     |
+| `prompts/skills/` | `~/.config/opencode/skills/<name>` | per-skill symlink |
 | `prompts/agents/` | `~/.config/opencode/agent/`  | converted  |
+| `prompts/knowledge/AGENTS.md` | `~/.config/opencode/AGENTS.md` | symlink |
 
-**Not `~/.opencode/skills`.** OpenCode reads `.opencode/skills` relative to the
-working directory, walking up as far as the git worktree; the only global
-location it scans is `~/.config/opencode/skills`. Skills installed under
-`~/.opencode` therefore load only while the working directory happens to be the
-home directory itself, which is why they look installed and are not.
+**Not `~/.opencode/skills`.** The native global location is
+`~/.config/opencode/skills`. OpenCode also scans the Claude and agent-compatible
+global directories, but the explicit native links keep its installation
+independent of those providers.
 
 A skill is a directory holding a `SKILL.md`, and the directory name has to match
 the `name` in that file's front matter.
+If OpenCode writes a new skill under its global skills directory, run
+`./prompts/capture.sh opencode` and `./scripts/install.sh` to share it.
 
 Agents are converted, by `adapters/opencode-agents.py`, because opencode reads
 a front matter of its own — note the directory is `agent/`, singular:
