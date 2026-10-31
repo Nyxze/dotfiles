@@ -1,16 +1,17 @@
 # Knowledge organization
 
-This contract governs shared agent knowledge in this repository. It adapts the
-[Notion knowledge-organization contract](https://app.notion.com/p/3fd68c4ebcd281c0a7efc45f992f2641)
-to repository files; the Notion page remains the authority for Notion workspaces.
+This is the canonical contract for shared agent knowledge in this repository:
+global instructions, topic references, skills, agent definitions, and provider
+documentation. Its rules are complete here and require no external source.
 
 ## Ownership
 
 Every durable rule, fact, definition, and procedure has one canonical owner.
 Other files link to that owner with a short navigation label; they do not copy
 its substance or maintain a parallel summary. Search for an owner before adding
-a page. Update the existing owner when the subject has the same identity. Link
-external sources from that owner; do not create translated or mirrored policies.
+a page. Update the existing owner when the subject has the same identity. Do not
+create translated or mirrored policies. External material can inform an edit,
+but the current repository rule must remain understandable from its owner alone.
 
 | Resource | Owns |
 | --- | --- |
@@ -30,6 +31,8 @@ external sources from that owner; do not create translated or mirrored policies.
   repository instructions, topical index, then the relevant reference or skill.
   Local instructions add constraints without restating inherited ones. A link
   alone does not guarantee an agent loaded its target.
+- Indexes route from broad topics to narrower owners with relative links and
+  short opening conditions. Do not send readers between indexes in a loop.
 - Resolve a conflict at its canonical owner before editing dependent pages.
   Keep a current rule separate from its Git history; historical documents do
   not override the current owner.
@@ -42,3 +45,5 @@ external sources from that owner; do not create translated or mirrored policies.
 - Keep global and index pages short. The validator budgets these entry points;
   move detail to its owner before raising a limit. Long references and skills
   remain acceptable when their task requires the detail.
+- Check mechanically verifiable properties with scripts. Review semantic
+  ownership and duplication directly; link validation cannot establish them.
