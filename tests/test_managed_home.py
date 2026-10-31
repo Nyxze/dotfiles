@@ -141,6 +141,11 @@ class ManagedHome(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("not managed", result.stdout)
 
+    def test_unknown_filter_blocks_valid_files_before_deploy(self):
+        result = self.run_command("apply-config", "example", ".config/example/missing")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.home / ".config/example/common").exists())
+
     def test_mint_profile_deploy_is_idempotent(self):
         environment = os.environ.copy()
         environment["HOME"] = str(self.home)

@@ -78,6 +78,17 @@ mark_seen() {
     done
 }
 
+validate_filters() {
+    local profile="$1" filter failed=0
+    for filter in "${FILTERS[@]}"; do
+        if [ -z "${SEEN[$filter]+x}" ]; then
+            echo "✗ $filter: not managed by profile $profile"
+            failed=1
+        fi
+    done
+    [ "$failed" -eq 0 ]
+}
+
 guard_file() {
     local label="$1" source="$2" destination="$3" expected_hash="$4"
     [ -e "$destination" ] || return 0
@@ -191,6 +202,7 @@ run_deploy() {
         fi
     done
 
+    validate_filters "$profile" || failed=1
     [ "$failed" -eq 0 ] || return 1
 
     hash_selected_sources sources source_hashes
@@ -253,6 +265,7 @@ run_capture() {
         fi
     done
 
+    validate_filters "$profile" || failed=1
     [ "$failed" -eq 0 ] || return 1
 
     for relative in "${!sources[@]}"; do
@@ -306,12 +319,5 @@ run_managed_home() {
         deploy) run_deploy "$repo_root" "$profile" "$state_file" ;;
         capture) run_capture "$repo_root" "$profile" "$state_file" ;;
         *) echo "Unknown managed-home direction: $direction" >&2; return 2 ;;
-    esac || return $?
-
-    for filter in "${FILTERS[@]}"; do
-        [ -n "${SEEN[$filter]+x}" ] || {
-            echo "✗ $filter: not managed by profile $profile"
-            return 1
-        }
-    done
+    esac
 }
