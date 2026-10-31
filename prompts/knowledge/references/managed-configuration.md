@@ -2,10 +2,14 @@
 
 This procedure applies in every project and session when changing OS, desktop,
 shell, lock screen, or other personal machine configuration. The source of truth
-is `~/stuff/dotfiles`; files under the home directory are deployed copies. Work
-in that repository even when the request arrives elsewhere. If the repository
-is unavailable, ask the user to open or restore it instead of editing live
-configuration.
+is the repository containing the canonical `prompts/knowledge/AGENTS.md` that
+links to this page; files under the home directory are deployed copies. Resolve
+the provider's global instruction symlink to find that repository, then work
+there even when the request arrives elsewhere. For example, the default home
+entrypoint can be resolved with
+`git -C "$(dirname "$(readlink -f "$HOME/AGENTS.md")")" rev-parse --show-toplevel`.
+Run the commands below from that repository root. If it is unavailable, ask the
+user to open or restore it instead of editing live configuration.
 
 ## Required sequence
 
