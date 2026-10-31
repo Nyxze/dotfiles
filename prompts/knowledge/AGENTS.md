@@ -5,7 +5,7 @@
 - This file is the shared source for global instructions used by Codex, Claude Code, and OpenCode. Their global instruction files point here. When the user states a durable preference that applies across tools, update this file in the same task. Keep tool-specific model and feature settings in that tool's configuration.
 - Keep repository-specific constraints in that repository's `AGENTS.md`. Do not store a history of conversations in either place.
 - Resolve the references below relative to this file's canonical location in the dotfiles repository, not relative to a provider's symlink.
-- Personal reusable skills live in `prompts/skills/` in the same dotfiles repository. Create or update them there, then run `scripts/install.sh` to link them to all providers. If a tool creates a skill in its own directory, capture it into the shared source during the same task.
+- Personal reusable skills live in `prompts/skills/` in the same dotfiles repository. Create or update them there, then run `scripts/install-skills.sh --provider all` to link them to all providers. If a tool creates a skill in its own directory, capture it into the shared source during the same task.
 
 ## Reference index
 

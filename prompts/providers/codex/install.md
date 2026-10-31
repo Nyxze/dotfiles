@@ -9,7 +9,8 @@ preferences. The link installer backs up a conflicting file when passed
 It links each directory in `prompts/skills/` under `~/.agents/skills/`, which
 Codex scans. Codex's own `.system` skills remain separate.
 If Codex writes a new skill under `~/.codex/skills/`, run
-`./prompts/capture.sh codex` and `./scripts/install.sh` to share it.
+`./prompts/capture.sh codex` and
+`./scripts/install-skills.sh --provider all` to share it.
 
 ```bash
 ./scripts/install.sh codex

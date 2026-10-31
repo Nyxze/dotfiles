@@ -14,7 +14,7 @@ evaluation and description-optimization scripts call the Claude Code CLI; run
 those scripts only when that CLI is the tool being evaluated. For other tools,
 use their native evaluation facilities or manual test prompts. Keep personal
 skills in `~/stuff/dotfiles/prompts/skills/` and run that repository's
-`scripts/install.sh` to link them into all three tools.
+`scripts/install-skills.sh --provider all` to link them into all three tools.
 
 At a high level, the process of creating a skill goes like this:
 

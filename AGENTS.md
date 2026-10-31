@@ -32,6 +32,8 @@ explicit override.
 deployed. Global agent preferences live in `prompts/knowledge/AGENTS.md`;
 personal skills live in `prompts/skills/`. `scripts/install.sh` links both into
 each provider.
+Use `scripts/install-skills.sh` to install only personal skills, choosing the
+providers interactively or passing `--provider` for a non-interactive run.
 Verify changes against the live copy after deployment.
 
 ## Provisioning

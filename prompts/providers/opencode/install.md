@@ -22,7 +22,8 @@ independent of those providers.
 A skill is a directory holding a `SKILL.md`, and the directory name has to match
 the `name` in that file's front matter.
 If OpenCode writes a new skill under its global skills directory, run
-`./prompts/capture.sh opencode` and `./scripts/install.sh` to share it.
+`./prompts/capture.sh opencode` and
+`./scripts/install-skills.sh --provider all` to share it.
 
 Agents are converted, by `adapters/opencode-agents.py`, because opencode reads
 a front matter of its own — note the directory is `agent/`, singular:
