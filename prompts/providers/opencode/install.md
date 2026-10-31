@@ -1,7 +1,8 @@
 # OpenCode
 
-`scripts/install.sh` links personal skills and global instructions from
-`prompts/`. It converts provider agents. The global instruction target is
+From the repository root, `scripts/install.sh` links personal skills and global
+instructions from `prompts/`. It converts provider agents when definitions
+exist. The global instruction target is
 `~/.config/opencode/AGENTS.md`.
 
 ```bash
@@ -11,7 +12,7 @@
 | Source            | Destination                  | How        |
 | ----------------- | ---------------------------- | ---------- |
 | `prompts/skills/` | `~/.config/opencode/skills/<name>` | per-skill symlink |
-| `prompts/agents/` | `~/.config/opencode/agent/`  | converted  |
+| `prompts/agents/` | `~/.config/opencode/agent/`  | converted when defined |
 | `prompts/knowledge/AGENTS.md` | `~/.config/opencode/AGENTS.md` | symlink |
 
 **Not `~/.opencode/skills`.** The native global location is

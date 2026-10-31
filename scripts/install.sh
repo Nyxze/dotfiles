@@ -47,7 +47,7 @@ install_provider() {
             || { FAILED=1; continue; }
 
         mkdir -p "$dest"
-        rsync -a --delete "$src/" "$dest/"
+        rsync -a --delete --exclude='.gitkeep' "$src/" "$dest/"
         echo "✓ $provider: $kind -> $dest"
     done < <(provider_entries "$provider")
 }

@@ -35,7 +35,7 @@ user to open or restore it instead of editing live configuration.
    separate display. Restart a running desktop component only when needed,
    through its persistent service or a detached launch, and confirm it remains
    running after the command session ends.
-6. Commit and push the repository change, excluding unrelated worktree edits.
+6. Commit and push the repository change, excluding unrelated working-tree edits.
    The change is complete when the source is synchronized and the current
    machine runs that source.
 

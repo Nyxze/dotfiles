@@ -29,7 +29,7 @@ compare changed files with the last synchronized checksum, regardless of file
 timestamps. Reconcile differences before retrying; `--force` explicitly discards
 one side. Pass exact home-relative paths when other files in a component are
 outside the task.
-Follow the shared [managed-configuration procedure](prompts/knowledge/references/managed-configuration.md)
+Follow the shared [managed-configuration procedure](prompts/knowledge/machine/managed-configuration.md)
 for all machine changes, including requests made from another project.
 
 `AGENTS.md`, `DESIGN.md`, `README.md`, `TODO.md`, `CLAUDE.md`, PDFs, and

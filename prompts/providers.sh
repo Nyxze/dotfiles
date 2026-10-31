@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # What the two directions have to agree on: which directory each provider
 # scans, and when a copy must refuse to run. scripts/install.sh carries
-# prompts/ out to the providers, sync-skills.sh brings back what a tool wrote
+# prompts/ out to the providers, capture.sh brings back what a tool wrote
 # on its own; both source this file, so a new provider is one entry here and
 # both directions pick it up.
 
@@ -64,7 +64,7 @@ pending() {
         elif [ ! "$src/$rel" -nt "$dst/$rel" ]; then
             out+="$rel"$'\n'
         fi
-    done < <(rsync -rn -i --delete --checksum "$src/" "$dst/" 2>/dev/null \
+    done < <(rsync -rn -i --delete --checksum --exclude='.gitkeep' "$src/" "$dst/" 2>/dev/null \
                  | grep -E '^(>|<|\*deleting)' | sed -E 's/^\S+[[:space:]]+//')
     printf '%s' "$out"
 }

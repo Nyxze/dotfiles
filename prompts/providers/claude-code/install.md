@@ -1,7 +1,8 @@
 # Claude Code
 
-`scripts/install.sh` links skills and global instructions from `prompts/`. It
-copies provider agents. The global instruction target is `~/.claude/CLAUDE.md`.
+From the repository root, `scripts/install.sh` links skills and global
+instructions from `prompts/`. It copies provider agents when definitions exist.
+The global instruction target is `~/.claude/CLAUDE.md`.
 
 ```bash
 ./scripts/install.sh claude-code
@@ -10,7 +11,7 @@ copies provider agents. The global instruction target is `~/.claude/CLAUDE.md`.
 | Source            | Destination         |
 | ----------------- | ------------------- |
 | `prompts/skills/` | `~/.claude/skills/<name>` (per-skill symlink) |
-| `prompts/agents/` | `~/.claude/agents/` |
+| `prompts/agents/` | `~/.claude/agents/` (currently no definitions) |
 | `prompts/knowledge/AGENTS.md` | `~/.claude/CLAUDE.md` (symlink) |
 
 A skill is a directory holding a `SKILL.md`, and the directory name has to match
