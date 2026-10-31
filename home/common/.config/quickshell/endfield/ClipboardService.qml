@@ -120,6 +120,17 @@ Singleton {
         return params;
     }
 
+    function listValues(value) {
+        if (!value || typeof value.length !== "number")
+            return [];
+
+        const items = [];
+        for (let index = 0; index < value.length; index++)
+            items.push(value[index]);
+
+        return items;
+    }
+
     function handleResult(operation, result, context) {
         error = "";
         if (operation === "list") {
@@ -153,7 +164,7 @@ Singleton {
         if (context.generation !== listGeneration || context.query !== query)
             return ;
 
-        const items = Array.isArray(result.items) ? result.items : [];
+        const items = listValues(result.items);
         if (context.append)
             entries = bounded(merge(entries, items));
         else
@@ -170,7 +181,7 @@ Singleton {
         const sequence = Number(message.sequence);
         if (message.event === "snapshot") {
             lastSequence = sequence;
-            history = bounded(Array.isArray(message.items) ? message.items : []);
+            history = bounded(listValues(message.items));
             if (query === "") {
                 entries = history;
                 nextCursor = typeof message.cursor === "string" ? message.cursor : "";
