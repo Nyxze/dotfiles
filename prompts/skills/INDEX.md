@@ -1,9 +1,5 @@
 # Personal skills
 
-Each directory below contains a reusable task workflow linked into Codex,
-Claude Code, and OpenCode. Open a skill only for its trigger. Provider-owned
-skills remain in their provider directories.
-
 | Skill | Open when |
 | --- | --- |
 | [commit](commit/SKILL.md) | Creating a selective conventional commit. |

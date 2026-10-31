@@ -17,8 +17,6 @@ before revising it. Leave user-owned decisions to the user.
 For OS or desktop changes, follow the [machine configuration index](machine/INDEX.md)
 and edit the repository source before deploying. Never leave a live-only fix.
 
-Prefer an existing personal skill when it fits. Shared skills live in
-`../skills/`; link them with `../../scripts/install-skills.sh --provider all`.
-Keep provider-owned skills in their provider directories.
+Prefer an existing personal skill when it fits.
 Prefer maintained scripts or CLIs for repeatable operations; turn a command
 sequence needed twice into a script with explicit inputs and outputs.

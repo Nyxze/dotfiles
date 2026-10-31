@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Providers -> repository. Capture new skills and provider agents written by a
-# tool; hand edits belong in prompts/, which is the source of truth.
+# Providers -> repository. Capture selected personal skills and provider agents
+# written by a tool; hand edits belong in prompts/, which is the source of truth.
 #
 #   ./prompts/capture.sh                 every provider
 #   ./prompts/capture.sh claude-code     just this one
+#   ./prompts/capture.sh --skill NAME codex  import one new personal skill
 #   ./prompts/capture.sh --force         discard whatever prompts/ holds
 
 PROMPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -45,11 +46,12 @@ capture_provider() {
 }
 
 capture_skills() {
-    local provider="$1" root="$2" candidate destination
+    local provider="$1" root="$2" candidate destination name
     [ -d "$root" ] || return
     while IFS= read -r -d '' candidate; do
         [ -f "$candidate/SKILL.md" ] || continue
-        destination="$PROMPTS_DIR/skills/$(basename "$candidate")"
+        name="$(basename "$candidate")"
+        destination="$PROMPTS_DIR/skills/$name"
         if [ -e "$destination" ]; then
             if ! diff -qr -- "$candidate" "$destination" >/dev/null 2>&1; then
                 echo "✗ $provider: $candidate differs from $destination; reconcile them manually"
@@ -57,7 +59,12 @@ capture_skills() {
             fi
             continue
         fi
+        if [ -z "${REQUESTED_SKILLS[$name]-}" ]; then
+            echo "· $provider: skipped new skill $name (select it with --skill $name)"
+            continue
+        fi
         cp -a -- "$candidate" "$destination"
+        FOUND_SKILLS[$name]=1
         echo "✓ $provider: new skill $(basename "$candidate") -> $destination"
     done < <(find "$root" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
 }
@@ -65,8 +72,22 @@ capture_skills() {
 FORCE=0
 FAILED=0
 args=()
-for a in "$@"; do
-    [ "$a" == "--force" ] && FORCE=1 || args+=("$a")
+declare -A REQUESTED_SKILLS=()
+declare -A FOUND_SKILLS=()
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --force) FORCE=1 ;;
+        --skill)
+            shift
+            if [ "$#" -eq 0 ] || [[ ! "$1" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+                echo "--skill needs a directory name using lowercase letters, digits, or hyphens" >&2
+                exit 2
+            fi
+            REQUESTED_SKILLS[$1]=1
+            ;;
+        *) args+=("$1") ;;
+    esac
+    shift
 done
 
 [ ${#args[@]} -gt 0 ] || args=("${!PROVIDERS[@]}")
@@ -75,6 +96,13 @@ for provider in "${args[@]}"; do
     capture_skills "$provider" "${SKILL_TARGETS[$provider]-}"
     if [ "$provider" = codex ]; then
         capture_skills "$provider" "$HOME/.codex/skills"
+    fi
+done
+
+for name in "${!REQUESTED_SKILLS[@]}"; do
+    if [ -z "${FOUND_SKILLS[$name]-}" ]; then
+        echo "✗ requested new skill $name was not found in the selected providers" >&2
+        FAILED=1
     fi
 done
 

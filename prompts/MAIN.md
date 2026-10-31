@@ -1,7 +1,7 @@
 # Installation index
 
-Run commands from the dotfiles repository root. The [knowledge index](knowledge/INDEX.md)
-is the topic navigation entry point; this page covers installation and repair.
+Run commands from the dotfiles repository root. This page covers installation
+and repair.
 
 | Resource | Installation role | Open when |
 | --- | --- | --- |
@@ -22,10 +22,14 @@ it up under `$XDG_STATE_HOME/dotfiles/knowledge-backups/`.
 provider-owned skills remain in place; a conflicting personal skill stops the
 link unless `--force` backs it up under
 `$XDG_STATE_HOME/dotfiles/skill-backups/`.
+A personal skill is a directory with `SKILL.md`; its `name` must match the
+directory name.
 
-`./prompts/capture.sh PROVIDER` imports new provider-written skills or agents
-for review. Do not capture provider-owned skills into the personal shared
-directory. Reconcile conflicting edits manually before linking them again.
+`./prompts/capture.sh PROVIDER` captures provider-written agents and checks
+existing shared skills for conflicts. To import a new personal skill, name it
+explicitly: `./prompts/capture.sh --skill NAME PROVIDER`. Other new provider
+skills remain in place. Reconcile conflicting edits manually before linking
+them again.
 
 Run `./scripts/validate-prompts.py` after editing documentation or skills to
-check local links, portable paths, and skill names.
+check links, navigation, entry-point budgets, portable paths, and skill names.
