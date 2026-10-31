@@ -3,6 +3,7 @@
 ## Git
 
 - Run `git fetch` before inferring repository state from local refs.
+- Push completed commits to the configured remote before handing work back. This is a standing user preference across tools; do not wait for a separate push request. If the remote rejects the push or authentication is unavailable, report the failure without rewriting history or including unrelated changes.
 
 ## Managed machine configuration
 
