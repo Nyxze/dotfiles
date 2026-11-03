@@ -55,6 +55,32 @@ class DisplayIPCExpressions(unittest.TestCase):
         apply_mirror({"name": "eDP-1", "mirrorOf": "1"}, {"name": "DP-2", "id": 2})
         self.assertEqual(actions, ["unmirror", "enable_external", "mirror"])
 
+    def test_external_output_uses_preferred_when_current_mode_is_not_advertised(self):
+        enable_external = self.module["enable_external"]
+        calls = []
+        enable_external.__globals__["set_monitor"] = lambda *args: calls.append(args)
+        enable_external({
+            "name": "HDMI-A-1",
+            "width": 1920,
+            "height": 1080,
+            "refreshRate": 119.98,
+            "availableModes": ["1280x800@59.81Hz", "1920x1080@60.00Hz"],
+        })
+        self.assertEqual(calls, [("HDMI-A-1", "preferred", "auto-left", 1)])
+
+    def test_external_output_keeps_advertised_current_mode(self):
+        enable_external = self.module["enable_external"]
+        calls = []
+        enable_external.__globals__["set_monitor"] = lambda *args: calls.append(args)
+        enable_external({
+            "name": "HDMI-A-1",
+            "width": 1920,
+            "height": 1080,
+            "refreshRate": 119.98,
+            "availableModes": ["1920x1080@119.98Hz"],
+        })
+        self.assertEqual(calls, [("HDMI-A-1", "1920x1080@119.98", "auto-left", 1)])
+
 
 if __name__ == "__main__":
     unittest.main()

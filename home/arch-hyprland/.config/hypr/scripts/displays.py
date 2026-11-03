@@ -111,7 +111,9 @@ def enable_internal(name, position="auto-right"):
 def enable_external(monitor, position="auto-left"):
     mode = "preferred"
     if not monitor.get("disabled") and monitor.get("width"):
-        mode = f'{monitor["width"]}x{monitor["height"]}@{monitor["refreshRate"]:g}'
+        current = f'{monitor["width"]}x{monitor["height"]}@{monitor["refreshRate"]:.2f}Hz'
+        if current in monitor.get("availableModes", []):
+            mode = current.removesuffix("Hz")
     set_monitor(monitor["name"], mode, position, 1)
 
 
