@@ -2,7 +2,6 @@
 
 import json
 import os
-import socket
 import subprocess
 import sys
 import time
@@ -114,7 +113,8 @@ def enable_external(monitor, position="auto-left"):
         current = f'{monitor["width"]}x{monitor["height"]}@{monitor["refreshRate"]:.2f}Hz'
         if current in monitor.get("availableModes", []):
             mode = current.removesuffix("Hz")
-    set_monitor(monitor["name"], mode, position, 1)
+    output = f'desc:{monitor["description"]}' if monitor.get("description") else monitor["name"]
+    set_monitor(output, mode, position, 1)
 
 
 def apply_extend(internal, external):
@@ -187,14 +187,14 @@ def apply(mode=None, remember=False, quiet=False):
             notify("No internal display detected")
         return False
 
+    if remember:
+        remember_mode(mode)
+
     if mode != "internal" and not external:
         apply_internal(internal["name"])
         if not quiet:
             notify("No external display detected; using the internal display")
         return False
-
-    if remember:
-        remember_mode(mode)
 
     if mode == "extend":
         apply_extend(internal, external)
@@ -205,7 +205,8 @@ def apply(mode=None, remember=False, quiet=False):
     else:
         apply_internal(internal["name"])
         if external:
-            set_monitor(external["name"], disabled=True)
+            output = f'desc:{external["description"]}' if external.get("description") else external["name"]
+            set_monitor(output, disabled=True)
 
     if not quiet:
         label = next(label for label, value in MODES.items() if value == mode)
@@ -231,31 +232,10 @@ def menu():
         apply(MODES[choice], remember=True)
 
 
-def event_socket_path():
-    runtime = Path(os.environ["XDG_RUNTIME_DIR"])
-    signature = os.environ["HYPRLAND_INSTANCE_SIGNATURE"]
-    return runtime / "hypr" / signature / ".socket2.sock"
-
-
-def watch():
-    path = event_socket_path()
-    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
-        client.connect(str(path))
-        stream = client.makefile()
-        for event in stream:
-            if not event.startswith(("monitoradded", "monitorremoved")):
-                continue
-            time.sleep(0.3)
-            apply(quiet=True)
-
-
 def main():
     command = sys.argv[1] if len(sys.argv) > 1 else "menu"
     if command == "menu":
         menu()
-        return
-    if command == "watch":
-        watch()
         return
     if command == "apply":
         apply(quiet=True)

@@ -7,7 +7,14 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("uwsm app -- hypridle")
     hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_TYPE && systemctl --user restart endfield-quickshell.service")
     hl.exec_cmd(scripts .. "displays.py apply")
-    hl.exec_cmd(scripts .. "displays.py watch")
+end)
+
+hl.on("monitor.added", function()
+    hl.exec_cmd(scripts .. "displays.py apply")
+end)
+
+hl.on("monitor.removed", function()
+    hl.exec_cmd(scripts .. "displays.py apply")
 end)
 
 hl.on("config.reloaded", function()

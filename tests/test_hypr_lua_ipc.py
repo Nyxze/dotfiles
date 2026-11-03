@@ -81,6 +81,31 @@ class DisplayIPCExpressions(unittest.TestCase):
         })
         self.assertEqual(calls, [("HDMI-A-1", "1920x1080@119.98", "auto-left", 1)])
 
+    def test_external_mode_is_bound_to_display_description(self):
+        enable_external = self.module["enable_external"]
+        calls = []
+        enable_external.__globals__["set_monitor"] = lambda *args: calls.append(args)
+        enable_external({
+            "name": "HDMI-A-1",
+            "description": "Seiko Epson Corporation EPSON PJ 0x01010101",
+            "width": 1920,
+            "height": 1080,
+            "refreshRate": 119.98,
+            "availableModes": ["1280x800@59.81Hz", "1920x1080@60.00Hz"],
+        })
+        self.assertEqual(calls, [("desc:Seiko Epson Corporation EPSON PJ 0x01010101", "preferred", "auto-left", 1)])
+
+    def test_mode_selected_before_connection_is_used_on_next_hotplug(self):
+        apply = self.module["apply"]
+        globals_ = apply.__globals__
+        remembered = []
+        globals_["split_outputs"] = lambda: ({"name": "eDP-1"}, None)
+        globals_["remember_mode"] = remembered.append
+        globals_["apply_internal"] = lambda *args: None
+
+        self.assertFalse(apply("mirror", remember=True, quiet=True))
+        self.assertEqual(remembered, ["mirror"])
+
 
 if __name__ == "__main__":
     unittest.main()
