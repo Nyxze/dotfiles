@@ -59,7 +59,7 @@ switch() {
     fi
 }
 
-if tmux has-session -t="$selected_name" 2>/dev/null; then
+if tmux has-session -t "=$selected_name" 2>/dev/null; then
     switch
     exit 0
 fi

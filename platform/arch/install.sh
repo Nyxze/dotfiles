@@ -33,6 +33,9 @@ else
     echo "✓ official packages already installed"
 fi
 
+sudo systemctl enable --now avahi-daemon.service
+sudo sed -i '/^hosts:/ { /mdns4_minimal/! s/^hosts:[[:space:]]*/hosts: mdns4_minimal [NOTFOUND=return] /; }' /etc/nsswitch.conf
+
 if ! command -v yay >/dev/null; then
     yay_build_dir=$(mktemp -d)
     trap 'rm -rf -- "$yay_build_dir"' EXIT

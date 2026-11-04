@@ -12,7 +12,7 @@ description: Create a selective conventional commit with the user's commiter scr
 3. Run `commiter "type(scope): description" path...`. It stages the listed paths
    and creates the commit. Never amend or call `git commit` directly.
 4. Verify the new commit and push it to the configured remote, following the
-   [shared Git workflow](../../knowledge/development/git.md).
+   [shared Git workflow](../../knowledge/git.md).
 
 If a path's ownership is unclear, leave it out and ask. If `commiter` fails,
 report its error before deciding whether a retry is safe.

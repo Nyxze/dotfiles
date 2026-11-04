@@ -50,10 +50,10 @@ _known_hosts() {
         [[ -r "$file" ]] || continue
 
         awk '
-            $1 !~ /^#/ && $1 !~ /^@/ && $1 !~ /^\\|/ {
+            $1 !~ /^#/ && $1 !~ /^@/ && substr($1, 1, 1) != "|" {
                 count = split($1, hosts, ",")
                 for (i = 1; i <= count; i++) {
-                    if (match(hosts[i], /^\\[([^]]+)\\]:([0-9]+)$/, parts)) {
+                    if (match(hosts[i], /^\[([^]]+)\]:([0-9]+)$/, parts)) {
                         print parts[1] "\t" parts[2]
                     } else {
                         print hosts[i] "\t"

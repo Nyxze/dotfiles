@@ -14,7 +14,7 @@ open_folder() {
     local folder="$1" name
     name=$(basename "$folder" | tr ':,. ' '____')
 
-    if ! tmux has-session -t="=$name" 2>/dev/null; then
+    if ! tmux has-session -t "=$name" 2>/dev/null; then
         tmux new-session -ds "$name" -c "$folder"
         tmux send-keys -t "=$name:" 'run-tmux' C-m
     fi
@@ -23,7 +23,7 @@ open_folder() {
 
 open_host() {
     local host="$1" command
-    if ! tmux has-session -t="=$host" 2>/dev/null; then
+    if ! tmux has-session -t "=$host" 2>/dev/null; then
         tmux new-session -ds "$host"
         printf -v command 'ssh -- %q' "$host"
         tmux send-keys -t "=$host:" "$command" C-m

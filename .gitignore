@@ -20,5 +20,5 @@ system/sddm/themes/endfield/ground.png
 home/common/.config/theme/greeter.svg
 
 # Local Codex policy and generated Python bytecode.
-.codex/
+/.codex/
 __pycache__/

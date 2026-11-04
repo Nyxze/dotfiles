@@ -29,12 +29,12 @@ compare changed files with the last synchronized checksum, regardless of file
 timestamps. Reconcile differences before retrying; `--force` explicitly discards
 one side. Pass exact home-relative paths when other files in a component are
 outside the task.
-Follow the shared [managed-configuration procedure](prompts/knowledge/machine/managed-configuration.md)
+Follow the shared [managed-configuration procedure](prompts/knowledge/machine.md)
 for all machine changes, including requests made from another project.
 
 `AGENTS.md`, `DESIGN.md`, `README.md`, `TODO.md`, `CLAUDE.md`, PDFs, and
 `icon-theme.cache` are documentation or generated artifacts and are not
-deployed. Use the [installation index](prompts/MAIN.md) for shared instructions,
+deployed. Use the [agent resource guide](prompts/README.md) for shared instructions,
 personal skills, and provider links.
 Verify changes against the live copy after deployment.
 

@@ -40,3 +40,6 @@ Interpret creatively and make unexpected choices that feel genuinely designed fo
 **IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
 
 Aim for extraordinary creative work. Don't hold back; commit fully to a distinctive vision.
+
+Source: [Anthropic frontend-design](https://github.com/anthropics/skills/tree/main/skills/frontend-design).
+Terms: [Apache License 2.0](LICENSE.txt).

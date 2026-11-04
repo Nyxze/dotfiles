@@ -3,7 +3,6 @@
 set -euo pipefail
 
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-source "$repo_root/prompts/providers.sh"
 
 usage() {
     cat <<'EOF'
@@ -85,7 +84,7 @@ for provider in "${providers[@]}"; do
         selected=(codex claude-code opencode)
         break
     fi
-    if [ -z "${SKILL_TARGETS[$provider]-}" ]; then
+    if [[ ! "$provider" =~ ^(codex|claude-code|opencode)$ ]]; then
         echo "Unknown provider: $provider. Use --help for choices." >&2
         exit 2
     fi

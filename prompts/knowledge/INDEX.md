@@ -1,10 +1,14 @@
 # Knowledge index
 
-Choose a topic from this index; each topic points to narrower procedures.
+Open only the references relevant to the task. These pages own the standing
+rules; skills supply task workflows.
 
 | Topic | Open when |
 | --- | --- |
-| [Development](development/INDEX.md) | Changing code, Git state, or architecture in any repository. |
-| [Machine configuration](machine/INDEX.md) | Changing OS, desktop, shell, or other managed personal configuration. |
-| [Interactive operations](operations/INDEX.md) | Running commands that need input or checking a desktop UI. |
-| [Agent resources](agent-workflow/INDEX.md) | Editing shared knowledge or skills, or repairing provider installation. |
+| [Git](git.md) | Inspecting remote state, committing, or finishing repository changes. |
+| [Development](development.md) | Designing, organizing, or writing code, documentation, interfaces, reports, and slides. |
+| [Machine configuration](machine.md) | Changing deployed personal configuration from any project. |
+| [Interactive operations](operations.md) | Running commands needing input or testing a desktop UI. |
+| [Maintenance](maintenance.md) | Editing shared instructions, references, skills, or tooling. |
+| [Personal skills](../skills/INDEX.md) | Selecting a reusable task workflow. |
+| [Installation and providers](../README.md) | Installing, importing, or diagnosing agent resources. |

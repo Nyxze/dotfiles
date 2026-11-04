@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 TERMINAL_PACMAN_PACKAGES=(
+    avahi
     base-devel
     btop
     docker
@@ -14,6 +15,7 @@ TERMINAL_PACMAN_PACKAGES=(
     mise
     neovim
     nmap
+    nss-mdns
     openssh
     python
     ripgrep

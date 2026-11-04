@@ -175,12 +175,14 @@ QtObject {
         }, pending);
         delete nextPending[message.id];
         pending = nextPending;
-        if (!message.ok) {
+        if (!message.ok)
             failed(request.operation, failureMessage(message), request.context);
-            return ;
-        }
-        succeeded(request.operation, message.result || {
-        }, request.context);
+        else
+            succeeded(request.operation, message.result || {
+            }, request.context);
+
+        if (Object.keys(pending).length === 0)
+            commandSocket.connected = false;
     }
 
     function handleWatchLine(line) {
@@ -277,9 +279,9 @@ QtObject {
         onConnectedChanged: client.handleCommandConnection(connected)
         onError: (errorCode) => {
             console.warn("mimiclip command socket error; commandReady=" + client.commandReady + ", watchReady=" + client.watchReady);
+            client.handleCommandConnection(false);
+            Qt.callLater(() => client.commandSocket.connected = false);
             client.reportTransportError();
-            if (client.queued.length > 0)
-                client.scheduleCommandReconnect();
 
         }
 
@@ -298,8 +300,9 @@ QtObject {
         onConnectedChanged: client.handleWatchConnection(connected)
         onError: (errorCode) => {
             console.warn("mimiclip watch socket error; commandReady=" + client.commandReady + ", watchReady=" + client.watchReady);
+            client.handleWatchConnection(false);
+            Qt.callLater(() => client.watchSocket.connected = false);
             client.reportTransportError();
-            client.scheduleWatchReconnect();
         }
 
         parser: SplitParser {

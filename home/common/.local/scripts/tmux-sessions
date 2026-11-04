@@ -16,13 +16,13 @@ switch() {
 
 open_session() {
     local name="$1"
-    tmux has-session -t="=$name" 2>/dev/null || tmux new-session -ds "$name" -c "$HOME"
+    tmux has-session -t "=$name" 2>/dev/null || tmux new-session -ds "$name" -c "$HOME"
     switch "$name"
 }
 
 open_host() {
     local host="$1" command
-    if ! tmux has-session -t="=$host" 2>/dev/null; then
+    if ! tmux has-session -t "=$host" 2>/dev/null; then
         tmux new-session -ds "$host"
         printf -v command 'ssh -- %q' "$host"
         tmux send-keys -t "=$host:" "$command" C-m
@@ -63,7 +63,7 @@ rows() {
     # A host already holding a session is that session, not a second way in.
     while read -r host; do
         [ -n "$host" ] || continue
-        tmux has-session -t="=$host" 2>/dev/null && continue
+        tmux has-session -t "=$host" 2>/dev/null && continue
         printf 'host:%s\t \t󰒋\t%s\tssh\n' "$host" "$host"
     done < <(hosts)
 

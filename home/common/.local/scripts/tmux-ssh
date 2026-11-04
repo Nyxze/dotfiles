@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 account="${1:-}"
-user_host=$(ssh-select --print "$account")
+user_host=$("$HOME/.local/scripts/ssh-select" --print "$account")
 [[ -n "$user_host" ]] || exit 0
 
 selected=$(ssh -n -o ConnectTimeout=10 "$user_host" "find ~ -mindepth 1 -maxdepth 1 -type d 2>/dev/null" | fzf --prompt="Select project: ")
@@ -22,7 +22,7 @@ switch() {
     fi
 }
 
-if tmux has-session -t="=$selected_name" 2>/dev/null; then
+if tmux has-session -t "=$selected_name" 2>/dev/null; then
     switch
     exit 0
 fi
