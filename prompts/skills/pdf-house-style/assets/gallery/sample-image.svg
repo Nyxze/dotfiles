@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#edf2f5"/>
+      <stop offset="1" stop-color="#c5d6df"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8da9b8"/>
+      <stop offset="1" stop-color="#3c6680"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#background)"/>
+  <circle cx="944" cy="148" r="165" fill="#d9e5e9" opacity="0.75"/>
+  <circle cx="209" cy="563" r="255" fill="#d1e0e6" opacity="0.7"/>
+  <rect x="175" y="127" width="850" height="420" rx="20" fill="#ffffff" opacity="0.78"/>
+  <rect x="215" y="168" width="365" height="338" rx="12" fill="url(#panel)"/>
+  <rect x="613" y="182" width="330" height="20" rx="10" fill="#456983" opacity="0.62"/>
+  <rect x="613" y="240" width="290" height="13" rx="6" fill="#9ab1bd"/>
+  <rect x="613" y="274" width="315" height="13" rx="6" fill="#adbfca"/>
+  <rect x="613" y="308" width="265" height="13" rx="6" fill="#adbfca"/>
+  <rect x="613" y="374" width="146" height="70" rx="11" fill="#e6eff2"/>
+  <rect x="781" y="374" width="146" height="70" rx="11" fill="#d7e5e8"/>
+</svg>

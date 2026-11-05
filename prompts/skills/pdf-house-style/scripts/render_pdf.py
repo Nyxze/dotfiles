@@ -3,7 +3,7 @@
 # dependencies = ["Markdown>=3.11,<4", "PyYAML>=6,<7", "weasyprint>=70,<71"]
 # ///
 
-"""Render a self-contained technical report from Markdown to PDF."""
+"""Render a Markdown document in the reusable PDF house style."""
 
 import argparse
 from html import escape, unescape
@@ -23,7 +23,16 @@ LABELS = {
 }
 
 
-def read_document(path: Path) -> tuple[dict[str, str], str]:
+def boolean_option(raw: dict, key: str) -> bool:
+    value = raw.get(key, True)
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str) and value.lower() in {"true", "false"}:
+        return value.lower() == "true"
+    raise ValueError(f"The {key} field must be true or false.")
+
+
+def read_document(path: Path) -> tuple[dict[str, str], dict[str, bool], str]:
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---\n"):
         raise ValueError("The Markdown file must start with YAML front matter.")
@@ -34,8 +43,11 @@ def read_document(path: Path) -> tuple[dict[str, str], str]:
     raw = yaml.safe_load(text[4:end])
     if not isinstance(raw, dict):
         raise ValueError("The YAML front matter must contain key-value fields.")
+    options = {key: boolean_option(raw, key) for key in ("cover", "toc")}
     metadata = {}
     for key, value in raw.items():
+        if key in options:
+            continue
         if not isinstance(key, str) or isinstance(value, (dict, list)) or value is None:
             raise ValueError(f"Invalid metadata field: {key!r}")
         metadata[key] = str(value).strip()
@@ -48,7 +60,7 @@ def read_document(path: Path) -> tuple[dict[str, str], str]:
     for image in re.findall(r"!\[[^\]]*\]\(([^)]+)\)", body):
         if "://" in image or not (path.parent / image).is_file():
             raise ValueError(f"Image is missing or not local: {image}")
-    return metadata, body
+    return metadata, options, body
 
 
 def contents(body: str) -> str:
@@ -72,7 +84,7 @@ def contents(body: str) -> str:
     return "\n".join(entries)
 
 
-def render_html(metadata: dict[str, str], body: str) -> str:
+def render_html(metadata: dict[str, str], options: dict[str, bool], body: str) -> str:
     fields = {key: escape(value) for key, value in metadata.items()}
     language = metadata.get("lang", "fr").split("-")[0].lower()
     labels = LABELS.get(language, LABELS["en"])
@@ -84,12 +96,7 @@ def render_html(metadata: dict[str, str], body: str) -> str:
     )
     cover_metadata = f'<div class="cover-metadata">{cover_details}</div>' if cover_details else ""
     subtitle = f'<p>{fields["subtitle"]}</p>' if fields.get("subtitle") else ""
-    toc = contents(body)
-    return f'''<!doctype html>
-<html lang="{escape(metadata.get('lang', 'fr'), quote=True)}">
-<head><meta charset="utf-8"><title>{fields['title']}</title></head>
-<body>
-  <section class="cover">
+    cover = f'''<section class="cover">
     <div class="cover-kicker">{kicker}</div>
     <div class="cover-main">
       <h1>{fields['title']}</h1>
@@ -97,12 +104,18 @@ def render_html(metadata: dict[str, str], body: str) -> str:
       {subtitle}
     </div>
     {cover_metadata}
-  </section>
-  <nav class="toc" aria-label="{labels['contents']}">
+  </section>''' if options["cover"] else ""
+    toc = f'''<nav class="toc" aria-label="{labels['contents']}">
     <div class="toc-kicker">{escape(metadata.get('footer', metadata['title']))}</div>
     <h1>{labels['contents']}</h1>
-    <div class="toc-entries">{toc}</div>
-  </nav>
+    <div class="toc-entries">{contents(body)}</div>
+  </nav>''' if options["toc"] else ""
+    return f'''<!doctype html>
+<html lang="{escape(metadata.get('lang', 'fr'), quote=True)}">
+<head><meta charset="utf-8"><title>{fields['title']}</title></head>
+<body>
+  {cover}
+  {toc}
   <main class="report">{body}</main>
 </body></html>'''
 
@@ -116,9 +129,9 @@ def main() -> None:
     source = args.source.resolve()
     output = args.output.resolve()
     try:
-        metadata, document = read_document(source)
+        metadata, options, document = read_document(source)
         body = markdown.markdown(document, extensions=["tables", "fenced_code", "toc", "attr_list"])
-        html = render_html(metadata, body)
+        html = render_html(metadata, options, body)
     except (OSError, ValueError, yaml.YAMLError) as error:
         parser.error(str(error))
 

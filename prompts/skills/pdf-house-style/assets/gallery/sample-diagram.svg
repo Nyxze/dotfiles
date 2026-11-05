@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="420" viewBox="0 0 1000 420">
+  <rect width="1000" height="420" fill="#ffffff"/>
+  <g fill="#edf2f5" stroke="#cad7df" stroke-width="2">
+    <rect x="65" y="120" width="240" height="160" rx="10"/>
+    <rect x="380" y="120" width="240" height="160" rx="10"/>
+    <rect x="695" y="120" width="240" height="160" rx="10"/>
+  </g>
+  <g stroke="#597b9a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M305 200 H364"/><path d="M351 188 L364 200 L351 212"/>
+    <path d="M620 200 H679"/><path d="M666 188 L679 200 L666 212"/>
+  </g>
+  <g font-family="Poppins" font-size="30" font-weight="600" fill="#18324b" text-anchor="middle">
+    <text x="185" y="210">Input</text>
+    <text x="500" y="210">Step</text>
+    <text x="815" y="210">Output</text>
+  </g>
+</svg>

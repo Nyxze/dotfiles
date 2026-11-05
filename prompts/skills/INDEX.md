@@ -10,4 +10,4 @@
 | [self-contained-prose](self-contained-prose/SKILL.md) | Removing session context from prose others will read. |
 | [repository-architecture](repository-architecture/SKILL.md) | Documenting an unfamiliar repository as an architecture guide. |
 | [maintain-skills](maintain-skills/SKILL.md) | Creating or revising a personal skill shared across providers. |
-| [technical-pdf-report](technical-pdf-report/SKILL.md) | Creating professional technical or academic PDF reports with the Poppins house style. |
+| [pdf-house-style](pdf-house-style/SKILL.md) | Creating or restyling any PDF with the restrained Poppins visual style and reusable components. |

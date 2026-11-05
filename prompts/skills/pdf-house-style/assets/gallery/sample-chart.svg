@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="540" viewBox="0 0 1000 540">
+  <rect width="1000" height="540" fill="#ffffff"/>
+  <g stroke="#d8e2e8" stroke-width="2">
+    <line x1="110" y1="420" x2="920" y2="420"/>
+    <line x1="110" y1="340" x2="920" y2="340"/>
+    <line x1="110" y1="260" x2="920" y2="260"/>
+    <line x1="110" y1="180" x2="920" y2="180"/>
+    <line x1="110" y1="100" x2="920" y2="100"/>
+  </g>
+  <g fill="#536575" font-family="Poppins" font-size="19">
+    <text x="95" y="427" text-anchor="end">0</text>
+    <text x="95" y="347" text-anchor="end">25</text>
+    <text x="95" y="267" text-anchor="end">50</text>
+    <text x="95" y="187" text-anchor="end">75</text>
+    <text x="95" y="107" text-anchor="end">100</text>
+    <text x="170" y="459" text-anchor="middle">A</text>
+    <text x="385" y="459" text-anchor="middle">B</text>
+    <text x="600" y="459" text-anchor="middle">C</text>
+    <text x="815" y="459" text-anchor="middle">D</text>
+    <text x="515" y="508" text-anchor="middle">Category</text>
+    <text x="26" y="260" text-anchor="middle" transform="rotate(-90 26 260)">Value (unit)</text>
+  </g>
+  <path d="M170 356 L385 292 L600 228 L815 164" fill="none" stroke="#183b55" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M170 388 L385 324 L600 340 L815 244" fill="none" stroke="#009fb1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#183b55">
+    <circle cx="170" cy="356" r="7"/><circle cx="385" cy="292" r="7"/><circle cx="600" cy="228" r="7"/><circle cx="815" cy="164" r="7"/>
+  </g>
+  <g fill="#009fb1">
+    <circle cx="170" cy="388" r="7"/><circle cx="385" cy="324" r="7"/><circle cx="600" cy="340" r="7"/><circle cx="815" cy="244" r="7"/>
+  </g>
+  <g font-family="Poppins" font-size="18" fill="#31485b">
+    <line x1="696" y1="45" x2="738" y2="45" stroke="#183b55" stroke-width="5"/><text x="750" y="51">Series A</text>
+    <line x1="696" y1="74" x2="738" y2="74" stroke="#009fb1" stroke-width="5"/><text x="750" y="80">Series B</text>
+  </g>
+</svg>
