@@ -2,4 +2,4 @@
 set -euo pipefail
 
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-exec python3 "$repo_root/scripts/agent-resources.py" install "$@"
+exec python3 "$repo_root/scripts/managents" setup "$@"

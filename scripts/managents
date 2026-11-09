@@ -1,0 +1,525 @@
+#!/usr/bin/env python3
+"""Manage the shared agent configuration: .agents is the source of truth for AGENTS.md and skills.
+
+  managents setup [--dry-run] [--force]     link every agent to .agents (and managents itself into ~/.local/bin)
+  managents check                           exit 1 when something is not linked
+  managents status [--json]                 entry files, docs and skills per agent
+  managents skills ls [--json]              every skill with its scope: global, or the agent that owns it
+  managents skills promote NAME global      make an agent's skill global (shared by every agent)
+
+Output goes to stdout and errors to stderr. Every command that writes takes --dry-run, nothing prompts,
+and a replaced file is backed up first. Exit codes: 0 done or nothing to do, 1 conflict or error.
+"""
+
+import argparse
+from dataclasses import dataclass
+import json
+import os
+from pathlib import Path
+import shutil
+import sys
+import tempfile
+import time
+
+
+ROOT = Path(__file__).resolve().parents[1]
+PER_SKILL, DIRECTORY, NATIVE = "per-skill", "dir", "native"
+EMPTY_INSTRUCTIONS = "# Shared agent instructions\n"
+
+
+def environment_path(name, default):
+    path = Path(os.environ.get(name) or default).expanduser()
+    if not path.is_absolute():
+        raise ValueError(f"{name} must be an absolute path: {path}")
+    return path
+
+
+@dataclass(frozen=True)
+class Provider:
+    name: str
+    entry: Path
+    skills: Path | None
+    mode: str
+
+
+def providers():
+    """How each agent reaches the shared source.
+
+    per-skill: one symlink per skill, so the provider can keep skills of its own beside them.
+    dir:       the whole skills directory is one symlink; the provider can hold no skill of its own.
+    native:    the provider already reads ~/.agents/skills, so nothing is linked.
+    """
+    home = Path.home()
+    codex = environment_path("CODEX_HOME", home / ".codex")
+    claude = environment_path("CLAUDE_CONFIG_DIR", home / ".claude")
+    config = environment_path("XDG_CONFIG_HOME", home / ".config")
+    return [
+        Provider("claude-code", claude / "CLAUDE.md", claude / "skills", PER_SKILL),
+        Provider("codex", codex / "AGENTS.md", None, NATIVE),
+        Provider("opencode", config / "opencode/AGENTS.md", config / "opencode/skills", PER_SKILL),
+    ]
+
+
+def exists(path):
+    return path.exists() or path.is_symlink()
+
+
+def resolves_to(path, source):
+    return path.is_symlink() and path.resolve() == source.resolve()
+
+
+def snapshot(path):
+    """Comparable content of a file or a directory tree."""
+    if path.is_symlink() or not path.is_dir():
+        return {Path("."): path.read_bytes() if path.is_file() else None}
+    tree = {}
+    for item in sorted(path.rglob("*")):
+        relative = item.relative_to(path)
+        if item.is_symlink():
+            tree[relative] = ("link", os.readlink(item))
+        elif item.is_file():
+            tree[relative] = item.read_bytes()
+    return tree
+
+
+def same_content(a, b):
+    return exists(a) and exists(b) and not a.is_symlink() and snapshot(a) == snapshot(b)
+
+
+class Plan:
+    """Collects conflicts first, then applies every change, so a conflict writes nothing."""
+
+    def __init__(self, force, dry_run):
+        self.force = force
+        self.dry_run = dry_run
+        self.errors = []
+        self.steps = []  # (description, function)
+        self.backup = None
+
+    def add(self, description, function):
+        self.steps.append((description, function))
+
+    def backup_path(self, path):
+        if self.backup is None:
+            state = environment_path("XDG_STATE_HOME", Path.home() / ".local/state")
+            root = state / "dotfiles/agent-backups"
+            root.mkdir(parents=True, exist_ok=True)
+            self.backup = Path(tempfile.mkdtemp(prefix=f"setup-{time.strftime('%Y%m%d-%H%M%S')}-", dir=root))
+        destination = self.backup / str(len(list(self.backup.iterdir()))) / path.name
+        destination.parent.mkdir()
+        return destination
+
+    def move_aside(self, path):
+        destination = self.backup_path(path)
+        shutil.move(str(path), str(destination))
+        print(f"Backed up {path} to {destination}")
+
+    def link(self, target, source, via=None, content=None):
+        """Make target a symlink to source (created as `via` when given, to go through ~/.agents).
+
+        `content` is where the source's files are until they are adopted; it is what an existing real
+        target is compared with.
+        """
+        if resolves_to(target, source):
+            return
+        shown = via or source
+        if not exists(target):
+            self.add(f"link {target} -> {shown}", lambda: self._link(target, shown))
+        elif target.is_symlink():
+            self.add(f"relink {target} -> {shown} (was {os.readlink(target)})",
+                     lambda: self._link(target, shown, replace=True))
+        elif same_content(target, content or source) or self.force:
+            self.add(f"back up and link {target} -> {shown}", lambda: self._link(target, shown, backup=True))
+        else:
+            self.errors.append(f"{target}: exists with other content; merge it or use --force to back it up")
+
+    def _link(self, target, source, replace=False, backup=False):
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if replace:
+            target.unlink()
+        if backup:
+            self.move_aside(target)
+        target.symlink_to(source, target_is_directory=Path(source).is_dir())
+        print(f"Linked {target} -> {source}")
+
+    def run(self):
+        if self.errors:
+            raise ValueError("\n".join(self.errors))
+        for description, function in self.steps:
+            if self.dry_run:
+                print(f"Would {description}")
+            else:
+                function()
+        return len(self.steps)
+
+
+def source_dir():
+    return ROOT / ".agents"
+
+
+def home_link():
+    return Path.home() / ".agents"
+
+
+def skill_names(extra=None):
+    """Skills of the source, plus those still waiting in ~/.agents to be adopted."""
+    names = {}
+    for directory in (source_dir() / "skills", extra):
+        if directory is None or not directory.is_dir():
+            continue
+        for path in sorted(directory.iterdir()):
+            if path.name.startswith(".") or not path.is_dir():
+                continue
+            if (path / "SKILL.md").is_file():
+                names.setdefault(path.name, path)
+    return names
+
+
+def seed_instructions(plan):
+    """Create .agents/AGENTS.md from the first live entry file that holds content."""
+    target = source_dir() / "AGENTS.md"
+    if target.is_file():
+        return None
+    seed = EMPTY_INSTRUCTIONS
+    origin = None
+    for provider in providers():
+        entry = provider.entry
+        if entry.is_file() and entry.read_text().strip() and source_dir() not in entry.resolve().parents:
+            seed, origin = entry.read_text(), entry
+            break
+
+    def write():
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(seed)
+        print(f"Created {target}" + (f" from {origin}" if origin else " (empty template)"))
+    plan.add(f"create {target}" + (f" from {origin}" if origin else " (empty template)"), write)
+    return origin
+
+
+def ensure_source(plan):
+    skills = source_dir() / "skills"
+    if not skills.is_dir():
+        plan.add(f"create {skills}", lambda: skills.mkdir(parents=True, exist_ok=True))
+    return seed_instructions(plan)
+
+
+def adopt(plan):
+    """Replace a real ~/.agents with a link to the source, keeping what it holds."""
+    link, source = home_link(), source_dir()
+    if resolves_to(link, source):
+        return
+    if not exists(link) or link.is_symlink():
+        plan.add(f"link {link} -> {source}", lambda: replace_link(link, source))
+        return
+    if not link.is_dir():
+        plan.errors.append(f"{link}: not a directory; move it away first")
+        return
+    children = sorted(link.iterdir())
+    for child in children:
+        destination = source / child.name
+        if child.name == "skills" and child.is_dir() and not child.is_symlink():
+            pairs = [(skill, destination / skill.name) for skill in sorted(child.iterdir())]
+        else:
+            pairs = [(child, destination)]
+        for item, target in pairs:
+            if exists(target) and not same_content(item, target):
+                plan.errors.append(f"{item} differs from {target}; merge it manually")
+
+    def apply():
+        shutil.copytree(link, plan.backup_path(link), symlinks=True)
+        print(f"Backed up {link} before adopting it")
+        for child in children:
+            destination = source / child.name
+            if child.name == "skills" and child.is_dir() and not child.is_symlink():
+                destination.mkdir(parents=True, exist_ok=True)
+                items = [(skill, destination / skill.name) for skill in sorted(child.iterdir())]
+            else:
+                items = [(child, destination)]
+            for item, target in items:
+                if not exists(target):
+                    shutil.move(str(item), str(target))
+                    print(f"Adopted {item} -> {target}")
+        shutil.rmtree(link)
+        replace_link(link, source)
+    plan.add(f"adopt {link} into {source} and link it", apply)
+
+
+def replace_link(link, source):
+    if link.is_symlink():
+        link.unlink()
+    link.symlink_to(source, target_is_directory=True)
+    print(f"Linked {link} -> {source}")
+
+
+def link_docs(plan):
+    """.agents/docs points to the personal knowledge base, so that everything for agents is under ~/.agents."""
+    origin = Path.home() / "work/docs"
+    if origin.is_dir():
+        plan.link(source_dir() / "docs", origin)
+
+
+def link_command(plan):
+    """~/.local/bin/managents -> this script, so that agents can call it by name."""
+    script = ROOT / "scripts/managents"
+    if script.is_file():
+        plan.link(Path.home() / ".local/bin/managents", script)
+
+
+def link_entries(plan, seeded_from):
+    """An entry file the source was seeded from is already preserved there, so it may be replaced."""
+    source = source_dir() / "AGENTS.md"
+    via = home_link() / "AGENTS.md"
+    for provider in providers():
+        plan.link(provider.entry, source, via, content=seeded_from if provider.entry == seeded_from else None)
+
+
+def link_skills(plan, names):
+    skills, via = source_dir() / "skills", home_link() / "skills"
+    for provider in providers():
+        if provider.mode == NATIVE:
+            continue
+        if provider.mode == DIRECTORY:
+            link_skill_directory(plan, provider.skills, skills, via, names)
+            continue
+        for name, path in names.items():
+            plan.link(provider.skills / name, skills / name, via / name, content=path)
+        remove_stale(plan, provider.skills, names)
+
+
+def link_skill_directory(plan, target, skills, via, names):
+    if resolves_to(target, skills):
+        return
+    if target.is_dir() and not target.is_symlink():
+        blocking = [item.name for item in sorted(target.iterdir())
+                    if not (item.name in names and (resolves_to(item, skills / item.name)
+                                                    or same_content(item, skills / item.name)))]
+        if blocking and not plan.force:
+            plan.errors.append(f"{target}: holds skills of its own ({', '.join(blocking)}); use per-skill mode "
+                               "for this provider, or --force to back the directory up")
+            return
+        plan.add(f"back up {target} and link it -> {via}", lambda: link_after_backup(plan, target, via))
+        return
+    plan.link(target, skills, via)
+
+
+def link_after_backup(plan, target, via):
+    plan.move_aside(target)
+    target.symlink_to(via, target_is_directory=True)
+    print(f"Linked {target} -> {via}")
+
+
+def remove_stale(plan, directory, names):
+    """Remove only links into ~/.agents or the source that point at a skill that is gone."""
+    if not directory.is_dir():
+        return
+    for item in sorted(directory.iterdir()):
+        if not item.is_symlink() or item.name in names:
+            continue
+        pointer = os.readlink(item)
+        ours = pointer.startswith(str(home_link())) or pointer.startswith(str(source_dir()))
+        if ours:
+            plan.add(f"remove stale link {item}", lambda item=item: item.unlink())
+
+
+def build_plan(args):
+    plan = Plan(args.force, args.dry_run)
+    seeded_from = ensure_source(plan)
+    adopt(plan)
+    pending = home_link() / "skills"
+    names = skill_names(pending if not home_link().is_symlink() else None)
+    link_entries(plan, seeded_from)
+    link_docs(plan)
+    link_skills(plan, names)
+    link_command(plan)
+    return plan
+
+
+def link_state(target, source):
+    if resolves_to(target, source):
+        return "linked"
+    if not exists(target):
+        return "missing"
+    if target.is_symlink():
+        return "other-link"
+    return "copy" if same_content(target, source) else "differs"
+
+
+def status():
+    """What is shared and how each provider sees it."""
+    skills_dir = source_dir() / "skills"
+    shared = skill_names()
+    report = {
+        "source": str(source_dir()),
+        "home_link": link_state(home_link(), source_dir()),
+        "docs": link_state(source_dir() / "docs", Path.home() / "work/docs") if (Path.home() / "work/docs").is_dir() else "none",
+        "providers": {},
+        "shared_skills": sorted(shared),
+    }
+    for provider in providers():
+        entry = link_state(provider.entry, source_dir() / "AGENTS.md")
+        info = {"mode": provider.mode, "entry": entry, "skills": {}, "own_skills": []}
+        if provider.mode == PER_SKILL:
+            for name in sorted(shared):
+                info["skills"][name] = link_state(provider.skills / name, skills_dir / name)
+            if provider.skills.is_dir():
+                info["own_skills"] = sorted(
+                    path.name for path in provider.skills.iterdir()
+                    if path.name not in shared and path.is_dir() and not path.is_symlink() and (path / "SKILL.md").is_file())
+        elif provider.mode == DIRECTORY:
+            info["skills"] = link_state(provider.skills, skills_dir)
+        report["providers"][provider.name] = info
+    return report
+
+
+def skills_ls():
+    """Every skill with its scope: global, or the provider that owns it."""
+    report = status()
+    rows = []
+    for name in report["shared_skills"]:
+        states = {}
+        for provider, info in report["providers"].items():
+            skills = info["skills"]
+            if info["mode"] == NATIVE:
+                states[provider] = NATIVE
+            else:
+                states[provider] = skills.get(name, "-") if isinstance(skills, dict) else skills
+        rows.append({"name": name, "scope": "global", "providers": states})
+    for provider, info in report["providers"].items():
+        rows.extend({"name": name, "scope": provider, "providers": {provider: "own"}} for name in info["own_skills"])
+    return rows
+
+
+def print_skills(rows):
+    width = max((len(row["name"]) for row in rows), default=4)
+    for row in rows:
+        states = " ".join(f"{provider}={state}" for provider, state in row["providers"].items())
+        print(f"{row['name']:<{width}}  {row['scope']:<12}  {states}")
+
+
+def print_status(report):
+    print(f"source: {report['source']}  (~/.agents: {report['home_link']}, docs: {report['docs']})")
+    print(f"shared skills: {len(report['shared_skills'])}")
+    for name, info in report["providers"].items():
+        print(f"{name} [{info['mode']}]: entry {info['entry']}")
+        if isinstance(info["skills"], dict):
+            states = {}
+            for skill, state in info["skills"].items():
+                states.setdefault(state, []).append(skill)
+            for state, skills in sorted(states.items()):
+                print(f"  {state}: {len(skills)}" + ("" if state == "linked" else f" ({', '.join(skills)})"))
+        elif info["skills"]:
+            print(f"  skills directory: {info['skills']}")
+        if info["own_skills"]:
+            print(f"  own skills: {', '.join(info['own_skills'])}")
+
+
+def promote_plan(args):
+    """Make a skill a provider holds as a real folder global, and link every provider to it."""
+    plan = Plan(args.force, args.dry_run)
+    if not resolves_to(home_link(), source_dir()):
+        plan.errors.append(f"{home_link()} does not link to {source_dir()}: run setup first")
+        return plan
+    per_skill = [provider for provider in providers() if provider.mode == PER_SKILL]
+    if args.origin and args.origin not in [provider.name for provider in per_skill]:
+        plan.errors.append(f"--from: {args.origin} has no per-skill directory; choose one of "
+                           f"{', '.join(provider.name for provider in per_skill)}")
+        return plan
+    skills_dir, via = source_dir() / "skills", home_link() / "skills"
+    for name in [args.name]:
+        if "/" in name or name.startswith("."):
+            plan.errors.append(f"{name}: not a skill name")
+            continue
+        shared = skills_dir / name
+        origins = {provider.name: provider.skills / name for provider in per_skill
+                   if (provider.skills / name).is_dir() and not (provider.skills / name).is_symlink()
+                   and ((provider.skills / name) / "SKILL.md").is_file()}
+        chosen = None
+        if exists(shared):
+            differing = [owner for owner, path in origins.items() if not same_content(path, shared)]
+            if differing:
+                plan.errors.append(f"{name}: {', '.join(differing)} differ from the shared skill; "
+                                   "remove or merge them first")
+                continue
+        else:
+            candidates = {owner: path for owner, path in origins.items() if not args.origin or owner == args.origin}
+            if not candidates:
+                plan.errors.append(f"{name}: no skill folder with a SKILL.md in "
+                                   f"{', '.join(provider.name for provider in per_skill)}")
+                continue
+            first = next(iter(candidates.values()))
+            if any(not same_content(path, first) for path in candidates.values()):
+                plan.errors.append(f"{name}: the copies in {', '.join(candidates)} differ; choose one with --from")
+                continue
+            chosen = first
+
+            def move(chosen=chosen, shared=shared):
+                shutil.copytree(chosen, plan.backup_path(chosen), symlinks=True)
+                shutil.move(str(chosen), str(shared))
+                print(f"Moved {chosen} -> {shared}")
+            plan.add(f"move {chosen} -> {shared}", move)
+        for provider in per_skill:
+            target = provider.skills / name
+            if chosen is not None and target == chosen:
+                plan.add(f"link {target} -> {via / name}",
+                         lambda target=target, name=name: plan._link(target, via / name))
+            else:
+                plan.link(target, shared, via / name, content=chosen or shared)
+    return plan
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(prog="managents", description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    commands = parser.add_subparsers(dest="command", required=True, metavar="COMMAND")
+
+    def writing(command):
+        command.add_argument("--dry-run", action="store_true", help="show the changes without writing")
+        command.add_argument("--force", action="store_true", help="back up conflicting files and replace them")
+
+    writing(commands.add_parser("setup", help="link every agent to .agents"))
+    commands.add_parser("check", help="exit 1 when something is not linked")
+    status_command = commands.add_parser("status", help="entry files, docs and skills per agent")
+    status_command.add_argument("--json", action="store_true", help="machine-readable output")
+    skills = commands.add_parser("skills", help="list skills and change their scope")
+    verbs = skills.add_subparsers(dest="verb", required=True, metavar="VERB")
+    ls = verbs.add_parser("ls", help="every skill with its scope")
+    ls.add_argument("--json", action="store_true", help="machine-readable output")
+    promote = verbs.add_parser("promote", help="make an agent's skill shared by every agent")
+    promote.add_argument("name", help="skill folder name")
+    promote.add_argument("scope", choices=("global",), help="global: shared by every agent")
+    promote.add_argument("--from", dest="origin", metavar="AGENT",
+                         help="take the skill from this agent when several hold a different copy")
+    writing(promote)
+    return parser
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    args.dry_run = getattr(args, "dry_run", False) or args.command == "check"
+    args.force = getattr(args, "force", False)
+    try:
+        if args.command == "status":
+            report = status()
+            print(json.dumps(report, indent=2)) if args.json else print_status(report)
+            return 0
+        if args.command == "skills" and args.verb == "ls":
+            rows = skills_ls()
+            print(json.dumps(rows, indent=2)) if args.json else print_skills(rows)
+            return 0
+        plan = promote_plan(args) if args.command == "skills" else build_plan(args)
+        count = plan.run()
+    except (OSError, ValueError) as error:
+        print(error, file=sys.stderr)
+        return 1
+    if args.command == "check":
+        if count:
+            print(f"{count} changes needed: run `managents setup` to apply them.", file=sys.stderr)
+            return 1
+        print("Everything is linked.")
+        return 0
+    print(f"{'Planned' if args.dry_run else 'Applied'} {count} changes." if count else "Already set up.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

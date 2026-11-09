@@ -29,12 +29,12 @@ compare changed files with the last synchronized checksum, regardless of file
 timestamps. Reconcile differences before retrying; `--force` explicitly discards
 one side. Pass exact home-relative paths when other files in a component are
 outside the task.
-Follow the shared [managed-configuration procedure](prompts/knowledge/machine.md)
+Follow the shared [managed-configuration procedure](.agents/knowledge/machine.md)
 for all machine changes, including requests made from another project.
 
 `AGENTS.md`, `DESIGN.md`, `README.md`, `TODO.md`, `CLAUDE.md`, PDFs, and
 `icon-theme.cache` are documentation or generated artifacts and are not
-deployed. Use the [agent resource guide](prompts/README.md) for shared instructions,
+deployed. Use the [managents skill](.agents/skills/managents/SKILL.md) for shared instructions,
 personal skills, and provider links.
 Verify changes against the live copy after deployment.
 
@@ -58,6 +58,22 @@ match the Arch/Hyprland desktop as closely as X11/i3 allows: workspace
 controls at the top left, the tray at the top right, and no Mint panel or tray
 at the bottom. Switching workspaces must switch the whole layout reliably.
 Keep the native Xfce capabilities available when the i3 integration stops.
+
+## Agent source of truth
+
+`.agents/` holds `AGENTS.md` and `skills/` (personal and CLI-installed skills, with
+`.skill-lock.json`); `docs` is a git-ignored link to the personal knowledge base `~/work/docs`.
+`scripts/managents` manages it: `managents setup` makes `~/.agents` a symlink to `.agents/`, links
+each provider through `~/.agents` (the entry file of Claude Code, Codex and OpenCode, and their
+skills, one link per skill so a provider keeps skills of its own beside them; Codex reads
+`~/.agents/skills` natively) and links itself into `~/.local/bin`. `managents skills ls` lists every
+skill with its scope, and `managents skills promote NAME global` makes an agent's skill shared by
+all of them. The provider table and the `dir` mode (one link for the whole skills directory) are in
+the script. Run `setup` with `--dry-run` first; it stops on a conflict before writing anything, and
+`--force` backs the conflicting file up.
+
+Edit `~/.agents` as if it were the repository: they are the same files. `.agents/` is not under
+`home/`, because `apply-config` copies instead of linking.
 
 ## Endfield
 

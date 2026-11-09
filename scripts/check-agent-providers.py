@@ -13,7 +13,7 @@ import tempfile
 import time
 
 
-SOURCE = Path(__file__).resolve().parents[1] / 'prompts'
+SOURCE = Path(__file__).resolve().parents[1] / '.agents'
 EXPECTED = {p.name for p in (SOURCE / 'skills').iterdir() if (p / 'SKILL.md').is_file()}
 
 
@@ -96,12 +96,12 @@ def probe(provider):
         environment = dict(os.environ)
         if provider == 'codex':
             environment['CODEX_HOME'] = temporary
-            (directory / 'AGENTS.md').symlink_to(SOURCE / 'knowledge/AGENTS.md')
+            (directory / 'AGENTS.md').symlink_to(SOURCE / 'AGENTS.md')
             command = ['codex', 'app-server', '--listen', 'stdio://']
         else:
             environment['CLAUDE_CONFIG_DIR'] = temporary
             environment['DISABLE_AUTOUPDATER'] = '1'
-            (directory / 'CLAUDE.md').symlink_to(SOURCE / 'knowledge/AGENTS.md')
+            (directory / 'CLAUDE.md').symlink_to(SOURCE / 'AGENTS.md')
             (directory / 'skills').mkdir()
             for name in EXPECTED:
                 (directory / 'skills' / name).symlink_to(SOURCE / 'skills' / name)
