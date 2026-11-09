@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Prints a commit message for the staged changes (does not commit).
+# Style is inferred from recent history; ticket (BACK-1234) is taken from the branch name.
+set -euo pipefail
+
+git rev-parse --git-dir >/dev/null 2>&1 || { echo "not a git repository" >&2; exit 1; }
+
+if git diff --cached --quiet; then
+  echo "nothing staged" >&2
+  exit 1
+fi
+
+ticket=$(git branch --show-current | grep -oE '[A-Z]+-[0-9]+' | head -1 || true)
+
+claude -p --model haiku < /dev/null "Write ONE git commit message subject line for the staged diff below.
+Format: type(scope): short imperative description${ticket:+ ($ticket)}
+Scope is the touched package path, as in the recent commits. Max 72 chars, no period, no body.
+Output only the line.
+
+Recent commits (style reference):
+$(git log -10 --format=%s)
+
+Staged files:
+$(git diff --cached --stat)
+
+Staged diff:
+$(git diff --cached | head -c 30000)"
