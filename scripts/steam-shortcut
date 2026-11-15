@@ -1,0 +1,230 @@
+#!/usr/bin/env python3
+"""Manage non-Steam shortcuts in Steam's binary shortcuts.vdf file."""
+
+import argparse
+import os
+from pathlib import Path
+import shutil
+import struct
+import subprocess
+import sys
+import tempfile
+from datetime import datetime, timezone
+import zlib
+
+
+class ShortcutError(Exception):
+    pass
+
+
+def cstring(data, offset):
+    end = data.find(b"\0", offset)
+    if end < 0:
+        raise ShortcutError("Invalid shortcuts.vdf: unterminated string")
+    return data[offset:end], end + 1
+
+
+def parse_object(data, offset):
+    fields = []
+    while offset < len(data):
+        kind = data[offset]
+        offset += 1
+        if kind == 8:
+            return fields, offset, offset - 1
+        key, offset = cstring(data, offset)
+        if kind == 0:
+            value, offset, _ = parse_object(data, offset)
+        elif kind == 1:
+            value, offset = cstring(data, offset)
+        elif kind == 2:
+            if offset + 4 > len(data):
+                raise ShortcutError("Invalid shortcuts.vdf: truncated integer")
+            value = struct.unpack_from("<I", data, offset)[0]
+            offset += 4
+        elif kind == 7:
+            if offset + 8 > len(data):
+                raise ShortcutError("Invalid shortcuts.vdf: truncated integer")
+            value = struct.unpack_from("<Q", data, offset)[0]
+            offset += 8
+        else:
+            raise ShortcutError(f"Unsupported shortcuts.vdf field type: {kind}")
+        fields.append((key, kind, value))
+    raise ShortcutError("Invalid shortcuts.vdf: missing object terminator")
+
+
+def parse_shortcuts(data):
+    if not data or data[0] != 0:
+        raise ShortcutError("Invalid shortcuts.vdf: missing root object")
+    root, offset = cstring(data, 1)
+    if root != b"shortcuts":
+        raise ShortcutError("Invalid shortcuts.vdf: unexpected root object")
+    fields, offset, root_end = parse_object(data, offset)
+    if any(byte != 8 for byte in data[offset:]):
+        raise ShortcutError("Invalid shortcuts.vdf: trailing data")
+    entries = {}
+    for key, kind, value in fields:
+        if kind != 0 or not key.isdigit() or key in entries:
+            raise ShortcutError("Invalid shortcuts.vdf: unexpected shortcut entry")
+        entries[key] = {name.decode("utf-8"): item for name, _, item in value}
+    return entries, root_end
+
+
+def string_field(key, value):
+    return b"\x01" + key.encode("ascii") + b"\0" + value.encode("utf-8") + b"\0"
+
+
+def integer_field(key, value):
+    return b"\x02" + key.encode("ascii") + b"\0" + struct.pack("<I", value)
+
+
+def make_entry(index, appid, name, exe, start_dir, icon, launch_options):
+    return b"".join(
+        (
+            b"\0" + str(index).encode("ascii") + b"\0",
+            integer_field("appid", appid),
+            string_field("AppName", name),
+            string_field("Exe", exe),
+            string_field("StartDir", start_dir),
+            string_field("icon", icon),
+            string_field("ShortcutPath", ""),
+            string_field("LaunchOptions", launch_options),
+            integer_field("IsHidden", 0),
+            integer_field("AllowDesktopConfig", 1),
+            integer_field("AllowOverlay", 1),
+            integer_field("OpenVR", 0),
+            integer_field("Devkit", 0),
+            string_field("DevkitGameID", ""),
+            integer_field("DevkitOverrideAppID", 0),
+            integer_field("LastPlayTime", 0),
+            string_field("FlatpakAppID", ""),
+            string_field("sortas", ""),
+            b"\0tags\0\x08",
+            b"\x08",
+        )
+    )
+
+
+def find_file():
+    home = Path.home()
+    candidates = []
+    for parent in (
+        home / ".steam/debian-installation/userdata",
+        home / ".steam/steam/userdata",
+        home / ".local/share/Steam/userdata",
+    ):
+        candidates.extend(parent.glob("*/config/shortcuts.vdf"))
+    candidates = list(dict.fromkeys(path.resolve() for path in candidates))
+    if len(candidates) != 1:
+        raise ShortcutError(
+            f"Found {len(candidates)} shortcuts.vdf files; pass --file PATH"
+        )
+    return candidates[0]
+
+
+def steam_is_running():
+    result = subprocess.run(
+        ["pgrep", "-u", str(os.getuid()), "-x", "steam"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    return result.returncode == 0
+
+
+def add_shortcut(args, path, data, entries, root_end):
+    target = Path(args.exe).expanduser()
+    if not target.is_absolute():
+        raise ShortcutError("Executable path must be absolute")
+    if not target.is_file() or not os.access(target, os.R_OK):
+        raise ShortcutError(f"Executable is not readable: {target}")
+    start_dir = Path(args.start_dir).expanduser() if args.start_dir else target.parent
+    if not start_dir.is_absolute() or not start_dir.is_dir() or not os.access(start_dir, os.R_OK | os.X_OK):
+        raise ShortcutError(f"Start directory is not accessible: {start_dir}")
+    if args.icon:
+        icon = Path(args.icon).expanduser()
+        if not icon.is_file() or not os.access(icon, os.R_OK):
+            raise ShortcutError(f"Icon is not readable: {icon}")
+        icon_value = str(icon)
+    else:
+        icon_value = ""
+    if not args.name.strip() or any("\0" in value for value in (args.name, args.exe, args.launch_options)):
+        raise ShortcutError("Name and options must be nonempty and contain no NUL bytes")
+
+    exe = f'"{target}"'
+    directory = str(start_dir).rstrip("/") + "/"
+    appid = zlib.crc32((exe + args.name).encode("utf-8")) | 0x80000000
+    for entry in entries.values():
+        existing_name = entry.get("AppName", b"").decode("utf-8")
+        existing_exe = entry.get("Exe", b"").decode("utf-8")
+        if existing_name == args.name and existing_exe == exe:
+            print(f"Already present: {args.name} ({entry.get('appid')})")
+            return
+        if existing_name == args.name:
+            raise ShortcutError(f"Shortcut name already exists: {args.name}")
+        if entry.get("appid") == appid:
+            raise ShortcutError(f"Shortcut AppID collision: {appid}")
+
+    index = max((int(key) for key in entries), default=-1) + 1
+    new_data = data[:root_end] + make_entry(
+        index, appid, args.name, exe, directory, icon_value, args.launch_options
+    ) + data[root_end:]
+    parse_shortcuts(new_data)
+    if args.dry_run:
+        print(f"Would add: {args.name} ({appid}) -> {target}")
+        return
+    if path.name == "shortcuts.vdf" and steam_is_running():
+        raise ShortcutError("Steam is running under this account; stop it before editing shortcuts.vdf")
+
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    backup = path.with_name(f"{path.name}.bak-{timestamp}")
+    shutil.copy2(path, backup)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, prefix=".shortcuts.", delete=False) as stream:
+            temporary = Path(stream.name)
+            os.fchmod(stream.fileno(), path.stat().st_mode & 0o777)
+            stream.write(new_data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+    print(f"Added: {args.name} ({appid}) -> {target}")
+    print(f"Backup: {backup}")
+    print("Restart Steam to load the shortcut.")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--file", type=Path, help="Steam shortcuts.vdf (auto-detected by default)")
+    subcommands = parser.add_subparsers(dest="command", required=True)
+    subcommands.add_parser("list", help="List non-Steam shortcuts")
+    add = subcommands.add_parser("add", help="Add one shortcut")
+    add.add_argument("name", help="Name shown in Steam")
+    add.add_argument("exe", help="Absolute path to the executable")
+    add.add_argument("--start-dir", help="Working directory (defaults to executable directory)")
+    add.add_argument("--icon", help="Icon file")
+    add.add_argument("--launch-options", default="", help="Steam launch options")
+    add.add_argument("--dry-run", action="store_true", help="Validate and show the proposed entry")
+    args = parser.parse_args(argv)
+    try:
+        path = args.file or find_file()
+        data = path.read_bytes()
+        entries, root_end = parse_shortcuts(data)
+        if args.command == "list":
+            for entry in entries.values():
+                name = entry.get("AppName", b"").decode("utf-8")
+                exe = entry.get("Exe", b"").decode("utf-8")
+                print(f"{entry.get('appid')}\t{name}\t{exe}")
+        else:
+            add_shortcut(args, path, data, entries, root_end)
+    except (ShortcutError, OSError, UnicodeError) as error:
+        print(f"steam-shortcut: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
