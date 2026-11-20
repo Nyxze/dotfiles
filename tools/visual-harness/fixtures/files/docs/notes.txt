@@ -1,0 +1,1 @@
+Visual harness fixture: a predictable document with a short name.

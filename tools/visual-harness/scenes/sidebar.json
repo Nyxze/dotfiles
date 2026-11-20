@@ -1,0 +1,56 @@
+{
+  "id": "sidebar",
+  "profile": "arch-hyprland",
+  "description": "Quickshell Endfield settings sidebar",
+  "mode": "1600x900@60",
+  "wait_seconds": 3,
+  "prepare_argv": [
+    "qs",
+    "-c",
+    "endfield",
+    "ipc",
+    "call",
+    "sidebar",
+    "close"
+  ],
+  "argv": [
+    "qs",
+    "-c",
+    "endfield",
+    "ipc",
+    "call",
+    "sidebar",
+    "page",
+    "notifications"
+  ],
+  "cleanup_argv": [
+    "qs",
+    "-c",
+    "endfield",
+    "ipc",
+    "call",
+    "sidebar",
+    "close"
+  ],
+  "window_class": null,
+  "pixel_delta_threshold": 24,
+  "ignore_regions": [
+    [
+      0,
+      0,
+      1600,
+      44
+    ]
+  ],
+  "visual_limits": {
+    "mean_abs": 0.08,
+    "changed_fraction": 0.18
+  },
+  "functional_tests": [
+    "opens on requested screen",
+    "switching page preserves header",
+    "keyboard focus never lost",
+    "Escape closes",
+    "network and audio backend ownership unchanged"
+  ]
+}

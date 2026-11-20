@@ -1,0 +1,33 @@
+{
+  "id": "files",
+  "profile": "arch-hyprland",
+  "description": "Nautilus on controlled fixture directory",
+  "mode": "1600x900@60",
+  "wait_seconds": 4,
+  "argv": [
+    "nautilus",
+    "--new-window",
+    "{fixture}"
+  ],
+  "window_class": "org.gnome.Nautilus",
+  "pixel_delta_threshold": 24,
+  "ignore_regions": [
+    [
+      0,
+      0,
+      1600,
+      44
+    ]
+  ],
+  "visual_limits": {
+    "mean_abs": 0.08,
+    "changed_fraction": 0.18
+  },
+  "functional_tests": [
+    "directory navigation",
+    "back and forward",
+    "multiple selection",
+    "context menu actions",
+    "keyboard navigation"
+  ]
+}

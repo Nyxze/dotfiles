@@ -1,0 +1,32 @@
+{
+  "id": "launcher",
+  "profile": "arch-hyprland",
+  "description": "Rofi drun: keyboard-first application launcher",
+  "mode": "1600x900@60",
+  "wait_seconds": 3,
+  "argv": [
+    "rofi",
+    "-show",
+    "drun"
+  ],
+  "window_class": null,
+  "pixel_delta_threshold": 24,
+  "ignore_regions": [
+    [
+      0,
+      0,
+      1600,
+      44
+    ]
+  ],
+  "visual_limits": {
+    "mean_abs": 0.08,
+    "changed_fraction": 0.18
+  },
+  "functional_tests": [
+    "typing filters applications",
+    "arrow keys move selection",
+    "Enter launches selected desktop entry",
+    "Escape closes without launching"
+  ]
+}
