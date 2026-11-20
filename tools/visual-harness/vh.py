@@ -158,8 +158,16 @@ def capture(name: str) -> dict:
     ]
     if scene.get("window_class"):
         cmd += ["--class", scene["window_class"]]
-    cmd += ["--"] + scene["argv"]
-    result = run(cmd, env=env, timeout=75, check=False)
+    fixture = str(HERE / "fixtures" / "files")
+    expand = lambda argv: [arg.replace("{fixture}", fixture) for arg in argv]
+    if scene.get("prepare_argv"):
+        run(expand(scene["prepare_argv"]), env=env)
+    cmd += ["--"] + expand(scene["argv"])
+    try:
+        result = run(cmd, env=env, timeout=75, check=False)
+    finally:
+        if scene.get("cleanup_argv"):
+            run(expand(scene["cleanup_argv"]), env=env, check=False)
     (directory / "capture.log").write_text(
         "exit=" + str(result.returncode) + "\n" +
         result.stdout[-4000:] + "\n" + result.stderr[-4000:] + "\n"
