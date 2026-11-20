@@ -1,0 +1,38 @@
+{
+  "hypothesis": "A narrower search region and consistent 4px spacing improve readability",
+  "changed_files": [],
+  "visual_review": "not-tested",
+  "reference_kind": "concept",
+  "visual_findings": [
+    {
+      "area": "launcher.search",
+      "severity": "medium",
+      "observation": "Reference geometry has not been independently evaluated",
+      "next_action": "Compare after capture"
+    }
+  ],
+  "functional_checks": [
+    {
+      "test": "typing filters applications",
+      "result": "not-tested",
+      "evidence": "Run the actual keyboard check in the guest VM"
+    },
+    {
+      "test": "arrow keys move selection",
+      "result": "not-tested",
+      "evidence": "Run the actual keyboard check in the guest VM"
+    },
+    {
+      "test": "Enter launches selected desktop entry",
+      "result": "not-tested",
+      "evidence": "Run the actual keyboard check in the guest VM"
+    },
+    {
+      "test": "Escape closes without launching",
+      "result": "not-tested",
+      "evidence": "Run the actual keyboard check in the guest VM"
+    }
+  ],
+  "decision": "iterate",
+  "next_step": "Inspect capture.png and fix the largest geometry discrepancy"
+}
