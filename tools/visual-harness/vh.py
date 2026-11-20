@@ -231,6 +231,54 @@ def evaluate(name: str, actual: Path, reference: Path) -> dict:
     return result
 
 
+def record(directory: Path, report_path: Path) -> dict:
+    """Validate the agent's visual/functional evidence before closing a run."""
+    metadata_path = directory / "run.json"
+    if not metadata_path.is_file() or not (directory / "capture.png").is_file():
+        raise HarnessError("Expected a completed run directory with run.json and capture.png")
+    metadata = json.loads(metadata_path.read_text())
+    scene = scene_data(metadata["scene"])
+    report = json.loads(report_path.read_text())
+    if not isinstance(report.get("hypothesis"), str) or not report["hypothesis"].strip():
+        raise HarnessError("A nonempty hypothesis is required")
+    if not isinstance(report.get("changed_files"), list):
+        raise HarnessError("changed_files must be an array (may be empty for a baseline)")
+    if report.get("visual_review") not in ("pass", "fail", "not-tested"):
+        raise HarnessError("visual_review must be pass, fail or not-tested")
+    if report.get("reference_kind") not in ("concept", "golden", "none"):
+        raise HarnessError("reference_kind must be concept, golden or none")
+    if not isinstance(report.get("visual_findings"), list):
+        raise HarnessError("visual_findings must be an array")
+    checks = report.get("functional_checks")
+    if not isinstance(checks, list) or not all(isinstance(row, dict) for row in checks):
+        raise HarnessError("functional_checks must be a checklist with evidence")
+    expected = set(scene.get("functional_tests", []))
+    actual = [row.get("test") for row in checks]
+    if len(actual) != len(set(actual)) or set(actual) != expected:
+        raise HarnessError("functional_checks must cover every scene check exactly once")
+    for row in checks:
+        if row.get("result") not in ("pass", "fail", "not-tested"):
+            raise HarnessError("Invalid functional result")
+        if not isinstance(row.get("evidence"), str):
+            raise HarnessError("Each functional check needs evidence (or a blocker)")
+    decision = report.get("decision")
+    if decision not in ("iterate", "blocked", "ready-for-review"):
+        raise HarnessError("Invalid decision")
+    if not isinstance(report.get("next_step"), str) or not report["next_step"].strip():
+        raise HarnessError("A concrete next_step is required")
+    if decision == "ready-for-review" and (
+        report["visual_review"] != "pass"
+        or report["reference_kind"] == "none"
+        or any(row["result"] != "pass" for row in checks)
+    ):
+        raise HarnessError("Cannot request review with untested/failed checks or no visual reference")
+    destination = directory / "review.json"
+    if report_path.resolve() != destination.resolve():
+        destination.write_text(json.dumps(report, indent=2) + "\n")
+    return {"status": "recorded", "decision": decision, "review": str(destination),
+            "capture": metadata["capture"], "scene": metadata["scene"]}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -245,6 +293,9 @@ def main() -> None:
     compare.add_argument("scene")
     compare.add_argument("capture", type=Path)
     compare.add_argument("--reference", type=Path, required=True)
+    review = sub.add_parser("record", help="Validate an agent iteration report")
+    review.add_argument("directory", type=Path)
+    review.add_argument("--report", type=Path, required=True)
     args = parser.parse_args()
     try:
         if args.command == "register":
@@ -264,6 +315,9 @@ def main() -> None:
             require_vm()
             result = evaluate(args.scene, args.capture, args.reference)
             emit(result, 0 if result["passed"] else 1)
+        if args.command == "record":
+            require_vm()
+            emit(record(args.directory, args.report))
     except (HarnessError, ValueError, json.JSONDecodeError) as exc:
         emit({"status": "error", "message": str(exc)}, 2)
 
