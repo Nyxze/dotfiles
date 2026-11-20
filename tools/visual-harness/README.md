@@ -46,7 +46,13 @@ Treat AI-generated desktop mockups as *concept boards*, not exact goldens. Save 
 
 A PNG comparison requires matching dimensions and the `python-pillow` package. It produces difference.png and evaluation.json with normalized mean absolute error and changed-pixel fraction. The top bar is masked in the four initial scenes because time/network changes make it unstable. The provided thresholds are **initial heuristics**, not validated acceptance criteria; use human/multimodal judgment for geometry, semantics, readability and interaction. Do not resize images silently. Do not mark a scene approved solely because the comparison passes.
 
-Run `python3 -m unittest discover -s tools/visual-harness/tests -v` for non-GUI harness tests.
+Run `bash tools/visual-harness/check.sh` for non-GUI harness checks (syntax + unit tests). To close an iteration, copy review.example.json, fill in each functional check with actual evidence, and record it:
+
+    cp tools/visual-harness/review.example.json /tmp/launcher-review.json
+    # Edit /tmp/launcher-review.json after testing interactions in the VM.
+    python3 tools/visual-harness/vh.py record tools/visual-harness/artifacts/launcher/<run-id> --report /tmp/launcher-review.json
+
+The record command refuses a ready-for-review decision when any functional check is failed/untested, visual review is not passed, or no visual reference was used. It does not independently certify the report's truthfulness.
 
 ## Determinism and rollback
 

@@ -18,7 +18,7 @@ Scope: visual improvements to the existing Arch/Hyprland + Mint/Xfce/i3 dotfiles
 4. Deploy exactly those files in the VM using apply-config and reload/restart only the affected guest process.
 5. Capture the same scene with the same mode and fixture. Store run.json, capture.png, capture.log; evaluate against an explicitly named same-resolution reference. Observe the rendered PNG directly.
 6. Check functional requirements from the scene JSON. Record pass/fail/not-tested with reproducible evidence; screenshots alone cannot prove interactions.
-7. Diagnose the **largest remaining deviation** and either iterate, revert the patch, or stop blocked. Do not declare success based only on pixel metrics.
+7. Diagnose the **largest remaining deviation** and either iterate, revert the patch, or stop blocked. Complete the report by calling `vh.py record <run-directory> --report <report.json>`; use review.example.json as a schema example. Do not declare success based only on pixel metrics.
 
 ## Exit conditions and stopping rules
 

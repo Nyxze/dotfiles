@@ -50,6 +50,36 @@ class SceneTests(unittest.TestCase):
             self.assertEqual(result["mean_abs"], 0.0)
             self.assertTrue((directory / "difference.png").exists())
 
+    def test_record_requires_real_functional_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            (directory / "capture.png").write_bytes(b"mock png")
+            (directory / "run.json").write_text(json.dumps({
+                "scene": "launcher", "capture": str(directory / "capture.png")
+            }))
+            scene = vh.scene_data("launcher")
+            review = {
+                "hypothesis": "Check geometry",
+                "changed_files": [],
+                "visual_review": "pass",
+                "reference_kind": "concept",
+                "visual_findings": [],
+                "functional_checks": [
+                    {"test": test, "result": "not-tested", "evidence": "Not tested"}
+                    for test in scene["functional_tests"]
+                ],
+                "decision": "ready-for-review",
+                "next_step": "Request review"
+            }
+            report = directory / "report.json"
+            report.write_text(json.dumps(review))
+            with self.assertRaises(vh.HarnessError):
+                vh.record(directory, report)
+            review["decision"] = "iterate"
+            report.write_text(json.dumps(review))
+            self.assertEqual(vh.record(directory, report)["status"], "recorded")
+            self.assertTrue((directory / "review.json").is_file())
+
     def test_eval_size_mismatch_is_not_resized(self):
         try:
             from PIL import Image

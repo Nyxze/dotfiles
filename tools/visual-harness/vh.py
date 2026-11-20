@@ -131,10 +131,15 @@ def doctor(name: str) -> dict:
         raise HarnessError("hyprctl returned invalid monitor JSON") from exc
     if not isinstance(monitors, list):
         raise HarnessError("No monitor list returned by Hyprland")
+    fonts = {}
+    if shutil.which("fc-match"):
+        for family in ("HarmonyOS Sans", "NotoMono Nerd Font"):
+            match = run(["fc-match", "-f", "%{family}", family], check=False).stdout.strip()
+            fonts[family] = {"resolved": match, "matched": family.lower() in match.lower()}
     return {
         "status": "ready", "scene": name, "vm": True,
         "monitors": len(monitors), "preview": str(preview),
-        "session": str(SESSION),
+        "session": str(SESSION), "font_resolution": fonts,
     }
 
 
